@@ -1,4 +1,6 @@
-# README
+# Meduza
+
+[![Ruby](https://github.com/bitzlato/meduza/actions/workflows/ruby.yml/badge.svg)](https://github.com/bitzlato/meduza/actions/workflows/ruby.yml)
 
 This README would normally document whatever steps are necessary to get the
 application up and running.
