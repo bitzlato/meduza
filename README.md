@@ -12,6 +12,7 @@
 
 ```
 cap production systemd:puma:setup
+cap production master_key:setup
 ```
 
 Последующие разы:
