@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/groovenauts/capistrano-systemd-multiservice.git
-  revision: 955b99cc7588521ddc26ccd523ebba306e16fa0a
+  remote: https://github.com/brandymint/capistrano-systemd-multiservice.git
+  revision: 47c98c65aa3d8f601efa4b947faf249c5abc9cab
   specs:
     capistrano-systemd-multiservice (0.1.0.beta12)
       capistrano (>= 3.7.0, < 3.17.0)

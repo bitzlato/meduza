@@ -89,7 +89,7 @@ group :deploy do
   gem 'capistrano-rails-console', require: false
   gem 'capistrano-rbenv', require: false
   gem 'capistrano-shell', require: false
-  gem 'capistrano-systemd-multiservice', github: 'groovenauts/capistrano-systemd-multiservice', require: false
+  gem 'capistrano-systemd-multiservice', github: 'brandymint/capistrano-systemd-multiservice', require: false
   gem 'capistrano-yarn', require: false
 end
 
