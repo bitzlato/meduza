@@ -1,3 +1,18 @@
+GIT
+  remote: https://github.com/groovenauts/capistrano-systemd-multiservice.git
+  revision: 955b99cc7588521ddc26ccd523ebba306e16fa0a
+  specs:
+    capistrano-systemd-multiservice (0.1.0.beta12)
+      capistrano (>= 3.7.0, < 3.17.0)
+
+GIT
+  remote: https://github.com/virgoproz/capistrano-master-key.git
+  revision: aa99a50e41733288a5d4e1884af16385855847de
+  specs:
+    capistrano-master-key (1.0.2)
+      capistrano (~> 3.11)
+      sshkit (~> 1.17)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -39,6 +54,9 @@ GEM
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    active_link_to (1.0.5)
+      actionpack
+      addressable
     activejob (6.1.4.1)
       activesupport (= 6.1.4.1)
       globalid (>= 0.3.6)
@@ -62,12 +80,51 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
+    airbrussh (1.4.0)
+      sshkit (>= 1.6.1, != 1.7.0)
     ast (2.4.2)
     bindex (0.8.1)
     bootsnap (1.9.1)
       msgpack (~> 1.0)
+    bugsnag (6.24.0)
+      concurrent-ruby (~> 1.0)
+    bugsnag-capistrano (2.1.0)
     builder (3.2.4)
     byebug (11.1.3)
+    capistrano (3.16.0)
+      airbrussh (>= 1.0.0)
+      i18n
+      rake (>= 10.0.0)
+      sshkit (>= 1.9.0)
+    capistrano-bundler (2.0.1)
+      capistrano (~> 3.1)
+    capistrano-db-tasks (0.6)
+      capistrano (>= 3.0.0)
+    capistrano-dotenv-tasks (0.1.5)
+      capistrano (~> 3.0)
+    capistrano-faster-assets (1.1.0)
+      capistrano (>= 3.1)
+    capistrano-git-with-submodules (2.0.4)
+      capistrano (~> 3.7)
+    capistrano-nvm (0.0.7)
+      capistrano (~> 3.1)
+    capistrano-rails (1.6.1)
+      capistrano (~> 3.1)
+      capistrano-bundler (>= 1.1, < 3)
+    capistrano-rails-console (2.3.0)
+      capistrano (>= 3.5.0, < 4.0.0)
+      sshkit-interactive (~> 0.3.0)
+    capistrano-rbenv (2.2.0)
+      capistrano (~> 3.1)
+      sshkit (~> 1.3)
+    capistrano-shell (0.2.0)
+      capistrano (~> 3.1)
+    capistrano-yarn (2.0.2)
+      capistrano (~> 3.0)
+    capistrano3-puma (5.2.0)
+      capistrano (~> 3.7)
+      capistrano-bundler
+      puma (>= 4.0, < 6.0)
     capybara (3.36.0)
       addressable
       matrix
@@ -80,10 +137,22 @@ GEM
     childprocess (4.1.0)
     coderay (1.1.3)
     concurrent-ruby (1.1.9)
+    connection_pool (2.2.5)
     crass (1.0.6)
+    dotenv (2.7.6)
+    dotenv-rails (2.7.6)
+      dotenv (= 2.7.6)
+      railties (>= 3.2)
+    enumerize (2.4.0)
+      activesupport (>= 3.2)
     erubi (1.10.0)
+    et-orbi (1.2.6)
+      tzinfo
     ffi (1.15.4)
     formatador (0.3.0)
+    fugit (1.5.2)
+      et-orbi (~> 1.1, >= 1.1.8)
+      raabro (~> 1.4)
     globalid (0.5.2)
       activesupport (>= 5.0)
     guard (2.18.0)
@@ -120,14 +189,20 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.14.4)
+    money (6.16.0)
+      i18n (>= 0.6.4, <= 2)
     msgpack (1.4.2)
     nenv (0.3.0)
+    net-scp (3.0.0)
+      net-ssh (>= 2.6.5, < 7.0.0)
+    net-ssh (6.1.0)
     nio4r (2.5.8)
     nokogiri (1.12.5-x86_64-linux)
       racc (~> 1.4)
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    pagy (5.4.0)
     parallel (1.21.0)
     parser (3.0.2.0)
       ast (~> 2.4.1)
@@ -135,9 +210,15 @@ GEM
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    pry-byebug (3.8.0)
+      byebug (~> 11.0)
+      pry (~> 0.10)
+    pry-rails (0.3.9)
+      pry (>= 0.10.4)
     public_suffix (4.0.6)
     puma (5.5.2)
       nio4r (~> 2.0)
+    raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.3)
     rack-mini-profiler (2.3.3)
@@ -177,6 +258,7 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    redis (4.5.1)
     regexp_parser (2.1.1)
     rexml (3.2.5)
     rubocop (1.23.0)
@@ -206,12 +288,31 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    sd_notify (0.1.1)
     selenium-webdriver (4.0.3)
       childprocess (>= 0.5, < 5.0)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2)
     semantic_range (3.0.0)
+    semver2 (3.4.2)
     shellany (0.0.1)
+    sidekiq (6.3.1)
+      connection_pool (>= 2.2.2)
+      rack (~> 2.0)
+      redis (>= 4.2.0)
+    sidekiq-cron (1.2.0)
+      fugit (~> 1.1)
+      sidekiq (>= 4.2.1)
+    simple_form (5.1.0)
+      actionpack (>= 5.2)
+      activemodel (>= 5.2)
+    slim (4.1.0)
+      temple (>= 0.7.6, < 0.9)
+      tilt (>= 2.0.6, < 2.1)
+    slim-rails (3.3.0)
+      actionpack (>= 3.1)
+      railties (>= 3.1)
+      slim (>= 3.0, < 5.0)
     spring (3.0.0)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
@@ -220,6 +321,12 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    sshkit (1.21.2)
+      net-scp (>= 1.1.2)
+      net-ssh (>= 2.8.0)
+    sshkit-interactive (0.3.0)
+      sshkit (~> 1.12)
+    temple (0.8.2)
     thor (1.1.0)
     tilt (2.0.10)
     turbolinks (5.2.1)
@@ -253,22 +360,53 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  active_link_to
   bootsnap (>= 1.4.4)
+  bugsnag
+  bugsnag-capistrano
   byebug
+  capistrano
+  capistrano-bundler
+  capistrano-db-tasks
+  capistrano-dotenv-tasks
+  capistrano-faster-assets
+  capistrano-git-with-submodules
+  capistrano-master-key!
+  capistrano-nvm
+  capistrano-rails
+  capistrano-rails-console
+  capistrano-rbenv
+  capistrano-shell
+  capistrano-systemd-multiservice!
+  capistrano-yarn
+  capistrano3-puma
   capybara (>= 3.26)
+  dotenv-rails
+  enumerize
   guard
   guard-minitest
   guard-rubocop
   jbuilder (~> 2.7)
   listen (~> 3.3)
+  money (~> 6.16)
+  pagy
   pg (~> 1.1)
+  pry
+  pry-byebug
+  pry-rails
   puma (~> 5.0)
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.4, >= 6.1.4.1)
   rubocop
   rubocop-rails
   sass-rails (>= 6)
+  sd_notify
   selenium-webdriver
+  semver2 (~> 3.4)
+  sidekiq
+  sidekiq-cron
+  simple_form
+  slim-rails
   spring
   turbolinks (~> 5)
   tzinfo-data
