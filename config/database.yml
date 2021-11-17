@@ -81,6 +81,36 @@ test:
 #
 production:
   <<: *default
-  database: meduza_production
-  username: meduza
-  password: <%= ENV['MEDUZA_DATABASE_PASSWORD'] %>
+  url: <%= ENV['MEDUZA_DATABASE_URL'] %>
+
+bitzlato_default: &bitzlato_default
+  adapter: postgresql
+  encoding: utf8
+  schema_search_path: p2p,public
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 8).to_i * ENV.fetch("WEB_CONCURRENCY", 1).to_i %>
+  <% if ENV.key?('BITZLATO_DATABASE_HOST') %>
+  host: <%= ENV.fetch('BITZLATO_DATABASE_HOST', '127.0.0.1') %>
+  <% end %>
+  port: <%= ENV.fetch('BITZLATO_DATABASE_PORT', 5432) %>
+  <% if ENV.key?('BITZLATO_DATABASE_USER') %>
+  username: <%= ENV.fetch('BITZLATO_DATABASE_USER', `whoami`.chomp) %>
+  <% end %>
+  <% if ENV.key?('BITZLATO_DATABASE_PASS') %>
+  password: <%= ENV['BITZLATO_DATABASE_PASS'] %>
+  <% end %>
+
+bitzlato_development:
+  <<: *bitzlato_default
+  database: <%= ENV.fetch('BITZLATO_DB_NAME', 'bitzlato_development') %>
+
+bitzlato_test:
+  <<: *bitzlato_default
+  database: bitzlato_test
+
+bitzlato_staging:
+  <<: *bitzlato_default
+  url: <%= ENV['BITZLATO_DATABASE_URL'] %>
+
+bitzlato_production:
+  <<: *bitzlato_default
+  url: <%= ENV.fetch('BITZLATO_DATABASE_URL') %>
