@@ -1,0 +1,22 @@
+[Unit]
+Description = <%= fetch(:application) %> (<%= fetch(:stage) %>) daemon (%i)
+After=syslog.target network.target
+
+[Service]
+Type=simple
+Environment=RAILS_ENV=<%= fetch(:rails_env) %>
+Environment=RAILS_ROOT=<%= current_path %>
+Environment=PWD=<%= current_path %>
+EnvironmentFile=<%= current_path %>/.env
+# Helpful for debugging socket activation, etc.
+WorkingDirectory=<%= current_path %>
+ExecStart=/home/<%= fetch(:user) %>/.rbenv/bin/rbenv exec bundle exec ruby ./lib/daemon.rb %i
+ExecStop=/bin/kill -TERM $MAINPID
+
+KillMode=mixed
+Restart=always
+RestartSec=1
+SyslogIdentifier=<%= fetch(:application) %>-daemon-%i
+
+[Install]
+WantedBy=default.target

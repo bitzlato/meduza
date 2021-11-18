@@ -12,7 +12,8 @@ module Meduza
     config.load_defaults 6.1
     config.application = config_for(:application)
     config.autoload_paths += Dir[
-      "#{config.root}/app/services"
+      "#{config.root}/app/services",
+      "#{config.root}/app/workers"
     ]
 
     config.time_zone = ENV.fetch('TIMEZONE', 'UTC')
