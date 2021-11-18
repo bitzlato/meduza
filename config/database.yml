@@ -20,6 +20,8 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # Schema search path. The server defaults to $user,public
+  schema_search_path: p2p,public
 
 development:
   <<: *default
@@ -42,9 +44,6 @@ development:
   # The TCP port the server listens on. Defaults to 5432.
   # If your server runs on a different port number, change accordingly.
   #port: 5432
-
-  # Schema search path. The server defaults to $user,public
-  #schema_search_path: myapp,sharedapp,public
 
   # Minimum log levels, in increasing order:
   #   debug5, debug4, debug3, debug2, debug1,
@@ -82,3 +81,4 @@ test:
 production:
   <<: *default
   url: <%= ENV['MEDUZA_DATABASE_URL'] %>
+
