@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 2021_11_18_152519) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "citext"
   enable_extension "plpgsql"
+
+  create_table "analysis_results", force: :cascade do |t|
+    t.citext "address", null: false
+    t.integer "risk_confidence", null: false
+    t.string "risk_msg", null: false
+    t.integer "risk_level", null: false
+    t.jsonb "raw_response", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
 end
