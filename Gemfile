@@ -21,6 +21,7 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
+gem 'env-tweaks', '~> 1.0.0'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
@@ -34,6 +35,10 @@ gem 'sass-rails', '>= 6'
 gem 'sidekiq-cron'
 gem 'simple_form'
 gem 'slim-rails'
+
+gem 'faraday'
+gem 'faraday_curl', '~> 0.0.2'
+gem 'faraday-detailed_logger', '~> 2.3'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

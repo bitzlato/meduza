@@ -1,2 +1,9 @@
-development:
+defaults: &defaults
+  default_url_options: &default_url_options
+    protocol: <%= ENV.fetch('HTTP_PROTOCOL', 'https') %>
+    host: <%= ENV.fetch('MEDUZA_HOST', 'localhost') %>
+
+production:
   default_url_options:
+    protocol: https
+    host: meduza.lgk.one

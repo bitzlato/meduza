@@ -2,9 +2,7 @@ require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
 Rails.application.routes.draw do
-  if Rails.configuration.application.key? :default_url_options
-    default_url_options Rails.configuration.application.fetch(:default_url_options).symbolize_keys
-  end
+  default_url_options Rails.configuration.application.fetch(:default_url_options).symbolize_keys if Rails.configuration.application.try(:key?, :default_url_options)
 
   mount Sidekiq::Web => '/sidekiq'
 end
