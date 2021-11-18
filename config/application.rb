@@ -11,7 +11,13 @@ module Meduza
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
     config.application = config_for(:application)
+    config.autoload_paths += Dir[
+      "#{config.root}/app/services"
+    ]
 
+    config.time_zone = ENV.fetch('TIMEZONE', 'UTC')
+
+    config.active_record.schema_format = :sql
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
