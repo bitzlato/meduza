@@ -8,7 +8,7 @@ module Daemons
     SLEEP_INTERVAL = 10 # seconds
     BATCH_SIZE = 100
 
-    def process(service)
+    def process
       TransactionSource.find_each do |ts|
         BlockchainTx.
           where('id > ?', tx.last_processed_blockchain_tx_id).
