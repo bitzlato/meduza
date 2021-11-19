@@ -30,7 +30,7 @@ gem 'bootsnap', '>= 1.4.4', require: false
 gem 'sidekiq'
 gem 'active_link_to'
 gem 'enumerize'
-gem 'pagy'
+gem 'kaminari'
 gem 'sass-rails', '>= 6'
 gem 'sidekiq-cron'
 gem 'simple_form'
