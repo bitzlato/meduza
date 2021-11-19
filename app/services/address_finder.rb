@@ -2,8 +2,14 @@
 #
 class AddressFinder
   # TODO: передавать из какой сети адрес
-  def income_addresses_of_transaction(tx)
-    btc_addresses(tx)
+  def income_addresses_of_transaction(tx, cc_code)
+    meth = cc_code.downcase + '_addresses'
+
+    if respond_to? meth
+      send meth, tx
+    else
+      raise "Unknown cc_code #{cc_code} (no method #{meth} found)"
+    end
   end
 
   private
