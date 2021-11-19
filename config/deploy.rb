@@ -35,8 +35,12 @@ set :nvm_map_bins, %w[node npm yarn rake]
 
 set :conditionally_migrate, true # Only attempt migration if db/migrate changed - not related to Webpacker, but a nice thing
 
-# set :assets_roles, %i[webpack] # Give the webpack role to a single server
-# set :assets_prefix, 'packs' # Assets are located in /packs/
+set :assets_roles, %i[webpack] # Give the webpack role to a single server
+set :assets_prefix, 'packs' # Assets are located in /packs/
+set :assets_manifests, lambda { # Tell Capistrano-Rails how to find the Webpacker manifests
+  [release_path.join('public', fetch(:assets_prefix), 'manifest.json*')]
+}
+
 set :assets_dependencies,
     %w[
       app/assets lib/assets vendor/assets app/javascript
@@ -44,9 +48,7 @@ set :assets_dependencies,
       .semver
     ]
 
-# set :assets_manifests, lambda { # Tell Capistrano-Rails how to find the Webpacker manifests
-# [release_path.join('public', fetch(:assets_prefix), 'manifest.json*')]
-# }
+set :conditionally_migrate, true # Only attempt migration if db/migrate changed - not related to Webpacker, but a nice thing
 
 set :keep_assets, 2
 set :local_assets_dir, 'public'
