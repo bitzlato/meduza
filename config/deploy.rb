@@ -43,7 +43,7 @@ set :assets_manifests, lambda { # Tell Capistrano-Rails how to find the Webpacke
 
 set :assets_dependencies,
     %w[
-      app/assets lib/assets vendor/assets app/javascript
+      app/assets lib/assets vendor/assets app/javascript app/assets/config/manifest.js
       yarn.lock Gemfile.lock config/routes.rb config/initializers/assets.rb
       .semver
     ]
