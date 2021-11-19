@@ -17,7 +17,7 @@ module Meduza
     ]
 
     config.time_zone = ENV.fetch('TIMEZONE', 'UTC')
-     config.i18n.default_locale = ENV.fetch('RAILS_LOCALE', :en)
+    config.i18n.default_locale = ENV.fetch('RAILS_LOCALE', :en)
 
     config.active_record.schema_format = :sql
     # Configuration for the application, engines, and railties goes here.
