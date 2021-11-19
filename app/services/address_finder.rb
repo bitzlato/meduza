@@ -5,7 +5,7 @@ class AddressFinder
   def income_addresses_of_transaction(tx, cc_code)
     meth = cc_code.downcase + '_addresses'
 
-    if respond_to? meth
+    if respond_to? meth, true
       send meth, tx
     else
       raise "Unknown cc_code #{cc_code} (no method #{meth} found)"
