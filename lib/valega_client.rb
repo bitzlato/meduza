@@ -1,6 +1,7 @@
 require 'faraday'
 
 class ValegaClient
+  MAX_ELEMENTS = 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
   URL = 'https://valegachainapis.com/'.freeze
   HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }.freeze
 
@@ -10,7 +11,7 @@ class ValegaClient
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', access_token
     end
-    raise 'maximum 10 address/transactions available' if address_transactions.count > 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
+    raise 'maximum 10 address/transactions available' if address_transactions.count > MAX_ELEMENTS
     raise 'address_transactions must be an Array' unless address_transactions.is_a? Array
 
     data = { data: address_transactions }
