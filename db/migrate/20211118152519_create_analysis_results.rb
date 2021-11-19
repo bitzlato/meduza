@@ -10,5 +10,7 @@ class CreateAnalysisResults < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
+
+    add_index :analysis_results, :address
   end
 end

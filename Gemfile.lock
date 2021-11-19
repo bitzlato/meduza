@@ -57,6 +57,9 @@ GEM
     active_link_to (1.0.5)
       actionpack
       addressable
+    active_record_upsert (0.10.1)
+      activerecord (>= 5.0, < 6.2)
+      pg (>= 0.18, < 2.0)
     activejob (6.1.4.1)
       activesupport (= 6.1.4.1)
       globalid (>= 0.3.6)
@@ -388,6 +391,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_link_to
+  active_record_upsert
   bootsnap (>= 1.4.4)
   bugsnag
   bugsnag-capistrano

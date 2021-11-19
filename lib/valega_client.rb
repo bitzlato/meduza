@@ -5,11 +5,12 @@ class ValegaClient
   HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }
 
   def risk_analysis(access_type_id: nil, show_details: nil, address_transactions: )
+    address_transactions = Array(address_transactions)
     conn = Faraday.new(url: URL, headers: HEADERS ) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', access_token
     end
-
+    raise 'address_transactions must be an Array' unless address_transactions.is_a? Array
     data = { data: address_transactions }
     data[:show_details] = show_details unless show_details.nil?
     data[:access_type_id] = access_type_id unless access_type_id.nil?
