@@ -3,10 +3,10 @@
 
 require File.join(ENV.fetch('RAILS_ROOT'), 'config', 'environment')
 
-raise "Worker name must be provided." if ARGV.size == 0
+raise "Daemon name must be provided." if ARGV.size == 0
 
 name = ARGV[0]
-worker = "Workers::Daemons::#{name.camelize}".constantize.new
+worker = "Daemons::#{name.camelize}".constantize.new
 
 terminate = proc do
   puts "Terminating worker .."
