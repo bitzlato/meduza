@@ -10,6 +10,8 @@ class AddressFinder
     else
       raise "Unknown cc_code #{cc_code} (no method #{meth} found)"
     end
+  rescue => err
+    report_exception err, true, { tx: tx, cc_code: cc_code }
   end
 
   private
