@@ -1,0 +1,21 @@
+table.table.table-narrow
+  thead
+    tr
+      th Последняя проверка
+      th Адрес
+      th Уровень риска
+      th Достоверность данных
+
+  tbody
+    - address_analyses.each do |aa|
+      tr
+        td
+          .text-nowrap.text-muted.text-small title=(l aa.updated_at, format: :default)
+            = time_ago_in_words aa.updated_at
+        td
+          = link_to aa.address, address_analysis_path(aa)
+        td
+          = present_risk_level aa.risk_level
+          - if aa.risk_level > 1 && aa.analysis_result.present? 
+            .mt-2.text-muted.text-small= aa.analysis_result.raw_response['risk_msg'] || 'No risk_msg found'
+        td= present_risk_confidence aa.risk_confidence

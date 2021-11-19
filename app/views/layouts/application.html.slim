@@ -1,0 +1,15 @@
+doctype html
+html lang=I18n.locale
+  head
+    = render 'head'
+  body
+    -# = render 'navbar'
+    - if @container == :fluid
+      .container-fluid.px-3.py-3
+        = yield
+    - elsif @container == :fixed
+      .container
+        = yield
+    - else
+      = yield
+    = render 'footer'

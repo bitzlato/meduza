@@ -1,0 +1,26 @@
+- address_analyses = [address_analysis]
+table.table.table-narrow
+  thead
+    tr
+      th Создано
+      th Адрес
+      th Уровень риска
+      th Достоверность данных
+      th Подробнее
+
+  tbody
+    - address_analyses.each do |aa|
+      tr
+        td
+          .text-nowrap.text-muted.text-small title=(l aa.updated_at, format: :default)
+            = time_ago_in_words aa.updated_at
+        td= aa.address
+        td
+          = present_risk_level aa.risk_level
+          - if aa.risk_level > 1 && aa.analysis_result.present? 
+            .mt-2.text-muted.text-small= aa.analysis_result.raw_response['risk_msg'] || 'No risk_msg found'
+        td= present_risk_confidence aa.risk_confidence
+        td= present_risk_confidence aa.risk_confidence
+        td
+          pre.text-small.text-muted
+            = JSON.pretty_generate(aa.analysis_result.raw_response) if aa.analysis_result.present?

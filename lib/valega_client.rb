@@ -10,6 +10,7 @@ class ValegaClient
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', access_token
     end
+    raise 'maximum 10 address/transactions available' if address_transactions.count > 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
     raise 'address_transactions must be an Array' unless address_transactions.is_a? Array
     data = { data: address_transactions }
     data[:show_details] = show_details unless show_details.nil?

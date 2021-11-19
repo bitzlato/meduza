@@ -1,8 +1,4 @@
 class AddressAnalysis < ApplicationRecord
-  # "risk_level": 1, — Safe;
-  # "risk_level": 2, — Suspicious;
-  # "risk_level": 3, — Dangerous.
-
   belongs_to :analysis_result
 
   upsert_keys %i[address]
