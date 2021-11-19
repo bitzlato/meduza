@@ -1,0 +1,39 @@
+ru:
+  titles:
+    application: Лиза
+  wd_reports:
+    new:
+      build_report: Сформировать отчёт по вводу-выводу
+  application:
+    index:
+      total_records: 'Всего записей: %{count}'
+    navbar:
+      operations: Операционка
+      service: Данные сервиса
+      market: Биржа
+      accounting: Учёт
+      gateway: Шлюзы
+
+  reports:
+    time_range_form:
+      select_member: 'Выберите участника >>'
+
+  helpers:
+    download_without_size: Скачать %{ext}
+    download_with_size: Скачать %{ext} (%{size})
+    disable_with: Понеслась..
+    no_divergence: Нет расхождений
+    trades: Сделки (%{count})
+    no_trades: Нет сделок
+    platform_assets: Активы платформы
+    platform_revenues: Доходы платформы
+    member_liabilities: Обязательства
+    total_delta: Разница общаяя
+    from_including: Начиная с (включительно)
+    to: До
+
+  tips:
+    account:
+      estimated_amount: 'Введено - выведено'
+      amount: 'Доступные + Заблокировано'
+

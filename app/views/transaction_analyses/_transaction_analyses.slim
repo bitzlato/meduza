@@ -1,0 +1,18 @@
+table.table.table-narrow
+  thead.thead-dark
+    tr
+      th Последняя проверка
+      th Транзакция
+      th Уровень риска
+      th Адреса
+
+  tbody
+    - transaction_analyses.each do |ta|
+      tr
+        td
+          = present_time ta.updated_at
+        td.text-monospace
+          = ta.txid
+        td= present_risk_level ta.min_risk_level
+        td.text-small.p-0
+          = render 'address_analyses/address_analyses', address_analyses: AddressAnalysis.where(address: ta.input_addresses), table_class: 'table-sm'

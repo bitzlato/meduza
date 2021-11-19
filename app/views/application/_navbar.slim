@@ -1,0 +1,10 @@
+nav.navbar.navbar-expand-lg.navbar-light.bg-light.flex-column.flex-md-row.sticky-top[style="background-color: #e3f2fd;"]
+  = content_tag :div, class: 'container-fluid' do
+    = render 'brand'
+    button.navbar-toggler[type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Navigation"]
+      span.navbar-toggler-icon
+    #navbarSupportedContent.collapse.navbar-collapse
+      ul.navbar-nav.mr-auto
+        - [AddressAnalysis, TransactionAnalysis].each do |model|
+          li.nav-item.mr-2.d-flex.align-items-center
+            = active_link_to model.model_name.plural, url_for(model), class: 'my-lg-0 py-lg-0 nav-link'

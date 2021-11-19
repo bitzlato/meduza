@@ -1,0 +1,13 @@
+ru:
+  activerecord:
+    models:
+      transaction_ananalysis: 
+        one: Транзакция
+        many: Транзакции
+      address_ananalysis: 
+        one: Адрес
+        many: Адреса
+        many: Транзакции
+    attributes:
+      transaction_analysis:
+        created_at: Создано
