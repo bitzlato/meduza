@@ -2,7 +2,7 @@ class AddressesChecker
   # Делает анализ предоставленных адесов
   # @param addresses Array[String]
   def do_analysis(addresses)
-    ValegaClient.new.risk_analysis(address_transactions: addresses).each do |response|
+    ValegaClient.new.risk_analysis(address_transactions: addresses).map do |response|
       address = response.fetch('value')
       risks = response.slice('risk_level', 'risk_confidence')
 

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  txid: 
+  min_risk_level: 1
+  input_addresses: 
+  blockchain_tx_id: 
+
+two:
+  txid: 
+  min_risk_level: 1
+  input_addresses: 
+  blockchain_tx_id: 
