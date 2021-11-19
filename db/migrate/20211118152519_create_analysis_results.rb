@@ -1,7 +1,7 @@
 class CreateAnalysisResults < ActiveRecord::Migration[6.1]
   def change
-    execute "CREATE SCHEMA meduza;"
-    enable_extension 'citext'
+    execute "CREATE SCHEMA if not exists meduza"
+    enable_extension 'citext' unless extensions.include?('citext')
     create_table :analysis_results do |t|
       t.citext :address, null: false
       t.decimal :risk_confidence, null: false
