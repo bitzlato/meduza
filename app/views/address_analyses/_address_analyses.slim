@@ -12,7 +12,7 @@ table.table.table-narrow
         td
           .text-nowrap.text-muted.text-small title=(l aa.updated_at, format: :default)
             = time_ago_in_words aa.updated_at
-        td
+        td.text-monospace
           = link_to aa.address, address_analysis_path(aa)
         td
           = present_risk_level aa.risk_level
