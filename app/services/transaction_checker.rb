@@ -7,6 +7,7 @@ class TransactionChecker
       .income_addresses_of_transaction(txid)
       .reject { |address| AddressAnalysis.actual?(address) }
 
+    Rails.logger.info("Found addresses #{addresses.join(',')}")
     AddressesChecker.new.do_analysis(addresses) if addresses.any?
   end
 end
