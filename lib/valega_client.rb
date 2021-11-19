@@ -1,28 +1,29 @@
 require 'faraday'
 
 class ValegaClient
-  URL = 'https://valegachainapis.com/'
-  HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }
+  URL = 'https://valegachainapis.com/'.freeze
+  HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }.freeze
 
-  def risk_analysis(access_type_id: nil, show_details: nil, address_transactions: )
+  def risk_analysis(address_transactions:, access_type_id: nil, show_details: nil)
     address_transactions = Array(address_transactions)
-    conn = Faraday.new(url: URL, headers: HEADERS ) do |conn|
+    conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', access_token
     end
     raise 'maximum 10 address/transactions available' if address_transactions.count > 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
     raise 'address_transactions must be an Array' unless address_transactions.is_a? Array
+
     data = { data: address_transactions }
     data[:show_details] = show_details unless show_details.nil?
     data[:access_type_id] = access_type_id unless access_type_id.nil?
-    response =  conn.post '/realtime_risk_monitor/risk/analysis' do |req|
-      req.body=data.to_json
+    response = conn.post '/realtime_risk_monitor/risk/analysis' do |req|
+      req.body = data.to_json
     end
     parse_response response
   end
 
   def risk_assets_types
-    conn = Faraday.new(url: URL, headers: HEADERS ) do |conn|
+    conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', access_token
     end
@@ -47,6 +48,7 @@ class ValegaClient
   def parse_response(response)
     data = JSON.parse response.body
     raise data.fetch('message') unless data.fetch('result')
+
     data.fetch('data')
   end
 
@@ -55,7 +57,7 @@ class ValegaClient
   end
 
   def logger
-    Logger.new(STDOUT)
+    Logger.new($stdout)
   end
 
   def authorize(company_username: ENV.fetch('VALEGA_COMPANY_USERNAME'),
@@ -63,19 +65,20 @@ class ValegaClient
                 username: ENV.fetch('VALEGA_API_USERNAME'),
                 password: ENV.fetch('VALEGA_API_PASSWORD'))
 
-    url = URI(URL+'oauth/token/get')
+    url = URI("#{URL}oauth/token/get")
     url.user = CGI.escape(company_username)
     url.password = CGI.escape(company_password)
 
-    conn = Faraday.new(url: url.to_s, headers: HEADERS ) do |conn|
+    conn = Faraday.new(url: url.to_s, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
     end
 
     response = conn.post('/oauth/token/get') do |req|
-      req.body={ "grant_type": "password", "username": username, "password": password }.to_json
+      req.body = { "grant_type": "password", "username": username, "password": password }.to_json
     end
 
     raise response.body unless response.status == 200
+
     response = JSON.parse response.body
     response.fetch('access_token') || raise('no access token')
   end

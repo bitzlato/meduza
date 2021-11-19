@@ -1,9 +1,8 @@
-# encoding: UTF-8
 # frozen_string_literal: true
 
 require File.join(ENV.fetch('RAILS_ROOT'), 'config', 'environment')
 
-raise "Daemon name must be provided." if ARGV.size == 0
+raise "Daemon name must be provided." if ARGV.size.zero?
 
 name = ARGV[0]
 worker = "Daemons::#{name.camelize}".constantize.new

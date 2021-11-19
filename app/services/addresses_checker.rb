@@ -7,14 +7,14 @@ class AddressesChecker
       risks = response.slice('risk_level', 'risk_confidence')
 
       ar = AnalysisResult.create!(
-        risks.
-        merge(
+        risks
+        .merge(
           address: address,
-          raw_response: response,
+          raw_response: response
         )
       )
 
-      AddressAnalysis.upsert(risks.merge( address: address, analysis_result: ar, updated_at: Time.zone.now))
+      AddressAnalysis.upsert(risks.merge(address: address, analysis_result: ar, updated_at: Time.zone.now))
     end
   end
 end

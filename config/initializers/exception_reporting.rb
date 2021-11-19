@@ -1,4 +1,3 @@
-
 def catch_and_report_exception(options = {})
   yield
   nil
