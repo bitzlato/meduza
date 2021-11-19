@@ -7,7 +7,7 @@ Rails.application.configure do
   # In non-test environments logging always goes to STDOUT since this is the most appropriate way
   # to get logs in Docker environment.
   unless Rails.env.test?
-    config.logger = ActiveSupport::Logger.new $stderr, level: log_level
+    config.logger = ActiveSupport::Logger.new $stdout, level: log_level
     config.logger.formatter = config.log_formatter
   end
 
