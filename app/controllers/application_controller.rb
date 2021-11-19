@@ -1,3 +1,3 @@
 class ApplicationController < ActionController::Base
-  layout 'fluid'
+  layout 'fixed'
 end
