@@ -1,3 +1,8 @@
 h1 Мы - медузы!
 
+p Последние обработанная траназкция (blockchain_tx.id=#{TransactionSource.last.last_processed_blockchain_tx_id})
+
+hr
+
+h3 Последние обработанные адреса
 = render 'address_analyses', address_analyses: AddressAnalysis.order('id desc').limit(10)

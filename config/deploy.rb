@@ -82,12 +82,11 @@ set :systemd_sidekiq_instances, %i[]
 set :systemd_daemon_role, :daemons
 set :systemd_daemon_instances, %i[income_transactions_analyser]
 
-
 set :app_version, SemVer.find.to_s
 
 # after 'deploy:check', 'master_key:check'
 after 'deploy:publishing', 'systemd:puma:reload-or-restart'
-# after 'deploy:publishing', 'systemd:sidekiq:reload-or-restart'
+after 'deploy:publishing', 'systemd:daemon:reload-or-restart'
 
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
 
