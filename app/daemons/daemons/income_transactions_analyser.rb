@@ -12,6 +12,7 @@ module Daemons
 
     def self.scope
       BlockchainTx
+        .where("source ->> 'category' = 'receive'")
         .where(cc_code: CC_CODES)
     end
 
