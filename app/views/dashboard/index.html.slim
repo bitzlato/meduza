@@ -1,6 +1,6 @@
 h1 Мы - медузы!
 
-p Последние обработанная траназкция (blockchain_tx.id=#{TransactionSource.last.last_processed_blockchain_tx_id})
+p Последние обработанная траназкция #{TransactionSource.last.last_processed_blockchain_tx_id}, последняя транзакция в p2p #{BlockchainTx.maximum(:id)}
 
 hr
 
