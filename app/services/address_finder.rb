@@ -11,7 +11,10 @@ class AddressFinder
       raise "Unknown cc_code #{cc_code} (no method #{meth} found)"
     end
   rescue => err
+    Rails.logger.error({ message: err.message, tx: tx, cc_code: cc_code })
     report_exception err, true, { tx: tx, cc_code: cc_code }
+    # TODO отмечать что мы эту траназкцию не проверили
+    []
   end
 
   private
