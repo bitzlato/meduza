@@ -5,7 +5,7 @@ class ValegaAnalyzer
     addresses.each_slice ValegaClient::MAX_ELEMENTS do |slice|
       ValegaClient.
         new.
-        risk_analysis(address_transactions: slice, asset_type_id: ValetaClient.get_asset_type_id(cc_code)).
+        risk_analysis(address_transactions: slice, asset_type_id: ValegaClient.get_asset_type_id(cc_code)).
         map do |response|
 
         address = response.fetch('value')
