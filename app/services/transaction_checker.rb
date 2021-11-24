@@ -22,7 +22,7 @@ class TransactionChecker
 
     return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) if addresses_to_analyze.blank?
 
-    ValegaAnalyzer.new.analyze_addresses(addresses_to_analyze,cc_code) if addresses_to_analyze.any?
+    ValegaAnalyzer.new.analyze_addresses(addresses_to_analyze, cc_code) if addresses_to_analyze.any?
     risk_level = AddressAnalysis.where(address: addresses).maximum(:risk_level)
     risk_confidence = AddressAnalysis.where(address: addresses).minimum(:risk_level)
     TransactionAnalysis.upsert!(

@@ -1,7 +1,7 @@
 class ValegaAnalyzer
   # Делает анализ предоставленных адесов
   # @param addresses Array[String]
-  def analyze_addresses(addresses)
+  def analyze_addresses(addresses, cc_code)
     addresses.each_slice ValegaClient::MAX_ELEMENTS do |slice|
       ValegaClient.
         new.
