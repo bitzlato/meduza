@@ -4,6 +4,7 @@ table.table.table-narrow
       th Последняя проверка
       th Транзакция
       th Уровень риска
+      th Достоверность данных
       th Адреса
 
   tbody
@@ -13,6 +14,7 @@ table.table.table-narrow
           = present_time ta.updated_at
         td.text-monospace
           = ta.txid
-        td= present_risk_level ta.risk_level
+        td= render 'risk_detailed', analysis: ta
+        td= present_risk_confidence ta.risk_confidence
         td.text-small.p-0
           = render 'address_analyses/address_analyses', address_analyses: AddressAnalysis.where(address: ta.input_addresses), table_class: 'table-sm'

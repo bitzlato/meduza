@@ -13,5 +13,5 @@ table.table.table-narrow class=(table_class if defined? table_class)
         td.text-monospace
           = link_to aa.address, address_analysis_path(aa)
         td
-          = render 'address_risk_detailed', address_analysis: aa
+          = render 'risk_detailed', analysis: aa
         td= present_risk_confidence aa.risk_confidence
