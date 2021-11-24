@@ -9,11 +9,19 @@ class TransactionChecker
     addresses = AddressFinder
       .new
       .income_addresses_of_transaction(txid, cc_code)
-      .presence || raise("No addresses found for transaction #{txid}")
+      .presence
+
+    if addresses.blank?
+      Rails.logger.warn("No addresses found for transaction #{txid} (#{cc_code})")
+      return ValegaAnalyzer.new.analyze_transaction(txid, cc_code)
+    end
 
     Rails.logger.info("Found addresses #{addresses.join(',')} for #{cc_code}")
 
-    addresses_to_analyze = addresses.reject { |address| AddressAnalysis.actual?(address) }.compact || raise("No address to analyze")
+    addresses_to_analyze = addresses.reject { |address| AddressAnalysis.actual?(address) }.compact
+
+    return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) if addresses_to_analyze.blank?
+
     ValegaAnalyzer.new.analyze_addresses(addresses_to_analyze,cc_code) if addresses_to_analyze.any?
     risk_level = AddressAnalysis.where(address: addresses).maximum(:risk_level)
     risk_confidence = AddressAnalysis.where(address: addresses).minimum(:risk_level)
