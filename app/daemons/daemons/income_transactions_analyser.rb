@@ -7,8 +7,9 @@ module Daemons
     SLEEP_INTERVAL = 10 # seconds
     BATCH_SIZE = 100
 
-    # CC_CODES = ["REEF", "BCD", "SONO", "ETC", "BTG", "DAI", "DOGE", "MDT", "BEAM", "DASH", "PIVX", "BTC", "USDC", "USDT", "LTC", "MCR", "USDM", "RUBM", "BCH", "ETH"]
-    CC_CODES = %w[BTC].freeze
+    ETH_CC_CODES = %w[ETH MDT ETC DAI USDC USDT MCR].freeze
+    BITCOIN_FORKS = %w[BTC DOGE LTC DASH BCH].freeze
+    CC_CODES = BITCOIN_FORKS + ETH_CC_CODES
 
     def self.scope
       BlockchainTx
