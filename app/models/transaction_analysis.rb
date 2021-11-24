@@ -1,4 +1,6 @@
 class TransactionAnalysis < ApplicationRecord
+  belongs_to :analysis_result
+
   upsert_keys [:txid]
 
   def self.actual?(txid)

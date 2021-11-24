@@ -7,7 +7,7 @@ module Daemons
     SLEEP_INTERVAL = 10 # seconds
     BATCH_SIZE = 100
 
-    VALEGA_ASSETS_CODES = Set.new(ValegaClient.VALEGA_ASSETS_CODES.map { |c| c.fetch('code') }).freeze
+    VALEGA_ASSETS_CODES = Set.new(ValegaClient::ASSETS_TYPES.map { |c| c.fetch('code') }).freeze
 
     ETHEREUM_CODES = %w[MDT ETC DAI USDC USDT MCR].freeze
     BITCOIN_FORKS = %w[BTC DOGE LTC DASH BCH].freeze

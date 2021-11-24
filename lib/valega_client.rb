@@ -7,7 +7,7 @@ class ValegaClient
 
   # Result of ValegaClient.new.risk_assets_types
   #
-  VALEGA_ASSETS_TYPES = [{"id"=>"wvaVWgVy9p", "name"=>"Bitcoin", "code"=>"BTC"},
+  ASSETS_TYPES = [{"id"=>"wvaVWgVy9p", "name"=>"Bitcoin", "code"=>"BTC"},
                          {"id"=>"Qkqz8909GX", "name"=>"Ethereum", "code"=>"ETH"},
                          {"id"=>"9xLV1MVON2", "name"=>"XRP", "code"=>"XRP"},
                          {"id"=>"YqGzbE79Nw", "name"=>"Tether", "code"=>"USDT"},
@@ -21,11 +21,11 @@ class ValegaClient
 
   def self.get_asset_type_id(cc_code)
     (
-      VALEGA_ASSETS_TYPES.find { |a| a.fetch('code') == cc_code} || raise("No asset type for code #{cc_code} found")
+      ASSETS_TYPES.find { |a| a.fetch('code') == cc_code} || raise("No asset type for code #{cc_code} found")
     ).fetch('id')
   end
 
-  def risk_analysis(address_transactions:, access_type_id: nil, show_details: nil)
+  def risk_analysis(address_transactions:, asset_type_id: nil, show_details: nil)
     address_transactions = Array(address_transactions)
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
@@ -36,7 +36,7 @@ class ValegaClient
 
     data = { data: address_transactions }
     data[:show_details] = show_details unless show_details.nil?
-    data[:access_type_id] = access_type_id unless access_type_id.nil?
+    data[:asset_type_id] = asset_type_id unless asset_type_id.nil?
     response = conn.post '/realtime_risk_monitor/risk/analysis' do |req|
       req.body = data.to_json
     end

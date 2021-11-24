@@ -4,7 +4,7 @@ class TransactionChecker
   def check!(txid, cc_code)
     Rails.logger.info("Check transcation #{txid} (#{cc_code})")
 
-    return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) if AddressFinedr.support_codes.include? cc_code
+    return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) unless AddressFinder.support_codes.include? cc_code
 
     addresses = AddressFinder
       .new
