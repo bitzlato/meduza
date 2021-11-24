@@ -5,6 +5,26 @@ class ValegaClient
   URL = 'https://valegachainapis.com/'.freeze
   HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }.freeze
 
+  # Result of ValegaClient.new.risk_assets_types
+  #
+  VALEGA_ASSETS_TYPES = [{"id"=>"wvaVWgVy9p", "name"=>"Bitcoin", "code"=>"BTC"},
+                         {"id"=>"Qkqz8909GX", "name"=>"Ethereum", "code"=>"ETH"},
+                         {"id"=>"9xLV1MVON2", "name"=>"XRP", "code"=>"XRP"},
+                         {"id"=>"YqGzbE79Nw", "name"=>"Tether", "code"=>"USDT"},
+                         {"id"=>"dMj7xB023b", "name"=>"Bitcoin Cash", "code"=>"BCH"},
+                         {"id"=>"9EPVJjVGo1", "name"=>"Bitcoin SV", "code"=>"BSV"},
+                         {"id"=>"Xd90dEVyOe", "name"=>"Litecoin", "code"=>"LTC"},
+                         {"id"=>"6k8zB5729g", "name"=>"Dash", "code"=>"DASH"},
+                         {"id"=>"Bq60REzRnk", "name"=>"Zcash", "code"=>"ZEC"},
+                         {"id"=>"3qe7g4zaQk", "name"=>"Stellar", "code"=>"XLM"},
+                         {"id"=>"dpbzOGzkJ5", "name"=>"USD Coin", "code"=>"USDC"}]
+
+  def self.get_asset_type_id(cc_code)
+    (
+      VALEGA_ASSETS_TYPES.find { |a| a.fetch('code') == cc_code} || raise("No asset type for code #{cc_code} found")
+    ).fetch('id')
+  end
+
   def risk_analysis(address_transactions:, access_type_id: nil, show_details: nil)
     address_transactions = Array(address_transactions)
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|

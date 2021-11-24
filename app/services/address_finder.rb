@@ -1,6 +1,10 @@
 # Находит и отдаёт выходящие адреса транзакции
 #
 class AddressFinder
+  def self.support_codes
+    %w[BTC]
+  end
+
   # TODO: передавать из какой сети адрес
   def income_addresses_of_transaction(tx, cc_code)
     meth = "#{cc_code.downcase}_addresses"

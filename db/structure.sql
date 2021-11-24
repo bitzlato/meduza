@@ -815,7 +815,7 @@ ALTER SEQUENCE meduza.address_analyses_id_seq OWNED BY meduza.address_analyses.i
 
 CREATE TABLE meduza.analysis_results (
     id bigint NOT NULL,
-    address meduza.citext NOT NULL,
+    address_transaction meduza.citext NOT NULL,
     risk_confidence numeric NOT NULL,
     risk_level integer NOT NULL,
     raw_response jsonb NOT NULL,
@@ -851,10 +851,12 @@ CREATE TABLE meduza.transaction_analyses (
     id bigint NOT NULL,
     txid meduza.citext NOT NULL,
     cc_code character varying NOT NULL,
-    min_risk_level integer NOT NULL,
-    input_addresses jsonb NOT NULL,
+    risk_level integer NOT NULL,
+    input_addresses jsonb,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    analysis_result_id bigint,
+    risk_confidence integer NOT NULL
 );
 
 
@@ -2982,10 +2984,17 @@ CREATE INDEX index_address_analyses_on_analysis_result_id ON meduza.address_anal
 
 
 --
--- Name: index_analysis_results_on_address; Type: INDEX; Schema: meduza; Owner: -
+-- Name: index_analysis_results_on_address_transaction; Type: INDEX; Schema: meduza; Owner: -
 --
 
-CREATE INDEX index_analysis_results_on_address ON meduza.analysis_results USING btree (address);
+CREATE INDEX index_analysis_results_on_address_transaction ON meduza.analysis_results USING btree (address_transaction);
+
+
+--
+-- Name: index_transaction_analyses_on_analysis_result_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_transaction_analyses_on_analysis_result_id ON meduza.transaction_analyses USING btree (analysis_result_id);
 
 
 --
@@ -4097,6 +4106,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211118152519'),
 ('20211118160230'),
 ('20211119063003'),
-('20211119154629');
+('20211119154629'),
+('20211124083829'),
+('20211124084333'),
+('20211124085144');
 
 
