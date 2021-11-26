@@ -29,7 +29,7 @@ module Daemons
             .find_in_batches(batch_size: BATCH_SIZE) do |batch|
           batch.each do |btx|
             Rails.logger.info("Process id=#{btx.id} txid=#{btx.txid}")
-            TransactionChecker.new.check! btx.txid, btx.cc_code
+            TransactionChecker.new.check! btx
             transaction_source.update! last_processed_blockchain_tx_id: btx.id
           end
         end

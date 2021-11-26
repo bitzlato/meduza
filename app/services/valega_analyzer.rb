@@ -24,7 +24,10 @@ class ValegaAnalyzer
     end
   end
 
-  def analyze_transaction(txid, cc_code)
+  # @param btx (BlockchainTx)
+  def analyze_transaction(btx)
+    txid, cc_code = btx.txid, btx.cc_code
+
     ValegaClient.
       new.
       risk_analysis(address_transactions: txid, asset_type_id: ValegaClient.get_asset_type_id(cc_code)).
@@ -42,7 +45,7 @@ class ValegaAnalyzer
       )
 
       TransactionAnalysis.
-        upsert!(risks.merge(txid: txid, cc_code: cc_code, analysis_result: ar, updated_at: Time.zone.now))
+        upsert!(risks.merge(blockchain_tx_id: btx.id, txid: txid, cc_code: cc_code, analysis_result: ar, updated_at: Time.zone.now))
     end
   end
 end

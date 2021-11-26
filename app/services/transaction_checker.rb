@@ -1,12 +1,15 @@
 # Вытаскивает по указанной транзакции все входящие адреса и проверяет из в valega
 #
 class TransactionChecker
-  def check!(txid, cc_code)
+  # @param btx (BlockchainTx)
+  def check!(btx)
+    txid, cc_code = btx.txid, btx.cc_code
+
     Rails.logger.info("Check transcation #{txid} (#{cc_code})")
 
-    return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) unless AddressFinder.support_codes.include? cc_code
+    return ValegaAnalyzer.new.analyze_transaction(btx) unless AddressFinder.support_codes.include? cc_code
 
-    return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) unless ENV.true?('ANALYZE_ADDRESSES')
+    return ValegaAnalyzer.new.analyze_transaction(btx) unless ENV.true?('ANALYZE_ADDRESSES')
 
     addresses = AddressFinder
       .new
@@ -19,7 +22,7 @@ class TransactionChecker
       ValegaAnalyzer.new.analyze_addresses(addresses_to_analyze, cc_code) if addresses_to_analyze.any?
     end
 
-    ValegaAnalyzer.new.analyze_transaction(txid, cc_code)
+    ValegaAnalyzer.new.analyze_transaction(btx)
 
     # Узнаем на основе данных с valega
     # upsert_transaction_with_addresses addresses
