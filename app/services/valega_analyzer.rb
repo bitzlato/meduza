@@ -4,7 +4,7 @@ class ValegaAnalyzer
   def analyze_addresses(addresses, cc_code)
     addresses.each_slice ValegaClient::MAX_ELEMENTS do |slice|
       ValegaClient.
-        new.
+        instance.
         risk_analysis(address_transactions: slice, asset_type_id: ValegaClient.get_asset_type_id(cc_code)).
         map do |response|
 
@@ -29,7 +29,7 @@ class ValegaAnalyzer
     txid, cc_code = btx.txid, btx.cc_code
 
     ValegaClient.
-      new.
+      instance.
       risk_analysis(address_transactions: txid, asset_type_id: ValegaClient.get_asset_type_id(cc_code)).
       map do |response|
 

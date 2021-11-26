@@ -1,6 +1,24 @@
 require 'faraday'
 
 class ValegaClient
+  include Singleton
+
+  class Authorization
+    attr_reader :access_token
+
+    FALLBACK_SECONDS = 30
+
+    def initialize(access_token: , expires_in: )
+      @created_at = Time.zone.now
+      @access_token = access_token
+      @expires_in = expires_in
+    end
+
+    def expired?
+      @created_at + expires_in.seconds + FALLBACK_SECONDS > Time.zone.now
+    end
+  end
+
   MAX_ELEMENTS = 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
   URL = 'https://valegachainapis.com/'.freeze
   HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }.freeze
@@ -29,7 +47,7 @@ class ValegaClient
     address_transactions = Array(address_transactions)
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
-      conn.request :authorization, 'Bearer', access_token
+      conn.request :authorization, 'Bearer', authorization.access_token
     end
     raise 'maximum 10 address/transactions available' if address_transactions.count > MAX_ELEMENTS
     raise 'address_transactions must be an Array' unless address_transactions.is_a? Array
@@ -46,7 +64,7 @@ class ValegaClient
   def risk_assets_types
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
-      conn.request :authorization, 'Bearer', access_token
+      conn.request :authorization, 'Bearer', authorization.access_token
     end
 
     parse_response conn.get '/realtime_risk_monitor/risk/assets'
@@ -73,8 +91,9 @@ class ValegaClient
     data.fetch('data')
   end
 
-  def access_token
-    @access_token || authorize
+  def authorization
+    @authorization = authorize if @authorization.nil? || @authorization.expired?
+    @authorization
   end
 
   def logger
@@ -101,6 +120,7 @@ class ValegaClient
     raise response.body unless response.status == 200
 
     response = JSON.parse response.body
-    response.fetch('access_token') || raise('no access token')
+
+    Authorization.new(response.slice('access_token', 'expires_in').symbolize_keys)
   end
 end
