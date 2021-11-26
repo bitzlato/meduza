@@ -856,7 +856,7 @@ CREATE TABLE meduza.transaction_analyses (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     analysis_result_id bigint,
-    risk_confidence integer NOT NULL
+    risk_confidence numeric NOT NULL
 );
 
 
@@ -4109,6 +4109,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211119154629'),
 ('20211124083829'),
 ('20211124084333'),
-('20211124085144');
+('20211124085144'),
+('20211126081238');
 
 
