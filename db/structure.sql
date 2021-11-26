@@ -856,7 +856,8 @@ CREATE TABLE meduza.transaction_analyses (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     analysis_result_id bigint,
-    risk_confidence numeric NOT NULL
+    risk_confidence numeric NOT NULL,
+    blockchain_tx_id bigint NOT NULL
 );
 
 
@@ -2998,6 +2999,13 @@ CREATE INDEX index_transaction_analyses_on_analysis_result_id ON meduza.transact
 
 
 --
+-- Name: index_transaction_analyses_on_blockchain_tx_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_transaction_analyses_on_blockchain_tx_id ON meduza.transaction_analyses USING btree (blockchain_tx_id);
+
+
+--
 -- Name: index_transaction_analyses_on_txid; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -3937,6 +3945,14 @@ ALTER TABLE ONLY meduza.address_analyses
 
 
 --
+-- Name: transaction_analyses fk_rails_668238f685; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.transaction_analyses
+    ADD CONSTRAINT fk_rails_668238f685 FOREIGN KEY (blockchain_tx_id) REFERENCES public.blockchain_tx(id);
+
+
+--
 -- Name: account account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4110,6 +4126,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211124083829'),
 ('20211124084333'),
 ('20211124085144'),
-('20211126081238');
+('20211126081238'),
+('20211126131347');
 
 

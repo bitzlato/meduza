@@ -1,5 +1,6 @@
 class TransactionAnalysis < ApplicationRecord
   belongs_to :analysis_result, optional: true
+  belongs_to :blockchain_tx
 
   upsert_keys [:txid]
 
