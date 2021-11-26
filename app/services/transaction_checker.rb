@@ -6,6 +6,8 @@ class TransactionChecker
 
     return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) unless AddressFinder.support_codes.include? cc_code
 
+    return ValegaAnalyzer.new.analyze_transaction(txid, cc_code) unless ENV.true?('ANALYZE_ADDRESSES')
+
     addresses = AddressFinder
       .new
       .income_addresses_of_transaction(txid, cc_code)
