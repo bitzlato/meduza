@@ -3,6 +3,8 @@ class TransactionAnalysis < ApplicationRecord
 
   upsert_keys [:txid]
 
+  # TODO seach by input_address
+
   validates :input_addresses, presence: true, unless: :analysis_result
 
   def self.actual?(txid)

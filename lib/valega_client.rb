@@ -68,7 +68,7 @@ class ValegaClient
 
   def parse_response(response)
     data = JSON.parse response.body
-    raise data.fetch('message') unless data.fetch('result')
+    raise [data.fetch('message'), data.fetch('error')].join('; ') unless data.fetch('result')
 
     data.fetch('data')
   end
