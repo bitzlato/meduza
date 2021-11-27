@@ -15,7 +15,7 @@ class ValegaClient
     end
 
     def expired?
-      @created_at + expires_in.seconds + FALLBACK_SECONDS > Time.zone.now
+      @created_at + @expires_in.seconds + FALLBACK_SECONDS < Time.zone.now
     end
   end
 
