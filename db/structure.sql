@@ -3022,6 +3022,27 @@ CREATE INDEX index_analysis_results_on_address_transaction ON meduza.analysis_re
 
 
 --
+-- Name: index_analyzed_users_on_risk_level_1_count; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_analyzed_users_on_risk_level_1_count ON meduza.analyzed_users USING btree (risk_level_1_count);
+
+
+--
+-- Name: index_analyzed_users_on_risk_level_2_count; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_analyzed_users_on_risk_level_2_count ON meduza.analyzed_users USING btree (risk_level_2_count);
+
+
+--
+-- Name: index_analyzed_users_on_risk_level_3_count; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_analyzed_users_on_risk_level_3_count ON meduza.analyzed_users USING btree (risk_level_3_count);
+
+
+--
 -- Name: index_analyzed_users_on_user_id_uniq; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -4201,6 +4222,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211129090122'),
 ('20211129175044'),
 ('20211129181253'),
-('20211129191823');
+('20211129191823'),
+('20211129194459');
 
 

@@ -20,7 +20,7 @@ class TransactionAnalysis < ApplicationRecord
   validates :input_addresses, presence: true, unless: :analysis_result
 
   before_create do
-    self.analyzed_user ||= AnalysedUser.find_or_create_by!(user: user) if user.present?
+    self.analyzed_user ||= AnalyzedUser.find_or_create_by!(user: user) if user.present?
   end
 
   def self.actual?(txid)

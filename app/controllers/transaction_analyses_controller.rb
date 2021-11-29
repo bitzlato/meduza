@@ -6,7 +6,6 @@ class TransactionAnalysesController < ApplicationController
   def index
     scope = TransactionAnalysis.
       includes(:blockchain_tx, :deposit, :user).
-      where(risk_level: 3, risk_confidence: 1).
       order('id desc')
     render locals: { transaction_analyses: paginate(scope) }
   end

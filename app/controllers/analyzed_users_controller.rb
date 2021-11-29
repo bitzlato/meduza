@@ -5,7 +5,8 @@ class AnalyzedUsersController < ApplicationController
 
   def index
     scope = AnalyzedUsers
-      order('risk_level_3_count desc')
+      .where('risk_level_3_count > 0 ')
+      .order('risk_level_3_count desc')
     render locals: { analyzed_users: paginate(scope) }
   end
 
