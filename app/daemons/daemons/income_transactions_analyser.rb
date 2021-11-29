@@ -31,6 +31,11 @@ module Daemons
             Rails.logger.info("Process id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
             ValegaAnalyzer.new.analyze_transaction btxs, cc_code
             transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck(:id).max
+          rescue ValegaClient::TooManyRequests => err
+            report_exception err, true
+            Rails.logger.error "Retry: #{err.message}"
+            sleep 1
+            retry
           end
         end
         Rails.logger.info("Sleep for #{SLEEP_INTERVAL}")
