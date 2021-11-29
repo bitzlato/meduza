@@ -17,6 +17,5 @@ table.table.table-narrow
           - ta = au.transaction_analyses.where(risk_level: 3, risk_confidence: 1.0).last
           - if ta.present?
             .text-monospace= ta.txid
-            div= render 'risk_detailed', analysis: ta
-            div= present_risk_confidence ta.risk_confidence
-
+            .text-small.text-muted= ta.cc_code
+            = render 'risk_detailed', analysis: ta

@@ -6,6 +6,7 @@ module Daemons
   class IncomeTransactionsAnalyser < Base
     @sleep_time = 2.seconds
 
+    MINIMAL_BLOCKCHAIN_TX_ID = 2590000
 
     VALEGA_ASSETS_CODES = Set.new(ValegaClient::ASSETS_TYPES.map { |c| c.fetch('code') }).freeze
 
@@ -25,15 +26,16 @@ module Daemons
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
+        last_id = transaction_source.last_processed_blockchain_tx_id || MINIMAL_BLOCKCHAIN_TX_ID
         btxs = self.class.scope
-          .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
+          .where('id > ?', last_id)
           .where(cc_code: cc_code)
           .order(:id)
           .limit(ValegaClient::MAX_ELEMENTS)
           .to_a
 
         unless btxs.any?
-          Rails.logger.info("No new blockchain transactions for cc_code=#{cc_code} (last id #{transaction_source.last_processed_blockchain_tx_id})")
+          Rails.logger.info("No new blockchain transactions for cc_code=#{cc_code} (last id #{last_id})")
           next
         end
         Rails.logger.info("Process blockchain transactions with id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
