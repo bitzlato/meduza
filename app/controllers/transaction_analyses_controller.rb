@@ -4,7 +4,7 @@ class TransactionAnalysesController < ApplicationController
   layout 'fluid'
 
   def index
-    scope = TransactionAnalysis.order('id desc')
+    scope = TransactionAnalysis.includes(:blockchain_tx, :deposit, :user).order('id desc')
     render locals: { transaction_analyses: paginate(scope) }
   end
 

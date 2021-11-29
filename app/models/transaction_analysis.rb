@@ -2,6 +2,9 @@ class TransactionAnalysis < ApplicationRecord
   belongs_to :analysis_result, optional: true
   belongs_to :blockchain_tx
 
+  has_one :deposit, through: :blockchain_tx
+  has_one :user, through: :deposit
+
   upsert_keys [:txid]
 
   scope :include_address, ->(address) { where("input_addresses::jsonb ? :address", address: address) }

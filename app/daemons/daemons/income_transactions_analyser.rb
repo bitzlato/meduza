@@ -17,7 +17,7 @@ module Daemons
 
     def self.scope
       BlockchainTx
-        .income
+        .receive
         .where(cc_code: ANALYZABLE_CODES.to_a)
     end
 
