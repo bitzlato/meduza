@@ -4,8 +4,8 @@ module Daemons
   # Проверяет эти адреса через valega и отмечает в базе
   #
   class IncomeTransactionsAnalyser < Base
-    SLEEP_INTERVAL = 10 # seconds
-    BATCH_SIZE = 100
+    SLEEP_INTERVAL = 1 # seconds
+    BATCH_SIZE = ValegaClient::MAX_ELEMENTS
 
     VALEGA_ASSETS_CODES = Set.new(ValegaClient::ASSETS_TYPES.map { |c| c.fetch('code') }).freeze
 
@@ -23,21 +23,21 @@ module Daemons
 
     def process
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
-      TransactionSource.find_each do |transaction_source|
-        self.class.scope
-            .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
-            .find_in_batches(batch_size: BATCH_SIZE) do |batch|
-          batch.each do |btx|
-            Rails.logger.info("Process id=#{btx.id} txid=#{btx.txid}")
-            TransactionChecker.new.check! btx
-            transaction_source.update! last_processed_blockchain_tx_id: btx.id
+      ANALYZABLE_CODES.each do |cc_code|
+        TransactionSource.where(cc_code: cc_code).find_each do |transaction_source|
+          self.class.scope
+              .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
+              .find_in_batches(batch_size: BATCH_SIZE) do |btxs|
+            Rails.logger.info("Process id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
+            ValegaAnalyzer.new.analyze_transaction btxs, cc_code
+            transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck(:id).max
           end
         end
+        Rails.logger.info("Sleep for #{SLEEP_INTERVAL}")
+        sleep SLEEP_INTERVAL
+      rescue StandardError => e
+        report_exception e
       end
-      Rails.logger.info("Sleep for #{SLEEP_INTERVAL}")
-      sleep SLEEP_INTERVAL
-    rescue StandardError => e
-      report_exception e
     end
   end
 end

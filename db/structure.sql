@@ -811,7 +811,8 @@ CREATE TABLE meduza.transaction_sources (
     name character varying,
     last_processed_blockchain_tx_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    cc_code character varying NOT NULL
 );
 
 
@@ -2834,6 +2835,13 @@ CREATE UNIQUE INDEX index_transaction_analyses_on_txid ON meduza.transaction_ana
 
 
 --
+-- Name: index_transaction_sources_on_name_and_cc_code; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX index_transaction_sources_on_name_and_cc_code ON meduza.transaction_sources USING btree (name, cc_code);
+
+
+--
 -- Name: admin_user_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3821,6 +3829,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211124085144'),
 ('20211126081238'),
 ('20211126131347'),
-('20211126135212');
+('20211126135212'),
+('20211129090122');
 
 

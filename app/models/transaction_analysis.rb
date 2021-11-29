@@ -4,9 +4,9 @@ class TransactionAnalysis < ApplicationRecord
 
   upsert_keys [:txid]
 
-  scope :include_address, -> (address) { where("input_addresses::jsonb ? :address", address: address) }
+  scope :include_address, ->(address) { where("input_addresses::jsonb ? :address", address: address) }
 
-  # TODO seach by input_address
+  # TODO: seach by input_address
 
   validates :input_addresses, presence: true, unless: :analysis_result
 

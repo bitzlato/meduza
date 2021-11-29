@@ -3,6 +3,8 @@ require 'faraday'
 class ValegaClient
   include Singleton
 
+  PAUSE_BETWEEN_REQUESTS = 10.seconds
+
   Error = Class.new StandardError
   UnknownError = Class.new Error
   TooManyRequests = Class.new Error
@@ -32,16 +34,16 @@ class ValegaClient
   # Result of ValegaClient.new.risk_assets_types
   #
   ASSETS_TYPES = [{"id"=>"wvaVWgVy9p", "name"=>"Bitcoin", "code"=>"BTC"},
-                         {"id"=>"Qkqz8909GX", "name"=>"Ethereum", "code"=>"ETH"},
-                         {"id"=>"9xLV1MVON2", "name"=>"XRP", "code"=>"XRP"},
-                         {"id"=>"YqGzbE79Nw", "name"=>"Tether", "code"=>"USDT"},
-                         {"id"=>"dMj7xB023b", "name"=>"Bitcoin Cash", "code"=>"BCH"},
-                         {"id"=>"9EPVJjVGo1", "name"=>"Bitcoin SV", "code"=>"BSV"},
-                         {"id"=>"Xd90dEVyOe", "name"=>"Litecoin", "code"=>"LTC"},
-                         {"id"=>"6k8zB5729g", "name"=>"Dash", "code"=>"DASH"},
-                         {"id"=>"Bq60REzRnk", "name"=>"Zcash", "code"=>"ZEC"},
-                         {"id"=>"3qe7g4zaQk", "name"=>"Stellar", "code"=>"XLM"},
-                         {"id"=>"dpbzOGzkJ5", "name"=>"USD Coin", "code"=>"USDC"}]
+                  {"id"=>"Qkqz8909GX", "name"=>"Ethereum", "code"=>"ETH"},
+                  {"id"=>"9xLV1MVON2", "name"=>"XRP", "code"=>"XRP"},
+                  {"id"=>"YqGzbE79Nw", "name"=>"Tether", "code"=>"USDT"},
+                  {"id"=>"dMj7xB023b", "name"=>"Bitcoin Cash", "code"=>"BCH"},
+                  {"id"=>"9EPVJjVGo1", "name"=>"Bitcoin SV", "code"=>"BSV"},
+                  {"id"=>"Xd90dEVyOe", "name"=>"Litecoin", "code"=>"LTC"},
+                  {"id"=>"6k8zB5729g", "name"=>"Dash", "code"=>"DASH"},
+                  {"id"=>"Bq60REzRnk", "name"=>"Zcash", "code"=>"ZEC"},
+                  {"id"=>"3qe7g4zaQk", "name"=>"Stellar", "code"=>"XLM"},
+                  {"id"=>"dpbzOGzkJ5", "name"=>"USD Coin", "code"=>"USDC"}]
 
   def self.get_asset_type_id(cc_code)
     (
@@ -50,6 +52,7 @@ class ValegaClient
   end
 
   def risk_analysis(address_transactions:, asset_type_id: nil, show_details: nil)
+    start_request
     address_transactions = Array(address_transactions)
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
@@ -64,10 +67,14 @@ class ValegaClient
     response = conn.post '/realtime_risk_monitor/risk/analysis' do |req|
       req.body = data.to_json
     end
+
     parse_response response
+  ensure
+    @last_request_at = Time.zone.now
   end
 
   def risk_assets_types
+    start_request
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', authorization.access_token
@@ -136,5 +143,14 @@ class ValegaClient
     response = JSON.parse response.body
 
     Authorization.new(response.slice('access_token', 'expires_in').symbolize_keys)
+  end
+
+  def start_request
+    return unless @last_request_at.present? && Time.zone.now - @last_request_at <= PAUSE_BETWEEN_REQUESTS
+    pause = (PAUSE_BETWEEN_REQUESTS - (Time.zone.now - @last_request_at)).ceil
+    if pause.positive?
+      Rails.logger.info("Pause between requests #{pause} secs")
+      sleep pause
+    end
   end
 end
