@@ -1,7 +1,7 @@
 class CreateAnalyzedUsers < ActiveRecord::Migration[6.1]
   def change
     create_table :analyzed_users do |t|
-      t.references :user, null: false, foreign_key: { to_table: :user }
+      t.bigint :user_id, null: false
       t.integer :risk_level_1_count, null: false, default: 0
       t.integer :risk_level_2_count, null: false, default: 0
       t.integer :risk_level_3_count, null: false, default: 0
