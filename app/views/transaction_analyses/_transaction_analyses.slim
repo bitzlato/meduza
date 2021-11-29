@@ -5,7 +5,7 @@ table.table.table-narrow
       th transaction hash
       th blockchain_tx.id
       th deposit_id
-      th user.nickname
+      th user.id
       th Уровень риска
       th Достоверность данных
       th Валюта
@@ -25,7 +25,7 @@ table.table.table-narrow
         td.text-monospace
           = btx.deposit.try(:id) || '?'
         td.text-monospace
-          = btx.user.try(:nickname) || '?'
+          = btx.user.try(:id) || '?'
 
         td= render 'risk_detailed', analysis: ta
         td= present_risk_confidence ta.risk_confidence
