@@ -3,6 +3,12 @@ require 'faraday'
 class ValegaClient
   include Singleton
 
+  Error = Class.new StandardError
+  UnknownError = Class.new Error
+  TooManyRequests = Class.new Error
+
+  ERRORS = { 'oauth_too_many_request' => TooManyRequests }
+
   class Authorization
     attr_reader :access_token
 
@@ -86,9 +92,17 @@ class ValegaClient
 
   def parse_response(response)
     data = JSON.parse response.body
-    raise [data.fetch('message'), data.fetch('error')].join('; ') unless data.fetch('result')
-
+    raise_error! data unless data.fetch('result')
     data.fetch('data')
+  end
+
+  def raise_error!(data)
+    error_key = data.fetch('error')
+    if ERRORS.key? error_key
+      raise ERRORS.fetch(error_key), data.fetch('message')
+    else
+      raise UnknownError, [data.fetch('message'), data.fetch('error')].join('; ')
+    end
   end
 
   def authorization
