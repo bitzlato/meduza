@@ -4,7 +4,7 @@ class AnalyzedUsersController < ApplicationController
   layout 'fluid'
 
   def index
-    scope = AnalyzedUsers
+    scope = AnalyzedUser
       .where('risk_level_3_count > 0 ')
       .order('risk_level_3_count desc')
     render locals: { analyzed_users: paginate(scope) }
