@@ -44,9 +44,6 @@ class ValegaAnalyzer
       btx_id = blockchain_txs.find { |btx| btx.txid == txid }.id
       TransactionAnalysis
         .upsert!(risks.merge(blockchain_tx_id: btx_id, txid: txid, cc_code: cc_code, analysis_result: ar, updated_at: Time.zone.now))
-    rescue ValegaClient::TooManyRequests => e
-      report_exception e, true, btx: btx
-      sleep 10
     end
   end
 end
