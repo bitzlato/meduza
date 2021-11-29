@@ -10,6 +10,5 @@ class CreateAnalyzedUsers < ActiveRecord::Migration[6.1]
     end
 
     add_index :analyzed_users, :user_id, unique: true, name: :index_analyzed_users_on_user_id_uniq
-    remove_index :analyzed_users, name: :index_analyzed_users_on_user_id
   end
 end
