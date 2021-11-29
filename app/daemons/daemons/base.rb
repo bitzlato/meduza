@@ -14,6 +14,7 @@ module Daemons
     end
 
     def stop
+      Rails.logger.info { { message: 'Stop worker', service: self.class.name } }
       @running = false
     end
 
