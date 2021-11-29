@@ -22,6 +22,7 @@ module Daemons
     end
 
     def process
+      sleep ValegaClient::PAUSE_BETWEEN_REQUESTS # Начинаем не сразу, делаем паузу перед возможным прошлым запросом в Valega
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
         TransactionSource.where(cc_code: cc_code).find_each do |transaction_source|
