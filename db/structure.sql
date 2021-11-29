@@ -183,6 +183,30 @@ CREATE TYPE public.withdrawal_status AS ENUM (
 );
 
 
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: wallet; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.wallet (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    address character varying(800),
+    balance public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    hold_balance public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    created_at timestamp(0) without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    debt public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    cc_code public.cryptocurrency_code NOT NULL,
+    CONSTRAINT balance_check CHECK (((balance)::numeric >= (0)::numeric)),
+    CONSTRAINT debt_check CHECK (((debt)::numeric >= (0)::numeric)),
+    CONSTRAINT hold_check CHECK (((hold_balance)::numeric >= (0)::numeric))
+);
+
+
 --
 -- Name: add_fake_balance(integer, integer, bigint); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -568,6 +592,86 @@ $$;
 
 
 --
+-- Name: move_money(integer, integer, public.cryptocurrency_code, numeric, text, p2p.operation_source, character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.move_money(user_from integer, user_to integer, cc public.cryptocurrency_code, amount numeric, cause text, source_type p2p.operation_source, platform character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+  wallet_from integer;
+  wallet_to integer;
+
+BEGIN
+  SELECT id
+  FROM public.wallets
+  WHERE user_id = user_from
+    AND cc_code = cc
+  INTO wallet_from;
+
+  SELECT id
+  FROM public.wallets
+  WHERE user_id = user_to
+    AND cc_code = cc
+  INTO wallet_to;
+
+  UPDATE public.wallets
+  SET balance = balance - amount
+  WHERE id = wallet_from;
+
+  INSERT INTO p2p.wallet_log(
+    wallet_id,
+    balance_at_the_moment,
+    hold_balance_at_moment,
+    cause,
+    amount,
+    currency,
+    source_type,
+    operation_type,
+    platform
+  ) VALUES (
+    wallet_from,
+    (SELECT balance FROM public.wallets WHERE id = wallet_from),
+    (SELECT hold_balance FROM public.wallets WHERE id = wallet_from),
+    cause,
+    amount,
+    cc,
+    source_type,
+    'outgoing',
+    platform
+  );
+
+  UPDATE public.wallets
+  SET balance = balance + amount
+  WHERE id = wallet_to;
+
+  INSERT INTO p2p.wallet_log (
+    wallet_id,
+    balance_at_the_moment,
+    hold_balance_at_moment,
+    cause,
+    amount,
+    currency,
+    source_type,
+    operation_type,
+    platform
+  ) VALUES (
+    wallet_to,
+    (SELECT balance FROM public.wallets WHERE id = wallet_to),
+    (SELECT hold_balance FROM public.wallets WHERE id = wallet_to),
+    cause,
+    amount,
+    cc,
+    source_type,
+    'incoming',
+    platform
+  );
+END;
+$$;
+
+
+--
 -- Name: null_txids_for_internal_txes(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -693,10 +797,6 @@ CREATE AGGREGATE public.last(anyelement) (
 );
 
 
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
 --
 -- Name: address_analyses; Type: TABLE; Schema: meduza; Owner: -
 --
@@ -766,6 +866,40 @@ ALTER SEQUENCE meduza.analysis_results_id_seq OWNED BY meduza.analysis_results.i
 
 
 --
+-- Name: analyzed_users; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.analyzed_users (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    risk_level_1_count integer DEFAULT 0 NOT NULL,
+    risk_level_2_count integer DEFAULT 0 NOT NULL,
+    risk_level_3_count integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: analyzed_users_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.analyzed_users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: analyzed_users_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.analyzed_users_id_seq OWNED BY meduza.analyzed_users.id;
+
+
+--
 -- Name: transaction_analyses; Type: TABLE; Schema: meduza; Owner: -
 --
 
@@ -779,7 +913,8 @@ CREATE TABLE meduza.transaction_analyses (
     updated_at timestamp(6) without time zone NOT NULL,
     analysis_result_id bigint,
     risk_confidence numeric NOT NULL,
-    blockchain_tx_id bigint NOT NULL
+    blockchain_tx_id bigint NOT NULL,
+    analyzed_user_id bigint
 );
 
 
@@ -833,6 +968,145 @@ CREATE SEQUENCE meduza.transaction_sources_id_seq
 --
 
 ALTER SEQUENCE meduza.transaction_sources_id_seq OWNED BY meduza.transaction_sources.id;
+
+
+--
+-- Name: cryptocurrency; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.cryptocurrency (
+    code character varying(4) NOT NULL,
+    name character varying(256) NOT NULL,
+    scale smallint DEFAULT 8 NOT NULL,
+    weight smallint NOT NULL,
+    CONSTRAINT cryptocurrency_code_check CHECK ((length((code)::text) > 0)),
+    CONSTRAINT cryptocurrency_name_check CHECK ((length((name)::text) > 0))
+);
+
+
+--
+-- Name: user_cryptocurrency_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_cryptocurrency_settings (
+    user_id integer NOT NULL,
+    cc_code public.cryptocurrency_code NOT NULL,
+    trading_enabled boolean DEFAULT true NOT NULL
+);
+
+
+--
+-- Name: blockchain_tx; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.blockchain_tx (
+    id integer NOT NULL,
+    cc_code public.cryptocurrency_code NOT NULL,
+    txid character varying(128) NOT NULL,
+    network_fee public.cryptocurrency_amount,
+    status public.blockchain_tx_status NOT NULL,
+    confirmations integer,
+    issued_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone,
+    source jsonb,
+    CONSTRAINT blockchain_tx_check CHECK (((issued_at IS NULL) = (status = 'initial'::public.blockchain_tx_status))),
+    CONSTRAINT blockchain_tx_confirmations_check CHECK ((confirmations >= 0)),
+    CONSTRAINT blockchain_tx_network_fee_check CHECK (((network_fee)::numeric >= (0)::numeric)),
+    CONSTRAINT blockchain_tx_txid_check CHECK ((length((txid)::text) > 0))
+);
+
+
+--
+-- Name: deposit; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.deposit (
+    id integer NOT NULL,
+    user_id integer,
+    wallet_id integer,
+    account character varying(100),
+    fee public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    address character varying(68) NOT NULL,
+    amount public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    blockchain_tx_id integer NOT NULL,
+    created_at timestamp(0) without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    comment character varying(256),
+    vout integer,
+    is_dust boolean DEFAULT false NOT NULL,
+    cc_code public.cryptocurrency_code NOT NULL,
+    status public.deposit_status NOT NULL,
+    CONSTRAINT deposit_check CHECK (((status <> 'dust-seizure'::public.deposit_status) OR is_dust))
+);
+
+
+--
+-- Name: user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user" (
+    id integer NOT NULL,
+    subject character varying(510) NOT NULL,
+    nickname character varying(510),
+    email_verified boolean NOT NULL,
+    chat_enabled boolean NOT NULL,
+    email_auth_enabled boolean NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    telegram_id character varying(256),
+    auth0_id character varying,
+    ref_parent_user_id integer,
+    referrer integer,
+    country character varying,
+    real_email text,
+    "2fa_enabled" boolean DEFAULT false NOT NULL,
+    ref_type p2p.referral_type DEFAULT 'independent'::p2p.referral_type NOT NULL,
+    authority_can_make_deal boolean DEFAULT true NOT NULL,
+    authority_can_make_order boolean DEFAULT true NOT NULL,
+    authority_can_make_voucher boolean DEFAULT true NOT NULL,
+    authority_can_make_withdrawal boolean DEFAULT true NOT NULL,
+    authority_is_admin boolean DEFAULT false NOT NULL,
+    deleted_at timestamp without time zone,
+    password_reset_at timestamp without time zone,
+    sys_code character varying(63),
+    CONSTRAINT user_check CHECK (((sys_code IS NULL) OR ((telegram_id IS NULL) AND (real_email IS NULL) AND (nickname IS NULL)))),
+    CONSTRAINT user_sys_code_check CHECK ((length((sys_code)::text) > 0)),
+    CONSTRAINT users_check CHECK ((deleted_at > created_at))
+);
+
+
+--
+-- Name: COLUMN "user".sys_code; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public."user".sys_code IS 'Special code for system accounts only, must be unique for each system account. Regular users have don''t have such codes.';
+
+
+--
+-- Name: withdrawal; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.withdrawal (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    wallet_id integer NOT NULL,
+    blockchain_tx_id integer,
+    address character varying(68) NOT NULL,
+    amount public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    fee public.cryptocurrency_amount DEFAULT 0 NOT NULL,
+    status public.withdrawal_status NOT NULL,
+    created_at timestamp(0) without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone,
+    comment text,
+    real_pay_fee public.cryptocurrency_amount,
+    cc_code public.cryptocurrency_code NOT NULL,
+    CONSTRAINT check_amount CHECK (((amount)::numeric > (0)::numeric)),
+    CONSTRAINT payments_fee_check CHECK (((fee)::numeric >= (0)::numeric)),
+    CONSTRAINT withdrawal_check CHECK (((blockchain_tx_id IS NOT NULL) OR (status = ANY (ARRAY['pending'::public.withdrawal_status, 'in_progress'::public.withdrawal_status, 'cancelled_by_admin'::public.withdrawal_status, 'failed'::public.withdrawal_status])))),
+    CONSTRAINT withdrawal_real_pay_fee_check CHECK (((real_pay_fee)::numeric >= (0)::numeric))
+)
+WITH (fillfactor='90', autovacuum_enabled='on', autovacuum_vacuum_cost_delay='20');
 
 
 --
@@ -932,28 +1206,6 @@ CREATE TABLE public.banned_user (
 
 
 --
--- Name: blockchain_tx; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.blockchain_tx (
-    id integer NOT NULL,
-    cc_code public.cryptocurrency_code NOT NULL,
-    txid character varying(128) NOT NULL,
-    network_fee public.cryptocurrency_amount,
-    status public.blockchain_tx_status NOT NULL,
-    confirmations integer,
-    issued_at timestamp without time zone,
-    created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone,
-    source jsonb,
-    CONSTRAINT blockchain_tx_check CHECK (((issued_at IS NULL) = (status = 'initial'::public.blockchain_tx_status))),
-    CONSTRAINT blockchain_tx_confirmations_check CHECK ((confirmations >= 0)),
-    CONSTRAINT blockchain_tx_network_fee_check CHECK (((network_fee)::numeric >= (0)::numeric)),
-    CONSTRAINT blockchain_tx_txid_check CHECK ((length((txid)::text) > 0))
-);
-
-
---
 -- Name: blockchain_tx_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -964,44 +1216,6 @@ ALTER TABLE public.blockchain_tx ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
     NO MINVALUE
     NO MAXVALUE
     CACHE 1
-);
-
-
---
--- Name: cryptocurrency; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.cryptocurrency (
-    code character varying(4) NOT NULL,
-    name character varying(256) NOT NULL,
-    scale smallint DEFAULT 8 NOT NULL,
-    weight smallint NOT NULL,
-    CONSTRAINT cryptocurrency_code_check CHECK ((length((code)::text) > 0)),
-    CONSTRAINT cryptocurrency_name_check CHECK ((length((name)::text) > 0))
-);
-
-
---
--- Name: deposit; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.deposit (
-    id integer NOT NULL,
-    user_id integer,
-    wallet_id integer,
-    account character varying(100),
-    fee public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    address character varying(68) NOT NULL,
-    amount public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    blockchain_tx_id integer NOT NULL,
-    created_at timestamp(0) without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    comment character varying(256),
-    vout integer,
-    is_dust boolean DEFAULT false NOT NULL,
-    cc_code public.cryptocurrency_code NOT NULL,
-    status public.deposit_status NOT NULL,
-    CONSTRAINT deposit_check CHECK (((status <> 'dust-seizure'::public.deposit_status) OR is_dust))
 );
 
 
@@ -1111,32 +1325,6 @@ ALTER SEQUENCE public.payment_logs_id_seq OWNED BY public.withdrawal_log.id;
 
 
 --
--- Name: withdrawal; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.withdrawal (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    wallet_id integer NOT NULL,
-    blockchain_tx_id integer,
-    address character varying(68) NOT NULL,
-    amount public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    fee public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    status public.withdrawal_status NOT NULL,
-    created_at timestamp(0) without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone,
-    comment text,
-    real_pay_fee public.cryptocurrency_amount,
-    cc_code public.cryptocurrency_code NOT NULL,
-    CONSTRAINT check_amount CHECK (((amount)::numeric > (0)::numeric)),
-    CONSTRAINT payments_fee_check CHECK (((fee)::numeric >= (0)::numeric)),
-    CONSTRAINT withdrawal_check CHECK (((blockchain_tx_id IS NOT NULL) OR (status = ANY (ARRAY['pending'::public.withdrawal_status, 'in_progress'::public.withdrawal_status, 'cancelled_by_admin'::public.withdrawal_status, 'failed'::public.withdrawal_status])))),
-    CONSTRAINT withdrawal_real_pay_fee_check CHECK (((real_pay_fee)::numeric >= (0)::numeric))
-)
-WITH (fillfactor='90', autovacuum_enabled='on', autovacuum_vacuum_cost_delay='20');
-
-
---
 -- Name: payments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -1182,66 +1370,6 @@ CREATE TABLE public.signed_operation_request (
     CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
 )
 PARTITION BY LIST (expires_date);
-
-
---
--- Name: signed_operation_request$20211027; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."signed_operation_request$20211027" (
-    id bigint NOT NULL,
-    user_id integer NOT NULL,
-    command character varying(63) NOT NULL,
-    params jsonb NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    confirmed_at timestamp without time zone,
-    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
-    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211027" FOR VALUES IN ('2021-10-27');
-
-
---
--- Name: signed_operation_request$20211028; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."signed_operation_request$20211028" (
-    id bigint NOT NULL,
-    user_id integer NOT NULL,
-    command character varying(63) NOT NULL,
-    params jsonb NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    confirmed_at timestamp without time zone,
-    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
-    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211028" FOR VALUES IN ('2021-10-28');
-
-
---
--- Name: signed_operation_request$20211029; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."signed_operation_request$20211029" (
-    id bigint NOT NULL,
-    user_id integer NOT NULL,
-    command character varying(63) NOT NULL,
-    params jsonb NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    confirmed_at timestamp without time zone,
-    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
-    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211029" FOR VALUES IN ('2021-10-29');
 
 
 --
@@ -1865,6 +1993,66 @@ ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed
 
 
 --
+-- Name: signed_operation_request$20211130; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."signed_operation_request$20211130" (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    command character varying(63) NOT NULL,
+    params jsonb NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    confirmed_at timestamp without time zone,
+    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
+    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211130" FOR VALUES IN ('2021-11-30');
+
+
+--
+-- Name: signed_operation_request$20211201; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."signed_operation_request$20211201" (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    command character varying(63) NOT NULL,
+    params jsonb NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    confirmed_at timestamp without time zone,
+    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
+    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211201" FOR VALUES IN ('2021-12-01');
+
+
+--
+-- Name: signed_operation_request$20211202; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."signed_operation_request$20211202" (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    command character varying(63) NOT NULL,
+    params jsonb NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    confirmed_at timestamp without time zone,
+    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
+    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211202" FOR VALUES IN ('2021-12-02');
+
+
+--
 -- Name: signed_operation_request_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -1917,17 +2105,6 @@ CREATE TABLE public.user_auth_pub_key (
 
 
 --
--- Name: user_cryptocurrency_settings; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.user_cryptocurrency_settings (
-    user_id integer NOT NULL,
-    cc_code public.cryptocurrency_code NOT NULL,
-    trading_enabled boolean DEFAULT true NOT NULL
-);
-
-
---
 -- Name: user_token_mfa; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1940,54 +2117,6 @@ CREATE TABLE public.user_token_mfa (
     mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
 )
 PARTITION BY LIST (expires_date);
-
-
---
--- Name: user_token_mfa$20211123; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."user_token_mfa$20211123" (
-    jwt_hash character varying(64) NOT NULL,
-    user_id integer NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211123" FOR VALUES IN ('2021-11-23');
-
-
---
--- Name: user_token_mfa$20211124; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."user_token_mfa$20211124" (
-    jwt_hash character varying(64) NOT NULL,
-    user_id integer NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211124" FOR VALUES IN ('2021-11-24');
-
-
---
--- Name: user_token_mfa$20211125; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."user_token_mfa$20211125" (
-    jwt_hash character varying(64) NOT NULL,
-    user_id integer NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211125" FOR VALUES IN ('2021-11-25');
 
 
 --
@@ -2039,6 +2168,54 @@ ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$2
 
 
 --
+-- Name: user_token_mfa$20211129; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user_token_mfa$20211129" (
+    jwt_hash character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211129" FOR VALUES IN ('2021-11-29');
+
+
+--
+-- Name: user_token_mfa$20211130; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user_token_mfa$20211130" (
+    jwt_hash character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211130" FOR VALUES IN ('2021-11-30');
+
+
+--
+-- Name: user_token_mfa$20211201; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user_token_mfa$20211201" (
+    jwt_hash character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211201" FOR VALUES IN ('2021-12-01');
+
+
+--
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -2049,6 +2226,13 @@ CREATE SEQUENCE public.users_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public."user".id;
 
 
 --
@@ -2063,26 +2247,6 @@ CREATE VIEW public.vw_admin AS
     au.created_at,
     au.updated_at
    FROM public.admin_user au;
-
-
---
--- Name: wallet; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.wallet (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    address character varying(800),
-    balance public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    hold_balance public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    created_at timestamp(0) without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    debt public.cryptocurrency_amount DEFAULT 0 NOT NULL,
-    cc_code public.cryptocurrency_code NOT NULL,
-    CONSTRAINT balance_check CHECK (((balance)::numeric >= (0)::numeric)),
-    CONSTRAINT debt_check CHECK (((debt)::numeric >= (0)::numeric)),
-    CONSTRAINT hold_check CHECK (((hold_balance)::numeric >= (0)::numeric))
-);
 
 
 --
@@ -2153,6 +2317,13 @@ ALTER TABLE ONLY meduza.analysis_results ALTER COLUMN id SET DEFAULT nextval('me
 
 
 --
+-- Name: analyzed_users id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.analyzed_users ALTER COLUMN id SET DEFAULT nextval('meduza.analyzed_users_id_seq'::regclass);
+
+
+--
 -- Name: transaction_analyses id; Type: DEFAULT; Schema: meduza; Owner: -
 --
 
@@ -2185,6 +2356,20 @@ ALTER TABLE ONLY public.deposit ALTER COLUMN id SET DEFAULT nextval('public.tran
 --
 
 ALTER TABLE ONLY public.event ALTER COLUMN id SET DEFAULT nextval('public.event_id_seq'::regclass);
+
+
+--
+-- Name: user id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: user ref_parent_user_id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user" ALTER COLUMN ref_parent_user_id SET DEFAULT currval('public.users_id_seq'::regclass);
 
 
 --
@@ -2222,6 +2407,14 @@ ALTER TABLE ONLY meduza.address_analyses
 
 ALTER TABLE ONLY meduza.analysis_results
     ADD CONSTRAINT analysis_results_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: analyzed_users analyzed_users_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.analyzed_users
+    ADD CONSTRAINT analyzed_users_pkey PRIMARY KEY (id);
 
 
 --
@@ -2390,30 +2583,6 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.signed_operation_request
     ADD CONSTRAINT signed_operation_request_pkey PRIMARY KEY (expires_date, id);
-
-
---
--- Name: signed_operation_request$20211027 signed_operation_request$20211027_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."signed_operation_request$20211027"
-    ADD CONSTRAINT "signed_operation_request$20211027_pkey" PRIMARY KEY (expires_date, id);
-
-
---
--- Name: signed_operation_request$20211028 signed_operation_request$20211028_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."signed_operation_request$20211028"
-    ADD CONSTRAINT "signed_operation_request$20211028_pkey" PRIMARY KEY (expires_date, id);
-
-
---
--- Name: signed_operation_request$20211029 signed_operation_request$20211029_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."signed_operation_request$20211029"
-    ADD CONSTRAINT "signed_operation_request$20211029_pkey" PRIMARY KEY (expires_date, id);
 
 
 --
@@ -2665,6 +2834,30 @@ ALTER TABLE ONLY public."signed_operation_request$20211129"
 
 
 --
+-- Name: signed_operation_request$20211130 signed_operation_request$20211130_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."signed_operation_request$20211130"
+    ADD CONSTRAINT "signed_operation_request$20211130_pkey" PRIMARY KEY (expires_date, id);
+
+
+--
+-- Name: signed_operation_request$20211201 signed_operation_request$20211201_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."signed_operation_request$20211201"
+    ADD CONSTRAINT "signed_operation_request$20211201_pkey" PRIMARY KEY (expires_date, id);
+
+
+--
+-- Name: signed_operation_request$20211202 signed_operation_request$20211202_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."signed_operation_request$20211202"
+    ADD CONSTRAINT "signed_operation_request$20211202_pkey" PRIMARY KEY (expires_date, id);
+
+
+--
 -- Name: deposit transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2713,35 +2906,19 @@ ALTER TABLE ONLY public.wallet
 
 
 --
+-- Name: user user_sys_code_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT user_sys_code_key UNIQUE (sys_code);
+
+
+--
 -- Name: user_token_mfa user_tokens_mfa_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_token_mfa
     ADD CONSTRAINT user_tokens_mfa_pkey PRIMARY KEY (jwt_hash, expires_date);
-
-
---
--- Name: user_token_mfa$20211123 user_token_mfa$20211123_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."user_token_mfa$20211123"
-    ADD CONSTRAINT "user_token_mfa$20211123_pkey" PRIMARY KEY (jwt_hash, expires_date);
-
-
---
--- Name: user_token_mfa$20211124 user_token_mfa$20211124_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."user_token_mfa$20211124"
-    ADD CONSTRAINT "user_token_mfa$20211124_pkey" PRIMARY KEY (jwt_hash, expires_date);
-
-
---
--- Name: user_token_mfa$20211125 user_token_mfa$20211125_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."user_token_mfa$20211125"
-    ADD CONSTRAINT "user_token_mfa$20211125_pkey" PRIMARY KEY (jwt_hash, expires_date);
 
 
 --
@@ -2766,6 +2943,38 @@ ALTER TABLE ONLY public."user_token_mfa$20211127"
 
 ALTER TABLE ONLY public."user_token_mfa$20211128"
     ADD CONSTRAINT "user_token_mfa$20211128_pkey" PRIMARY KEY (jwt_hash, expires_date);
+
+
+--
+-- Name: user_token_mfa$20211129 user_token_mfa$20211129_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user_token_mfa$20211129"
+    ADD CONSTRAINT "user_token_mfa$20211129_pkey" PRIMARY KEY (jwt_hash, expires_date);
+
+
+--
+-- Name: user_token_mfa$20211130 user_token_mfa$20211130_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user_token_mfa$20211130"
+    ADD CONSTRAINT "user_token_mfa$20211130_pkey" PRIMARY KEY (jwt_hash, expires_date);
+
+
+--
+-- Name: user_token_mfa$20211201 user_token_mfa$20211201_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user_token_mfa$20211201"
+    ADD CONSTRAINT "user_token_mfa$20211201_pkey" PRIMARY KEY (jwt_hash, expires_date);
+
+
+--
+-- Name: user users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
 --
@@ -2814,10 +3023,24 @@ CREATE INDEX index_analysis_results_on_address_transaction ON meduza.analysis_re
 
 
 --
+-- Name: index_analyzed_users_on_user_id_uniq; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX index_analyzed_users_on_user_id_uniq ON meduza.analyzed_users USING btree (user_id);
+
+
+--
 -- Name: index_transaction_analyses_on_analysis_result_id; Type: INDEX; Schema: meduza; Owner: -
 --
 
 CREATE INDEX index_transaction_analyses_on_analysis_result_id ON meduza.transaction_analyses USING btree (analysis_result_id);
+
+
+--
+-- Name: index_transaction_analyses_on_analyzed_user_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_transaction_analyses_on_analyzed_user_id ON meduza.transaction_analyses USING btree (analyzed_user_id);
 
 
 --
@@ -2916,27 +3139,6 @@ CREATE INDEX payments_user_id_idx ON public.withdrawal USING btree (user_id);
 --
 
 CREATE INDEX signed_operation_request_id_idx ON ONLY public.signed_operation_request USING btree (id) WHERE (confirmed_at IS NULL);
-
-
---
--- Name: signed_operation_request$20211027_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX "signed_operation_request$20211027_id_idx" ON public."signed_operation_request$20211027" USING btree (id) WHERE (confirmed_at IS NULL);
-
-
---
--- Name: signed_operation_request$20211028_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX "signed_operation_request$20211028_id_idx" ON public."signed_operation_request$20211028" USING btree (id) WHERE (confirmed_at IS NULL);
-
-
---
--- Name: signed_operation_request$20211029_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX "signed_operation_request$20211029_id_idx" ON public."signed_operation_request$20211029" USING btree (id) WHERE (confirmed_at IS NULL);
 
 
 --
@@ -3157,6 +3359,27 @@ CREATE INDEX "signed_operation_request$20211129_id_idx" ON public."signed_operat
 
 
 --
+-- Name: signed_operation_request$20211130_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "signed_operation_request$20211130_id_idx" ON public."signed_operation_request$20211130" USING btree (id) WHERE (confirmed_at IS NULL);
+
+
+--
+-- Name: signed_operation_request$20211201_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "signed_operation_request$20211201_id_idx" ON public."signed_operation_request$20211201" USING btree (id) WHERE (confirmed_at IS NULL);
+
+
+--
+-- Name: signed_operation_request$20211202_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "signed_operation_request$20211202_id_idx" ON public."signed_operation_request$20211202" USING btree (id) WHERE (confirmed_at IS NULL);
+
+
+--
 -- Name: transactions_address_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3192,52 +3415,59 @@ CREATE UNIQUE INDEX user_cryptocurrency_settings_user_id_cryptocurrency_code_idx
 
 
 --
+-- Name: users_real_email_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_real_email_idx ON public."user" USING btree (real_email) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_ref_parent_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_ref_parent_user_id_idx ON public."user" USING btree (ref_parent_user_id);
+
+
+--
+-- Name: users_subject_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_subject_idx ON public."user" USING btree (subject) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_subject_idx1; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_subject_idx1 ON public."user" USING btree (subject);
+
+
+--
+-- Name: users_telegram_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_telegram_id_idx ON public."user" USING btree (telegram_id) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_telegram_id_idx1; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_telegram_id_idx1 ON public."user" USING btree (telegram_id);
+
+
+--
+-- Name: users_username_idx1; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_username_idx1 ON public."user" USING btree (nickname);
+
+
+--
 -- Name: wallet_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX wallet_user_id ON public.wallet USING btree (user_id);
-
-
---
--- Name: signed_operation_request$20211027_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211027_id_idx";
-
-
---
--- Name: signed_operation_request$20211027_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211027_pkey";
-
-
---
--- Name: signed_operation_request$20211028_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211028_id_idx";
-
-
---
--- Name: signed_operation_request$20211028_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211028_pkey";
-
-
---
--- Name: signed_operation_request$20211029_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211029_id_idx";
-
-
---
--- Name: signed_operation_request$20211029_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211029_pkey";
 
 
 --
@@ -3675,24 +3905,45 @@ ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed
 
 
 --
--- Name: user_token_mfa$20211123_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+-- Name: signed_operation_request$20211130_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
-ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211123_pkey";
-
-
---
--- Name: user_token_mfa$20211124_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211124_pkey";
+ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211130_id_idx";
 
 
 --
--- Name: user_token_mfa$20211125_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+-- Name: signed_operation_request$20211130_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
-ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211125_pkey";
+ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211130_pkey";
+
+
+--
+-- Name: signed_operation_request$20211201_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211201_id_idx";
+
+
+--
+-- Name: signed_operation_request$20211201_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211201_pkey";
+
+
+--
+-- Name: signed_operation_request$20211202_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211202_id_idx";
+
+
+--
+-- Name: signed_operation_request$20211202_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211202_pkey";
 
 
 --
@@ -3717,6 +3968,27 @@ ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$
 
 
 --
+-- Name: user_token_mfa$20211129_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211129_pkey";
+
+
+--
+-- Name: user_token_mfa$20211130_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211130_pkey";
+
+
+--
+-- Name: user_token_mfa$20211201_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211201_pkey";
+
+
+--
 -- Name: address_analyses fk_rails_4d26b9d298; Type: FK CONSTRAINT; Schema: meduza; Owner: -
 --
 
@@ -3733,11 +4005,67 @@ ALTER TABLE ONLY meduza.transaction_analyses
 
 
 --
+-- Name: transaction_analyses fk_rails_760f842201; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.transaction_analyses
+    ADD CONSTRAINT fk_rails_760f842201 FOREIGN KEY (analyzed_user_id) REFERENCES meduza.analyzed_users(id);
+
+
+--
+-- Name: analyzed_users fk_rails_f394cc0add; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.analyzed_users
+    ADD CONSTRAINT fk_rails_f394cc0add FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: account account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.account
+    ADD CONSTRAINT account_id_fkey FOREIGN KEY (id) REFERENCES public."user"(id);
+
+
+--
+-- Name: account_kyc_hist account_kyc_hist_acc_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.account_kyc_hist
+    ADD CONSTRAINT account_kyc_hist_acc_id_fkey FOREIGN KEY (acc_id) REFERENCES public."user"(id);
+
+
+--
 -- Name: account_swap_log account_swap_log_admin_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.account_swap_log
     ADD CONSTRAINT account_swap_log_admin_code_fkey FOREIGN KEY (admin_code) REFERENCES public.admin_user(code);
+
+
+--
+-- Name: account_swap_log account_swap_log_new_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.account_swap_log
+    ADD CONSTRAINT account_swap_log_new_user_id_fkey FOREIGN KEY (new_user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: account_swap_log account_swap_log_old_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.account_swap_log
+    ADD CONSTRAINT account_swap_log_old_user_id_fkey FOREIGN KEY (old_user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: admin_user admin_user_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.admin_user
+    ADD CONSTRAINT admin_user_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
 
 
 --
@@ -3765,6 +4093,14 @@ ALTER TABLE ONLY public.withdrawal
 
 
 --
+-- Name: withdrawal payments_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.withdrawal
+    ADD CONSTRAINT payments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
 -- Name: withdrawal payments_wallet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3773,11 +4109,51 @@ ALTER TABLE ONLY public.withdrawal
 
 
 --
+-- Name: signed_operation_request signed_operation_request_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE public.signed_operation_request
+    ADD CONSTRAINT signed_operation_request_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: user_auth_pub_key user_auth_pub_key_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_auth_pub_key
+    ADD CONSTRAINT user_auth_pub_key_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
 -- Name: user_cryptocurrency_settings user_cryptocurrency_settings_cryptocurrency_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_cryptocurrency_settings
     ADD CONSTRAINT user_cryptocurrency_settings_cryptocurrency_code_fkey FOREIGN KEY (cc_code) REFERENCES public.cryptocurrency(code);
+
+
+--
+-- Name: user_cryptocurrency_settings user_cryptocurrency_settings_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_cryptocurrency_settings
+    ADD CONSTRAINT user_cryptocurrency_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: user_token_mfa user_tokens_mfa_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE public.user_token_mfa
+    ADD CONSTRAINT user_tokens_mfa_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: user users_ref_parent_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT users_ref_parent_user_id_fkey FOREIGN KEY (ref_parent_user_id) REFERENCES public."user"(id);
 
 
 --
@@ -3794,6 +4170,14 @@ ALTER TABLE ONLY public.wallet_address_hist
 
 ALTER TABLE ONLY public.wallet_address_hist
     ADD CONSTRAINT wallet_address_hist_cryptocurrency_code_fkey FOREIGN KEY (cryptocurrency_code) REFERENCES public.cryptocurrency(code);
+
+
+--
+-- Name: wallet_address_hist wallet_address_hist_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.wallet_address_hist
+    ADD CONSTRAINT wallet_address_hist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
 
 
 --
@@ -3830,6 +4214,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211126081238'),
 ('20211126131347'),
 ('20211126135212'),
-('20211129090122');
+('20211129090122'),
+('20211129175044'),
+('20211129181253');
 
 

@@ -6,6 +6,5 @@ class CreateTransactionSources < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    TransactionSource.create!(name: 'bitzlato p2p', last_processed_blockchain_tx_id: 2_566_250)
   end
 end

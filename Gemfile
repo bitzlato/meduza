@@ -37,6 +37,8 @@ gem 'sidekiq-cron'
 gem 'simple_form'
 gem 'slim-rails'
 
+gem 'counter_culture', '~> 2.0'
+
 gem 'faraday'
 gem 'faraday_curl', '~> 0.0.2'
 gem 'faraday-detailed_logger', '~> 2.3'
