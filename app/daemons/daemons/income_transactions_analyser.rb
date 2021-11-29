@@ -30,14 +30,15 @@ module Daemons
           .where(cc_code: cc_code)
           .order(:id)
           .limit(ValegaClient::MAX_ELEMENTS)
+          .to_a
 
         unless btxs.any?
-          Rails.logger.info("No new blockchain transactions for cc_code=#{cc_code}")
+          Rails.logger.info("No new blockchain transactions for cc_code=#{cc_code} (last id #{transaction_source.last_processed_blockchain_tx_id})")
           next
         end
         Rails.logger.info("Process blockchain transactions with id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
         ValegaAnalyzer.new.analyze_transaction btxs, cc_code
-        transaction_source.update! last_processed_blockchain_tx_id: btxs.maximum(:id)
+        transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck.max(:id)
         break unless @running
       rescue ValegaClient::TooManyRequests => err
         report_exception err, true
