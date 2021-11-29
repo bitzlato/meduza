@@ -3,6 +3,8 @@ table.table.table-narrow
     tr
       th Последнее обновление
       th user.id
+      th Рискованных траназакций
+      th Последняя
 
   tbody
     - analyzed_users.each do |au|
@@ -10,3 +12,11 @@ table.table.table-narrow
         td= present_time au.updated_at
         td.text-monospace
           = au.user.id
+        td= au.risk_level_3_count
+        td
+          - ta = au.transaction_analyses.where(risk_level: 3, risk_confidence: 1.0).last
+          - if ta.present?
+            .text-monospace= ta.txid
+            div= render 'risk_detailed', analysis: ta
+            div= present_risk_confidence ta.risk_confidence
+

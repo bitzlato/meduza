@@ -38,7 +38,7 @@ module Daemons
         end
         Rails.logger.info("Process blockchain transactions with id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
         ValegaAnalyzer.new.analyze_transaction btxs, cc_code
-        transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck.max(:id)
+        transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck(:id).max
         break unless @running
       rescue ValegaClient::TooManyRequests => err
         report_exception err, true
