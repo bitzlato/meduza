@@ -19,14 +19,18 @@ class TransactionAnalysis < ApplicationRecord
 
   validates :input_addresses, presence: true, unless: :analysis_result
 
-  before_create do
-    self.analyzed_user ||= AnalyzedUser.find_or_create_by!(user: user) if user.present?
-  end
+  before_create :set_analyzed_user
 
   def self.actual?(txid)
     ta = find_by(txid: txid)
     return false if ta.nil?
 
     ta.updated_at > 1.week.ago
+  end
+
+  private
+
+  def set_analyzed_user
+    self.analyzed_user ||= AnalyzedUser.find_or_create_by!(user: user) if user.present?
   end
 end
