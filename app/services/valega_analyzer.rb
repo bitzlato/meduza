@@ -42,12 +42,12 @@ class ValegaAnalyzer
 
     btx = blockchain_txs.find { |btx| btx.txid == txid }
 
-    attrs = {
+    attrs = risks.merge(
       blockchain_tx: btx,
       txid: txid,
       cc_code: btx.cc_code,
       analysis_result: ar,
-    }
+    )
     ta = TransactionAnalysis
       .create_with(attrs)
       .find_or_create_by!(blockchain_tx_id: btx.id)
