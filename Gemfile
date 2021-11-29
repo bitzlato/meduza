@@ -101,3 +101,5 @@ group :deploy do
 end
 
 gem 'money', '~> 6.16'
+
+gem "redis-namespace", "~> 1.8"

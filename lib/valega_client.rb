@@ -1,4 +1,5 @@
 require 'faraday'
+require 'redis-namespace'
 
 class ValegaClient
   include Singleton
@@ -64,13 +65,14 @@ class ValegaClient
     data = { data: address_transactions }
     data[:show_details] = show_details unless show_details.nil?
     data[:asset_type_id] = asset_type_id unless asset_type_id.nil?
+    Rails.logger.info('Make request realtime_risk_monitor/risk/analysis')
     response = conn.post '/realtime_risk_monitor/risk/analysis' do |req|
       req.body = data.to_json
     end
 
     parse_response response
   ensure
-    @last_request_at = Time.zone.now
+    redis.set 'last_request_at', Time.zone.now.to_i, ex: PAUSE_BETWEEN_REQUESTS
   end
 
   def risk_assets_types
@@ -80,6 +82,7 @@ class ValegaClient
       conn.request :authorization, 'Bearer', authorization.access_token
     end
 
+    Rails.logger.info('Make request /realtime_risk_monitor/risk/assets')
     parse_response conn.get '/realtime_risk_monitor/risk/assets'
 
     # {"id"=>"wvaVWgVy9p", "name"=>"Bitcoin", "code"=>"BTC"}
@@ -106,9 +109,12 @@ class ValegaClient
   def raise_error!(data)
     error_key = data.fetch('error')
     if ERRORS.key? error_key
+      Rails.logger.error data.fetch('message')
       raise ERRORS.fetch(error_key), data.fetch('message')
     else
-      raise UnknownError, [data.fetch('message'), data.fetch('error')].join('; ')
+      message = [data.fetch('message'), data.fetch('error')].join('; ')
+      Rails.logger.error message
+      raise UnknownError, message
     end
   end
 
@@ -134,6 +140,7 @@ class ValegaClient
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
     end
 
+    Rails.logger.info('Make request /oauth/token/get')
     response = conn.post('/oauth/token/get') do |req|
       req.body = { "grant_type": "password", "username": username, "password": password }.to_json
     end
@@ -145,12 +152,19 @@ class ValegaClient
     Authorization.new(response.slice('access_token', 'expires_in').symbolize_keys)
   end
 
+  def redis
+    @redis ||= Redis::Namespace.new(:valega, redis: Redis.new(url: ENV.fetch('REDIS_URL')))
+  end
+
   def start_request
-    return unless @last_request_at.present? && Time.zone.now - @last_request_at <= PAUSE_BETWEEN_REQUESTS
-    pause = (PAUSE_BETWEEN_REQUESTS - (Time.zone.now - @last_request_at)).ceil
+    value = redis.get('last_request_at')
+    return if value.blank?
+    pause = PAUSE_BETWEEN_REQUESTS.to_i - (Time.zone.now.to_i - value.to_i) + 0.1 # 0.1 на всякий случай
     if pause.positive?
       Rails.logger.info("Pause between requests #{pause} secs")
       sleep pause
+    else
+      Rails.logger.warn("Negative pause value #{pause}")
     end
   end
 end
