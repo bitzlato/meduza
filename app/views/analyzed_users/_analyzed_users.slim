@@ -1,0 +1,12 @@
+table.table.table-narrow
+  thead.thead-dark
+    tr
+      th Последнее обновление
+      th user.id
+
+  tbody
+    - analyzed_users.each do |au|
+      tr
+        td= present_time au.updated_at
+        td.text-monospace
+          = au.user.id
