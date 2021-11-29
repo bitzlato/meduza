@@ -29,10 +29,10 @@ class ValegaAnalyzer
     ValegaClient
       .instance
       .risk_analysis(address_transactions: blockchain_txs.map(&:txid), asset_type_id: ValegaClient.get_asset_type_id(cc_code))
-      .map { |response| perform_response response }
+      .map { |response| perform_response response, blockchain_txs }
   end
 
-  def perform_response(response)
+  def perform_response(response, blockchain_txs)
     txid = response.fetch('value')
     risks = response.slice('risk_level', 'risk_confidence')
 
@@ -45,7 +45,7 @@ class ValegaAnalyzer
     attrs = {
       blockchain_tx: btx,
       txid: txid,
-      cc_code: cc_code,
+      cc_code: btx.cc_code,
       analysis_result: ar,
     }
     ta = TransactionAnalysis
