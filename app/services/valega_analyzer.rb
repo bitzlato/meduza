@@ -15,7 +15,7 @@ class ValegaAnalyzer
           .merge(
             address_transaction: address,
             raw_response: response
-          )
+        )
         )
 
         AddressAnalysis.upsert!(risks.merge(address: address, analysis_result: ar, updated_at: Time.zone.now))
@@ -29,21 +29,30 @@ class ValegaAnalyzer
     ValegaClient
       .instance
       .risk_analysis(address_transactions: blockchain_txs.map(&:txid), asset_type_id: ValegaClient.get_asset_type_id(cc_code))
-      .map do |response|
-      txid = response.fetch('value')
-      risks = response.slice('risk_level', 'risk_confidence')
+      .map { |response| perform_response response }
+  end
 
-      ar = AnalysisResult.create!(
-        risks
-        .merge(
-          address_transaction: txid,
-          raw_response: response
-        )
-      )
+  def perform_response(response)
+    txid = response.fetch('value')
+    risks = response.slice('risk_level', 'risk_confidence')
 
-      btx_id = blockchain_txs.find { |btx| btx.txid == txid }.id
-      TransactionAnalysis
-        .upsert!(risks.merge(blockchain_tx_id: btx_id, txid: txid, cc_code: cc_code, analysis_result: ar, updated_at: Time.zone.now))
-    end
+    ar = AnalysisResult.create!(
+      risks.merge(address_transaction: txid, raw_response: response)
+    )
+
+    btx = blockchain_txs.find { |btx| btx.txid == txid }
+
+    attrs = {
+      blockchain_tx: btx,
+      txid: txid,
+      cc_code: cc_code,
+      analysis_result: ar,
+    }
+    ta = TransactionAnalysis
+      .create_with(attrs)
+      .find_or_create_by!(blockchain_tx_id: btx.id)
+
+    ta.analysis_result = ar
+    ta.save! if ta.changed?
   end
 end

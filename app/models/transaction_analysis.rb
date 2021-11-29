@@ -15,14 +15,12 @@ class TransactionAnalysis < ApplicationRecord
     },
     touch: true
 
-  upsert_keys [:txid]
-
   scope :include_address, ->(address) { where("input_addresses::jsonb ? :address", address: address) }
 
   validates :input_addresses, presence: true, unless: :analysis_result
 
-  before_update do
-    self.analyzed_user = AnalysedUser.find_or_create_by user_id: user.id if user.present?
+  before_create do
+    self.analyzed_user ||= AnalysedUser.find_or_create_by!(user: user) if user.present?
   end
 
   def self.actual?(txid)
