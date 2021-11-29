@@ -19,8 +19,6 @@ class TransactionAnalysis < ApplicationRecord
 
   scope :include_address, ->(address) { where("input_addresses::jsonb ? :address", address: address) }
 
-  # TODO: seach by input_address
-
   validates :input_addresses, presence: true, unless: :analysis_result
 
   before_update do

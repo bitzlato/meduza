@@ -159,7 +159,7 @@ class ValegaClient
   def start_request
     value = redis.get('last_request_at')
     return if value.blank?
-    pause = PAUSE_BETWEEN_REQUESTS.to_i - (Time.zone.now.to_i - value.to_i) + 0.1 # 0.1 на всякий случай
+    pause = PAUSE_BETWEEN_REQUESTS.to_i - (Time.zone.now.to_i - value.to_i)
     if pause.positive?
       Rails.logger.info("Pause between requests #{pause} secs")
       sleep pause

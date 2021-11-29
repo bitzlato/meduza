@@ -24,22 +24,26 @@ module Daemons
     def process
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
-        TransactionSource.where(cc_code: cc_code).find_each do |transaction_source|
-          btxs = self.class.scope
-            .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
-            .order(:id)
-            .limit(ValegaClient::MAX_ELEMENTS)
+        transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
+        btxs = self.class.scope
+          .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
+          .where(cc_code: cc_code)
+          .order(:id)
+          .limit(ValegaClient::MAX_ELEMENTS)
 
-          next unless btxs.any?
-          Rails.logger.info("Process id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
-          ValegaAnalyzer.new.analyze_transaction btxs, cc_code
-          transaction_source.update! last_processed_blockchain_tx_id: btxs.maximum(:id)
-        rescue ValegaClient::TooManyRequests => err
-          report_exception err, true
-          Rails.logger.error "Retry: #{err.message}"
-          sleep 1
-          retry
+        unless btxs.any?
+          Rails.logger.info("No new blockchain transactions for cc_code=#{cc_code}")
+          next
         end
+        Rails.logger.info("Process blockchain transactions with id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
+        ValegaAnalyzer.new.analyze_transaction btxs, cc_code
+        transaction_source.update! last_processed_blockchain_tx_id: btxs.maximum(:id)
+        break unless @running
+      rescue ValegaClient::TooManyRequests => err
+        report_exception err, true
+        Rails.logger.error "Retry: #{err.message}"
+        sleep 1
+        retry
       rescue StandardError => e
         report_exception e, true, cc_code: cc_code
       end

@@ -943,7 +943,6 @@ ALTER SEQUENCE meduza.transaction_analyses_id_seq OWNED BY meduza.transaction_an
 
 CREATE TABLE meduza.transaction_sources (
     id bigint NOT NULL,
-    name character varying,
     last_processed_blockchain_tx_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
@@ -3058,13 +3057,6 @@ CREATE UNIQUE INDEX index_transaction_analyses_on_txid ON meduza.transaction_ana
 
 
 --
--- Name: index_transaction_sources_on_name_and_cc_code; Type: INDEX; Schema: meduza; Owner: -
---
-
-CREATE UNIQUE INDEX index_transaction_sources_on_name_and_cc_code ON meduza.transaction_sources USING btree (name, cc_code);
-
-
---
 -- Name: admin_user_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4013,14 +4005,6 @@ ALTER TABLE ONLY meduza.transaction_analyses
 
 
 --
--- Name: analyzed_users fk_rails_f394cc0add; Type: FK CONSTRAINT; Schema: meduza; Owner: -
---
-
-ALTER TABLE ONLY meduza.analyzed_users
-    ADD CONSTRAINT fk_rails_f394cc0add FOREIGN KEY (user_id) REFERENCES public."user"(id);
-
-
---
 -- Name: account account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4216,6 +4200,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211126135212'),
 ('20211129090122'),
 ('20211129175044'),
-('20211129181253');
+('20211129181253'),
+('20211129191823');
 
 
