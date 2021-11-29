@@ -1,3 +1,4 @@
 = present_risk_level analysis.risk_level
 - if analysis.risk_level > 1 && analysis.analysis_result.present? 
   .mt-2.text-muted.text-small= analysis.analysis_result.raw_response['risk_msg'] || 'No risk_msg found'
+  .mt-2.text-muted.text-small= analysis.analysis_result.raw_response['transaction_entity_name'] || 'Unknown transaction entity name'
