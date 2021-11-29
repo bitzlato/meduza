@@ -20,6 +20,9 @@ class ValegaAnalyzer
         )
 
         AddressAnalysis.upsert!(risks.merge(address: address, analysis_result: ar, updated_at: Time.zone.now))
+      rescue ValegaClient::TooManyRequests => err
+        report_exception err, true, slice: slice
+        sleep 10
       end
     end
   end
@@ -46,6 +49,9 @@ class ValegaAnalyzer
 
       TransactionAnalysis.
         upsert!(risks.merge(blockchain_tx_id: btx.id, txid: txid, cc_code: cc_code, analysis_result: ar, updated_at: Time.zone.now))
+    rescue ValegaClient::TooManyRequests => err
+      report_exception err, true, btx: btx
+      sleep 10
     end
   end
 end
