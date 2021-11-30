@@ -6,16 +6,11 @@
 #
 class SummaryQuery
   SUMMARY_MODELS = {
-    Deposit => { grouped_by: %i[currency_id aasm_state], aggregations: ['sum(amount)', 'sum(fee)'] },
-    Withdraw => { grouped_by: %i[currency_id aasm_state], aggregations: ['sum(amount)', 'sum(sum)', 'sum(fee)'] },
-    Account => { grouped_by: [:currency_id], aggregations: ['sum(balance)', 'sum(locked)', :total] },
-    Operations::Liability => { grouped_by: [:currency_id, 'operations_accounts.description'], aggregations: ['sum(credit)', 'sum(debit)', :total] },
-    Operations::Revenue => { grouped_by: [:currency_id], aggregations: ['sum(credit)', 'sum(debit)', :total] },
-    Operations::Asset => { grouped_by: [:currency_id, 'operations_accounts.description'], aggregations: ['sum(credit)', 'sum(debit)', :total] },
-    Transaction => { grouped_by: %i[currency_id status], aggregations: ['sum(amount)', 'sum(fee)'] },
-    ServiceWithdraw => { grouped_by: %i[currency_id status], aggregations: ['sum(amount)'] },
-    ServiceInvoice => { grouped_by: %i[currency_id status], aggregations: ['sum(amount)'] },
-    ServiceTransaction => { grouped_by: %i[currency_id], aggregations: ['sum(service_transactions.amount)'] }
+    Deposit => { grouped_by: %i[cc_code status is_dust], aggregations: ['sum(amount)', 'sum(fee)', :total] },
+    Withdrawal => { grouped_by: %i[cc_code status], aggregations: ['sum(amount)', 'sum(fee)', 'sum(real_pay_fee)', :total] },
+    TransactionAnalysis => { grouped_by: %i[risk_level], aggregations: [:total] },
+    AddressAnalysis => { grouped_by: %i[risk_level], aggregations: ['count(risk_level)'] },
+    AnalyzedUser => { grouped_by: %w[risk_level_3_count>0], aggregations: [:total], order: '' },
   }.freeze
 
   # rubocop:disable Metrics/MethodLength
@@ -24,14 +19,30 @@ class SummaryQuery
     return unless SUMMARY_MODELS[model_class].present?
 
     meta = SUMMARY_MODELS[model_class]
-    plucks = ((meta[:grouped_by] + meta[:aggregations]) - [:total]).map do |p|
+
+    if meta[:grouped_by].join.include? '>'
+      extra_plucks = []
+    else
+      extra_plucks = meta[:grouped_by]
+    end
+
+    order = meta[:order] || meta[:grouped_by].first
+
+    plucks = ((extra_plucks + meta[:aggregations]) - [:total]).map do |p|
       p.to_s.include?('(') || p.to_s.include?('.') ? p : [model_class.table_name, p].join('.')
     end
-    rows = scope
+
+    scope = scope
            .group(*meta[:grouped_by])
            .reorder('')
-           .order(meta[:grouped_by].first)
-           .pluck(plucks.join(', '))
+           .order(order)
+
+    if plucks.any?
+      scope = scope.pluck(plucks.join(', '))
+    else
+      scope = scope.count
+    end
+    rows = scope
            .map { |row| prepare_row row, meta[:aggregations] }
 
     {
@@ -51,6 +62,7 @@ class SummaryQuery
     total = if aggregations.join.include? 'debit'
               row.last(2).first - row.last
             else
+              binding.pry
               row.slice(row.length - count, count).inject(&:+)
             end
     row + [total]

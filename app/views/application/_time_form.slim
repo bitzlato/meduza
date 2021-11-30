@@ -1,0 +1,9 @@
+= search_form_for q do |f|
+  .row
+    .col-md-4
+      = f.input :created_at_gteq, input_html: { class: 'datetimepicker' }
+    .col-md-4
+      = f.input :created_at_lt, input_html: { class: 'datetimepicker' }
+  - if block_given? 
+    = yield f
+  = f.button :submit, class: 'btn btn-primary'

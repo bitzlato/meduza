@@ -19,7 +19,7 @@ module PaginationSupport
   end
 
   def per_page_default
-    Rails.env.development? ? 5 : 100
+    Rails.env.development? ? 15 : 100
   end
 
   def paginate(scope)

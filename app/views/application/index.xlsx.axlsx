@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2019 Danil Pismenny <danil@brandymint.ru>
+
+wb = xlsx_package.workbook
+records = records.decorate unless records.respond_to?(:decorated?) && records.decorated?
+decorator = records.first.decorator_class
+columns = decorator.table_columns unless defined?(columns) && columns.present?
+wb.add_worksheet(name: model_class.model_name.human_plural) do |sheet|
+  sheet.add_row(columns.map { |column| decorator.object_class.human_attribute_name(column) })
+  records.each do |item|
+    sheet.add_row(columns.map { |column| item.object.send(column) })
+  end
+end

@@ -1,0 +1,25 @@
+h1= paginated_records.model_name.human_plural
+- if respond_to? :blockchain
+  = render 'blockchains_select' 
+- if respond_to? :currency
+  = render 'currencies_select', currencies: Currency.order(:id)
+- if respond_to? :market
+  = render 'markets_select' 
+- if respond_to? :aasm_state
+  = render 'state_select', states: model_class.group(:aasm_state).count.keys, key: :aasm_state_eq
+- if q.klass.ransackable_scopes.include? :completed 
+  = render 'deposit_status_select' 
+.clearfix
+= render index_form
+= render 'summary_by_currency', summary: summary if summary.present? && summary[:rows].present?
+hr
+div.mb-2
+  = t 'application.index..total_records', count: paginated_records.total_count
+  span.ml-4
+    - if paginated_records.total_count > Rails.configuration.application.fetch(:max_export_records_count)
+      span.text-muted= t '.too_much_records_to_export'
+    - elsif paginated_records.total_count.positive?
+      = download_link
+= render 'table', items: paginated_records.decorate if paginated_records.count.positive?
+= paginate paginated_records
+= render 'hided_columns'

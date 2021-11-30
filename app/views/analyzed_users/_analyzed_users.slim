@@ -11,11 +11,11 @@ table.table.table-narrow.table-striped
       tr
         td= present_time au.updated_at
         td.text-monospace
-          = au.user.id
+          = au.user.try(:id) || '?'
         td= au.risk_level_3_count
         - if ta.present?
           td.text-muted= ta.cc_code
           td.text-monospace= ta.txid
           td= render 'risk_detailed', analysis: ta
         - else
-          td colspan=3 &nbsp;
+          td colspan=3 Не найдена

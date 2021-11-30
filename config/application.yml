@@ -1,9 +1,14 @@
 defaults: &defaults
+  max_export_records_count: 1000
   default_url_options: &default_url_options
     protocol: <%= ENV.fetch('HTTP_PROTOCOL', 'https') %>
     host: <%= ENV.fetch('MEDUZA_HOST', 'localhost') %>
 
 production:
+  <<: *defaults
   default_url_options:
     protocol: https
     host: meduza.lgk.one
+
+development:
+  <<: *defaults
