@@ -13,4 +13,8 @@ class BlockchainTx < ApplicationRecord
   def user
     deposit_user || withdraw_user
   end
+
+  def amount
+    (source || {}).dig('amount')
+  end
 end

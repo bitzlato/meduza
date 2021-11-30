@@ -129,6 +129,7 @@ class ApplicationDecorator < Draper::Decorator
   def present_txid(txid)
     return h.middot if txid.nil?
 
-    h.link_to(txid, object.transaction_url, target: '_blank', class: 'text-monospace')
+    h.content_tag :span, txid, class: 'text-monospace'
+    # h.link_to(txid, object.transaction_url, target: '_blank', class: 'text-monospace')
   end
 end

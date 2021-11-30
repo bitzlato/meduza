@@ -1,6 +1,10 @@
 class TransactionAnalysisDecorator < ApplicationDecorator
   delegate_all
 
+  def self.table_columns
+    %i[cc_code txid amount input_addresses blockchain_tx analyzed_user analysis_result risk_level risk_confidence]
+  end
+
   # Define presentation-specific methods here. Helpers are accessed through
   # `helpers` (aka `h`). You can override attributes, for example:
   #
