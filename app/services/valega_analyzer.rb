@@ -37,7 +37,7 @@ class ValegaAnalyzer
     risks = response.slice('risk_level', 'risk_confidence')
 
     ar = AnalysisResult.create!(
-      risks.merge(address_transaction: txid, raw_response: response)
+      risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response)
     )
 
     btx = blockchain_txs.find { |btx| btx.txid == txid }

@@ -798,12 +798,26 @@ CREATE AGGREGATE public.last(anyelement) (
 
 
 --
+-- Name: cryptocurrency; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.cryptocurrency (
+    code character varying(4) NOT NULL,
+    name character varying(256) NOT NULL,
+    scale smallint DEFAULT 8 NOT NULL,
+    weight smallint NOT NULL,
+    CONSTRAINT cryptocurrency_code_check CHECK ((length((code)::text) > 0)),
+    CONSTRAINT cryptocurrency_name_check CHECK ((length((name)::text) > 0))
+);
+
+
+--
 -- Name: address_analyses; Type: TABLE; Schema: meduza; Owner: -
 --
 
 CREATE TABLE meduza.address_analyses (
     id bigint NOT NULL,
-    address meduza.citext NOT NULL,
+    address public.citext NOT NULL,
     risk_level integer NOT NULL,
     risk_confidence numeric NOT NULL,
     analysis_result_id bigint NOT NULL,
@@ -837,12 +851,13 @@ ALTER SEQUENCE meduza.address_analyses_id_seq OWNED BY meduza.address_analyses.i
 
 CREATE TABLE meduza.analysis_results (
     id bigint NOT NULL,
-    address_transaction meduza.citext NOT NULL,
+    address_transaction public.citext NOT NULL,
     risk_confidence numeric NOT NULL,
     risk_level integer NOT NULL,
     raw_response jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    cc_code character varying
 );
 
 
@@ -900,12 +915,33 @@ ALTER SEQUENCE meduza.analyzed_users_id_seq OWNED BY meduza.analyzed_users.id;
 
 
 --
+-- Name: ar_internal_metadata; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.ar_internal_metadata (
+    key character varying NOT NULL,
+    value character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.schema_migrations (
+    version character varying NOT NULL
+);
+
+
+--
 -- Name: transaction_analyses; Type: TABLE; Schema: meduza; Owner: -
 --
 
 CREATE TABLE meduza.transaction_analyses (
     id bigint NOT NULL,
-    txid meduza.citext NOT NULL,
+    txid public.citext NOT NULL,
     cc_code character varying NOT NULL,
     risk_level integer NOT NULL,
     input_addresses jsonb,
@@ -967,20 +1003,6 @@ CREATE SEQUENCE meduza.transaction_sources_id_seq
 --
 
 ALTER SEQUENCE meduza.transaction_sources_id_seq OWNED BY meduza.transaction_sources.id;
-
-
---
--- Name: cryptocurrency; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.cryptocurrency (
-    code character varying(4) NOT NULL,
-    name character varying(256) NOT NULL,
-    scale smallint DEFAULT 8 NOT NULL,
-    weight smallint NOT NULL,
-    CONSTRAINT cryptocurrency_code_check CHECK ((length((code)::text) > 0)),
-    CONSTRAINT cryptocurrency_name_check CHECK ((length((name)::text) > 0))
-);
 
 
 --
@@ -1180,18 +1202,6 @@ CREATE TABLE public.admin_user (
 
 
 --
--- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.ar_internal_metadata (
-    key character varying NOT NULL,
-    value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
-);
-
-
---
 -- Name: banned_user; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1344,15 +1354,6 @@ ALTER SEQUENCE public.payments_id_seq OWNED BY public.withdrawal.id;
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.schema_migrations (
-    version character varying NOT NULL
-);
-
-
---
 -- Name: signed_operation_request; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1369,26 +1370,6 @@ CREATE TABLE public.signed_operation_request (
     CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
 )
 PARTITION BY LIST (expires_date);
-
-
---
--- Name: signed_operation_request$20211030; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."signed_operation_request$20211030" (
-    id bigint NOT NULL,
-    user_id integer NOT NULL,
-    command character varying(63) NOT NULL,
-    params jsonb NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    confirmed_at timestamp without time zone,
-    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
-    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211030" FOR VALUES IN ('2021-10-30');
 
 
 --
@@ -2052,6 +2033,26 @@ ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed
 
 
 --
+-- Name: signed_operation_request$20211203; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."signed_operation_request$20211203" (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    command character varying(63) NOT NULL,
+    params jsonb NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    confirmed_at timestamp without time zone,
+    CONSTRAINT signed_operation_request_check CHECK (((expires_date + expires_time) > issued_at)),
+    CONSTRAINT signed_operation_request_check1 CHECK (((expires_date + expires_time) > confirmed_at))
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.signed_operation_request ATTACH PARTITION public."signed_operation_request$20211203" FOR VALUES IN ('2021-12-03');
+
+
+--
 -- Name: signed_operation_request_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -2116,22 +2117,6 @@ CREATE TABLE public.user_token_mfa (
     mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
 )
 PARTITION BY LIST (expires_date);
-
-
---
--- Name: user_token_mfa$20211126; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."user_token_mfa$20211126" (
-    jwt_hash character varying(64) NOT NULL,
-    user_id integer NOT NULL,
-    expires_date date NOT NULL,
-    expires_time time without time zone NOT NULL,
-    issued_at timestamp without time zone NOT NULL,
-    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
-)
-WITH (autovacuum_enabled='false', fillfactor='100');
-ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211126" FOR VALUES IN ('2021-11-26');
 
 
 --
@@ -2212,6 +2197,22 @@ CREATE TABLE public."user_token_mfa$20211201" (
 )
 WITH (autovacuum_enabled='false', fillfactor='100');
 ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211201" FOR VALUES IN ('2021-12-01');
+
+
+--
+-- Name: user_token_mfa$20211202; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user_token_mfa$20211202" (
+    jwt_hash character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    expires_date date NOT NULL,
+    expires_time time without time zone NOT NULL,
+    issued_at timestamp without time zone NOT NULL,
+    mfa_passed_at timestamp without time zone DEFAULT now() NOT NULL
+)
+WITH (autovacuum_enabled='false', fillfactor='100');
+ALTER TABLE ONLY public.user_token_mfa ATTACH PARTITION public."user_token_mfa$20211202" FOR VALUES IN ('2021-12-02');
 
 
 --
@@ -2417,6 +2418,22 @@ ALTER TABLE ONLY meduza.analyzed_users
 
 
 --
+-- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.ar_internal_metadata
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.schema_migrations
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
 -- Name: transaction_analyses transaction_analyses_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
 --
 
@@ -2478,14 +2495,6 @@ ALTER TABLE ONLY public.admin_user
 
 ALTER TABLE ONLY public.admin_user
     ADD CONSTRAINT admin_users_email_key UNIQUE (code);
-
-
---
--- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.ar_internal_metadata
-    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
@@ -2569,27 +2578,11 @@ ALTER TABLE ONLY public.withdrawal
 
 
 --
--- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.schema_migrations
-    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
-
-
---
 -- Name: signed_operation_request signed_operation_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.signed_operation_request
     ADD CONSTRAINT signed_operation_request_pkey PRIMARY KEY (expires_date, id);
-
-
---
--- Name: signed_operation_request$20211030 signed_operation_request$20211030_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."signed_operation_request$20211030"
-    ADD CONSTRAINT "signed_operation_request$20211030_pkey" PRIMARY KEY (expires_date, id);
 
 
 --
@@ -2857,6 +2850,14 @@ ALTER TABLE ONLY public."signed_operation_request$20211202"
 
 
 --
+-- Name: signed_operation_request$20211203 signed_operation_request$20211203_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."signed_operation_request$20211203"
+    ADD CONSTRAINT "signed_operation_request$20211203_pkey" PRIMARY KEY (expires_date, id);
+
+
+--
 -- Name: deposit transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2921,14 +2922,6 @@ ALTER TABLE ONLY public.user_token_mfa
 
 
 --
--- Name: user_token_mfa$20211126 user_token_mfa$20211126_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."user_token_mfa$20211126"
-    ADD CONSTRAINT "user_token_mfa$20211126_pkey" PRIMARY KEY (jwt_hash, expires_date);
-
-
---
 -- Name: user_token_mfa$20211127 user_token_mfa$20211127_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2966,6 +2959,14 @@ ALTER TABLE ONLY public."user_token_mfa$20211130"
 
 ALTER TABLE ONLY public."user_token_mfa$20211201"
     ADD CONSTRAINT "user_token_mfa$20211201_pkey" PRIMARY KEY (jwt_hash, expires_date);
+
+
+--
+-- Name: user_token_mfa$20211202 user_token_mfa$20211202_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user_token_mfa$20211202"
+    ADD CONSTRAINT "user_token_mfa$20211202_pkey" PRIMARY KEY (jwt_hash, expires_date);
 
 
 --
@@ -3152,13 +3153,6 @@ CREATE INDEX payments_user_id_idx ON public.withdrawal USING btree (user_id);
 --
 
 CREATE INDEX signed_operation_request_id_idx ON ONLY public.signed_operation_request USING btree (id) WHERE (confirmed_at IS NULL);
-
-
---
--- Name: signed_operation_request$20211030_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX "signed_operation_request$20211030_id_idx" ON public."signed_operation_request$20211030" USING btree (id) WHERE (confirmed_at IS NULL);
 
 
 --
@@ -3393,6 +3387,13 @@ CREATE INDEX "signed_operation_request$20211202_id_idx" ON public."signed_operat
 
 
 --
+-- Name: signed_operation_request$20211203_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "signed_operation_request$20211203_id_idx" ON public."signed_operation_request$20211203" USING btree (id) WHERE (confirmed_at IS NULL);
+
+
+--
 -- Name: transactions_address_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3481,20 +3482,6 @@ CREATE INDEX users_username_idx1 ON public."user" USING btree (nickname);
 --
 
 CREATE INDEX wallet_user_id ON public.wallet USING btree (user_id);
-
-
---
--- Name: signed_operation_request$20211030_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211030_id_idx";
-
-
---
--- Name: signed_operation_request$20211030_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211030_pkey";
 
 
 --
@@ -3960,10 +3947,17 @@ ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed
 
 
 --
--- Name: user_token_mfa$20211126_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+-- Name: signed_operation_request$20211203_id_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
-ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211126_pkey";
+ALTER INDEX public.signed_operation_request_id_idx ATTACH PARTITION public."signed_operation_request$20211203_id_idx";
+
+
+--
+-- Name: signed_operation_request$20211203_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.signed_operation_request_pkey ATTACH PARTITION public."signed_operation_request$20211203_pkey";
 
 
 --
@@ -3999,6 +3993,13 @@ ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$
 --
 
 ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211201_pkey";
+
+
+--
+-- Name: user_token_mfa$20211202_pkey; Type: INDEX ATTACH; Schema: public; Owner: -
+--
+
+ALTER INDEX public.user_tokens_mfa_pkey ATTACH PARTITION public."user_token_mfa$20211202_pkey";
 
 
 --
@@ -4223,6 +4224,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211129175044'),
 ('20211129181253'),
 ('20211129191823'),
-('20211129194459');
+('20211129194459'),
+('20211130103912');
 
 
