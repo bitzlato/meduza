@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 class ApplicationDecorator < Draper::Decorator
-  TEXT_RIGHT = %i[fee amount address address_transaction risk_level risk_confidence user_id].freeze
+  TEXT_RIGHT = %i[fee amount address address_transaction risk_level risk_confidence txid user_id].freeze
 
   def self.table_columns
     object_class.attribute_names.map(&:to_sym)

@@ -1,0 +1,15 @@
+- item = item.decorate unless item.respond_to?(:decorated?) && item.decorated?
+- decorator = item.decorator_class
+- columns = decorator.attributes
+table.table.table-striped.table-hover.table-narrow
+  - columns.each do |column|
+    tr
+      th class='text-right' title=column
+        - tip = I18n.t column, scope: [:tips, item.class.model_name.i18n_key], default: nil
+        - if tip.present?
+          div= item.class.human_attribute_name column
+          = column_tip tip
+        - else
+          = item.class.human_attribute_name column
+      td class='text-right'
+        = item.send column

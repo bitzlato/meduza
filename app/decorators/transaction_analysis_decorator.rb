@@ -10,10 +10,10 @@ class TransactionAnalysisDecorator < ApplicationDecorator
   end
 
   def analyzed_user
-    h.link_to object.analyzed_user_id, h.analyzed_user_path(object.analyzed_user)
+    h.link_to 'link', h.analyzed_user_path(object.analyzed_user)
   end
 
   def analysis_result
-    h.content_tag :code, object.analysis_result.as_json
+    h.link_to 'link', h.analysis_result_path(object.analysis_result)
   end
 end
