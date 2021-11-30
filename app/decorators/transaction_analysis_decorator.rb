@@ -2,16 +2,18 @@ class TransactionAnalysisDecorator < ApplicationDecorator
   delegate_all
 
   def self.table_columns
-    %i[cc_code txid amount input_addresses blockchain_tx analyzed_user analysis_result risk_level risk_confidence]
+    %i[updated_at cc_code txid amount input_addresses blockchain_tx analyzed_user user_id analysis_result risk_level risk_confidence]
   end
 
-  # Define presentation-specific methods here. Helpers are accessed through
-  # `helpers` (aka `h`). You can override attributes, for example:
-  #
-  #   def created_at
-  #     helpers.content_tag :span, class: 'time' do
-  #       object.created_at.strftime("%a %m/%d/%y")
-  #     end
-  #   end
+  def blockchain_tx
+    object.blockchain_tx_id
+  end
 
+  def analyzed_user
+    h.link_to object.analyzed_user_id, h.analyzed_user_path(object.analyzed_user)
+  end
+
+  def analysis_result
+    h.content_tag :code, object.analysis_result.as_json
+  end
 end

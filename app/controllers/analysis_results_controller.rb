@@ -1,0 +1,2 @@
+class AnalysisResultsController < ResourcesController
+end

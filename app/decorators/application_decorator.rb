@@ -107,6 +107,14 @@ class ApplicationDecorator < Draper::Decorator
     h.link_to object.reference, h.url_for(object.reference)
   end
 
+  def risk_level
+    h.render 'risk_detailed', analysis: object
+  end
+
+  def risk_confidence
+    h.present_risk_confidence object.risk_confidence
+  end
+
   private
 
   def present_address(address)

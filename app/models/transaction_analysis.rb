@@ -30,6 +30,10 @@ class TransactionAnalysis < ApplicationRecord
     ta.updated_at > 1.week.ago
   end
 
+  def user_id
+    user.try(:id)
+  end
+
   private
 
   def set_analyzed_user
