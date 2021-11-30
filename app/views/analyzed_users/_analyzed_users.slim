@@ -1,4 +1,4 @@
-table.table.table-narrow
+table.table.table-narrow.table-striped
   thead.thead-dark
     tr
       th Последнее обновление
@@ -7,7 +7,7 @@ table.table.table-narrow
       th colspan=3 Последняя
   tbody
     - analyzed_users.each do |au|
-      - ta = au.transaction_analyses.where(risk_level: 3, risk_confidence: 1.0).last
+      - ta = au.last_risked_transaction_analysis
       tr
         td= present_time au.updated_at
         td.text-monospace
