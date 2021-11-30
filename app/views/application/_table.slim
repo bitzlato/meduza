@@ -1,0 +1,25 @@
+- if items.empty?
+  p.text-muted= t '.empty_table'
+- else
+  - if items.respond_to?(:decorate)
+    - items = items.decorate unless items.respond_to?(:decorated?) && items.decorated?
+  - decorator ||= items.first.decorator_class
+  - columns = decorator.table_columns unless defined?(columns) && columns.present?
+  - columns = columns.map(&:to_s) - hided_columns
+  table.table.table-striped.table-hover.table-narrow class=(defined?(css_class) ? css_class : '')
+    thead.thead-dark
+      tr
+        - columns.each do |column|
+          th class=(decorator.present? ? decorator.table_th_class(column) : '') title=column
+            = decorator.present? ? sort_column(column, decorator.object_class.human_attribute_name(column)) : column
+            = hide_column column
+    - if block_given?
+      thead
+        = yield
+    tbody
+      - items.each do |item|
+        - item_decorated = item.decorated? ? item : decorator.decorate(item)
+        tr is='dapi-tr' data-href=url_for(item) class=item_decorated.class.table_tr_class(item)
+          - columns.each do |column|
+            td class=item_decorated.class.table_td_class(column)
+              = item_decorated.send column

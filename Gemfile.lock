@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/activerecord-hackery/ransack.git
+  revision: 25c5c9dfec216a5fafcd90b8893abcfe19460e50
+  specs:
+    ransack (2.4.2)
+      activerecord (>= 5.2.4)
+      activesupport (>= 5.2.4)
+      i18n
+
+GIT
   remote: https://github.com/brandymint/capistrano-systemd-multiservice.git
   revision: 47c98c65aa3d8f601efa4b947faf249c5abc9cab
   specs:
@@ -65,6 +74,10 @@ GEM
       globalid (>= 0.3.6)
     activemodel (6.1.4.1)
       activesupport (= 6.1.4.1)
+    activemodel-serializers-xml (1.0.2)
+      activemodel (> 5.x)
+      activesupport (> 5.x)
+      builder (~> 3.1)
     activerecord (6.1.4.1)
       activemodel (= 6.1.4.1)
       activesupport (= 6.1.4.1)
@@ -149,6 +162,13 @@ GEM
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
       railties (>= 3.2)
+    draper (4.0.2)
+      actionpack (>= 5.0)
+      activemodel (>= 5.0)
+      activemodel-serializers-xml (>= 1.0)
+      activesupport (>= 5.0)
+      request_store (>= 1.0)
+      ruby2_keywords
     enumerize (2.4.0)
       activesupport (>= 3.2)
     env-tweaks (1.0.1)
@@ -308,6 +328,8 @@ GEM
     redis-namespace (1.8.1)
       redis (>= 3.0.4)
     regexp_parser (2.1.1)
+    request_store (1.5.0)
+      rack (>= 1.4)
     rexml (3.2.5)
     rubocop (1.23.0)
       parallel (~> 1.10)
@@ -433,6 +455,7 @@ DEPENDENCIES
   capybara (>= 3.26)
   counter_culture (~> 2.0)
   dotenv-rails
+  draper (~> 4.0)
   enumerize
   env-tweaks (~> 1.0.0)
   faraday
@@ -453,6 +476,7 @@ DEPENDENCIES
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.4, >= 6.1.4.1)
   rails-i18n (~> 6.0)
+  ransack!
   redis-namespace (~> 1.8)
   rubocop
   rubocop-rails

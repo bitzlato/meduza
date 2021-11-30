@@ -43,6 +43,7 @@ gem 'faraday'
 gem 'faraday_curl', '~> 0.0.2'
 gem 'faraday-detailed_logger', '~> 2.3'
 gem 'active_record_upsert'
+gem 'ransack', github: 'activerecord-hackery/ransack'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -105,3 +106,5 @@ end
 gem 'money', '~> 6.16'
 
 gem "redis-namespace", "~> 1.8"
+
+gem "draper", "~> 4.0"
