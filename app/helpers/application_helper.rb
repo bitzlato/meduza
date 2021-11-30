@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def back_link(url = nil)
+    link_to ('&larr; ' + t('.back')).html_safe, url || root_url
+  end
+
   def sort_column(column, title)
     sort_link q, column, title
   end
