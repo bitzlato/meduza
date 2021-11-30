@@ -7,11 +7,11 @@ table.table.table-narrow.table-striped
       th colspan=3 Последняя
   tbody
     - analyzed_users.each do |au|
+      - au = AnalyzedUserDecorator.decorate au
       - ta = au.last_risked_transaction_analysis
       tr
-        td= present_time au.updated_at
-        td.text-monospace
-          = au.user.try(:id) || '?'
+        td= au.updated_at
+        td.text-monospace= au.user_id
         td= au.risk_level_3_count
         - if ta.present?
           td.text-muted= ta.cc_code

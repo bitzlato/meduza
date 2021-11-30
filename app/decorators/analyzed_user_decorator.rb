@@ -1,9 +1,10 @@
 class AnalyzedUserDecorator < ApplicationDecorator
   delegate_all
 
-  %i[risk_level_1_count risk_level_2_count risk_level_3_count].each do |method|
+  (1..3).each do |risk_level|
+    method = "risk_level_#{risk_level}_count"
     define_method method do
-      h.link_to object.send(method), h.transaction_analyses_path(q: { analyzed_user_id_eq: object.id })
+      h.link_to object.send(method), h.transaction_analyses_path(q: { analyzed_user_id_eq: object.id, risk_level_eq: risk_level })
     end
   end
 end
