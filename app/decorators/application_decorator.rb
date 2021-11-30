@@ -108,7 +108,7 @@ class ApplicationDecorator < Draper::Decorator
   end
 
   def risk_level
-    h.render 'risk_detailed', analysis: object
+    h.present_risk_level object.risk_level
   end
 
   def risk_confidence
