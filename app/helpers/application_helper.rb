@@ -20,4 +20,11 @@ module ApplicationHelper
   def present_address(address)
     content_tag(:div, address, class: 'text-monospace')
   end
+
+  def download_link(url = nil, size = nil)
+    title = size.present? ? t('helpers.download_with_size', ext: 'xlsx', size: size) : t('helpers.download_without_size', ext: 'xlsx')
+    link_to url || url_for(q: params.fetch(:q, {}).permit!.to_hash, format: :xlsx), class: 'text-nowrap' do
+      content_tag(:span, '⬇', class: 'mr-1') + title
+    end
+  end
 end
