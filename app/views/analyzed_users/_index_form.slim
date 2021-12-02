@@ -1,0 +1,14 @@
+- qq = request.query_parameters.fetch(:q, {})
+- clean_q = {}
+ul.nav.nav-pills.mb-3
+  li.nav-item
+    = link_to t('.high_risk'), 
+      url_for(q: clean_q.merge(risk_level_3_count_gt: 0)), class: active_class('nav-link', qq[:risk_level_3_count_gt])
+  li.nav-item
+    = link_to t('.all'), url_for(q: clean_q), class: active_class('nav-link', !qq[:risk_level_3_count_gt])
+
+/= search_form_for q do |f|
+  /= f.input :by_address, as: :string, input_html: { style: 'max-width: 500px' }
+  /= f.input :collection_state_eq, collection: PaymentAddress.group(:collection_state).count.keys.sort, input_html: { style: 'max-width: 100px' }
+  /= f.button :submit, class: 'btn btn-primary'
+  /= link_to t('reset'), analyzed_users_path, class: 'btn btn-secondary ml-2' if params[:q].present?

@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def active_class(css_classes, flag)
+    flag ? "#{css_classes} active" : css_classes
+  end
+
   def back_link(url = nil)
     link_to ('&larr; ' + t('.back')).html_safe, url || root_url
   end

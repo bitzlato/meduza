@@ -7,6 +7,7 @@ ru:
   application:
     index:
       total_records: 'Всего записей: %{count}'
+      too_much_records_to_export: Слишком много записей для выгрузки
     navbar:
       operations: Операционка
       service: Данные сервиса

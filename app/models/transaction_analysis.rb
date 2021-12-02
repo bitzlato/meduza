@@ -21,7 +21,7 @@ class TransactionAnalysis < ApplicationRecord
 
   before_create :set_analyzed_user
 
-  delegate :amount, to: :blockchain_tx
+  delegate :amount, to: :blockchain_tx, allow_nil: true
 
   def self.actual?(txid)
     ta = find_by(txid: txid)
