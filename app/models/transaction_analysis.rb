@@ -22,12 +22,17 @@ class TransactionAnalysis < ApplicationRecord
   before_create :set_analyzed_user
 
   delegate :amount, to: :blockchain_tx, allow_nil: true
+  delegate :risk_msg, :transaction_entity_name, to: :analysis_result
 
   def self.actual?(txid)
     ta = find_by(txid: txid)
     return false if ta.nil?
 
     ta.updated_at > 1.week.ago
+  end
+
+  def to_s
+    [cc_code, txid, 'risk_level:' + risk_level, risk_msg, transaction_entity_name].join('; ')
   end
 
   def user_id

@@ -1,0 +1,9 @@
+table.table.table-narrow.table-striped.xs
+  tbody
+    tr
+      td.text-muted= transaction_analysis.cc_code
+      td.text-monospace= transaction_analysis.txid
+    tr
+      td colspan=2
+        = render 'risk_detailed', analysis: transaction_analysis
+
