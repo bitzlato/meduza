@@ -7,4 +7,8 @@ class AnalyzedUser < ApplicationRecord
   def last_risked_transaction_analysis
     @last_risked_transaction_analysis ||= transaction_analyses.where(risk_level: 3, risk_confidence: 1.0).last
   end
+
+  def to_s
+    'user_id:' + user_id.to_s
+  end
 end
