@@ -8,14 +8,8 @@ table.table.table-narrow.table-striped
   tbody
     - analyzed_users.each do |au|
       - au = AnalyzedUserDecorator.decorate au
-      - ta = au.last_risked_transaction_analysis
       tr
         td= au.updated_at
         td.text-monospace= au.user_id
         td= au.risk_level_3_count
-        - if ta.present?
-          td.text-muted= ta.cc_code
-          td.text-monospace= ta.txid
-          td= render 'risk_detailed', analysis: ta
-        - else
-          td colspan=3 Не найдена
+        td= au.last_risked_transaction_analysis

@@ -1,4 +1,4 @@
-= search_form_for q do |f|
+= search_form_for q, wrapper: :horizontal_form do |f|
   .row
     .col-md-4
       = f.input :created_at_gteq, input_html: { class: 'datetimepicker' }
@@ -7,3 +7,4 @@
   - if block_given? 
     = yield f
   = f.button :submit, class: 'btn btn-primary'
+  = link_to t('reset'), analyzed_users_path, class: 'btn btn-secondary ml-2' if params[:q].present?
