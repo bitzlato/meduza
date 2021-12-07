@@ -10,6 +10,7 @@ import "channels"
 import 'jquery'
 import 'bootstrap/dist/js/bootstrap'
 import 'bootstrap_custom'
+import 'datetimepicker'
 
 Rails.start()
 Turbolinks.start()

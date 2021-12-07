@@ -1,4 +1,10 @@
 = render 'time_form' do |f|
+  .row
+    .col-md-4
+      = f.input :updated_at_gteq, input_html: { class: 'datetimepicker' }, label: 'Проверялось с'
+    .col-md-1= '&mdash;'.html_safe
+    .col-md-4
+      = f.input :updated_at_lt, input_html: { class: 'datetimepicker' }, label: 'По'
   = f.input :risk_level_eq, collection: (1..3), include_blank: 'any', input_html: { style: 'max-width: 100px' }    
   = f.input :txid_eq, as: :string, input_html: { style: 'max-width: 500px' }
   = f.input :blockchain_tx_id_eq, as: :integer, input_html: { style: 'max-width: 500px' }
