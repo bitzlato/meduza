@@ -83,4 +83,5 @@ test:
 production:
   <<: *default
   url: <%= ENV['MEDUZA_DATABASE_URL'] %>
+  reconnect: true
 
