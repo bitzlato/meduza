@@ -39,7 +39,7 @@ module Daemons
             Rails.logger.info('No legacy transcations in the pool')
           else
             Rails.logger.info("Add legacy transactions to check #{ids}")
-            btxs += BlockchainTx.where(id: ids).pluck(:txid).to_a
+            btxs += BlockchainTx.where(id: ids).to_a
           end
         end
 
