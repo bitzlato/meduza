@@ -6,6 +6,12 @@ module HiddenColumnsHelper
     ), class: 'ml-2'
   end
 
+  def unhide_all_url
+    url_for(
+      hided_columns: ['_']
+    )
+  end
+
   def unhide_column_url(column)
     url_for(
       q: params.fetch(:q, {}).permit!,

@@ -5,7 +5,7 @@ module HidedColumns
 
   included do
     before_action do
-      session[hided_columns_key] = params[:hide_columns] if params.key? :hide_columns
+      session[hided_columns_key] = params[:hide_columns] - ['_'] if params.key? :hide_columns
     end
     helper_method :hided_columns
   end
