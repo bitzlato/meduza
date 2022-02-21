@@ -20,6 +20,7 @@ module Daemons
         .where(cc_code: ANALYZABLE_CODES.to_a)
     end
 
+    # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
@@ -53,7 +54,8 @@ module Daemons
         btxs.pluck(:id).each do |id|
           $redis.srem 'txids', id.to_i
         end
-        transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck(:id).max
+        last_id = btxs.pluck(:id).max
+        transaction_source.update! last_processed_blockchain_tx_id: last_id if last_id > transaction_source.last_processed_blockchain_tx_id
         break unless @running
       rescue ValegaClient::TooManyRequests => err
         report_exception err, true
