@@ -25,6 +25,7 @@ module Daemons
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
+        transaction_source.reload
         last_id = transaction_source.last_processed_blockchain_tx_id
         Rails.logger.info("Last processed blockchain tx_id for #{cc_code} is #{last_id}")
         btxs = self.class.scope
