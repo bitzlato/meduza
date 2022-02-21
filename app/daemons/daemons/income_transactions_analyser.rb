@@ -6,8 +6,6 @@ module Daemons
   class IncomeTransactionsAnalyser < Base
     @sleep_time = 2.seconds
 
-    MINIMAL_BLOCKCHAIN_TX_ID = 2590000
-
     VALEGA_ASSETS_CODES = Set.new(ValegaClient::ASSETS_TYPES.map { |c| c.fetch('code') }).freeze
 
     ETHEREUM_CODES = %w[ETH MDT ETC DAI USDC USDT MCR].freeze
@@ -26,9 +24,9 @@ module Daemons
       Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
-        last_id = transaction_source.last_processed_blockchain_tx_id || MINIMAL_BLOCKCHAIN_TX_ID
+        last_id = transaction_source.last_processed_blockchain_tx_id
         btxs = self.class.scope
-          .where('id > ?', last_id)
+          .where('id > ?', last_id.to_i)
           .where(cc_code: cc_code)
           .order(:id)
           .limit(ValegaClient::MAX_ELEMENTS)
