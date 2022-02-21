@@ -8,7 +8,7 @@ class ResourcesController < ApplicationController
   include PaginationSupport
   include RansackSupport
   include ShowAction
-  include HidedColumns
+  include HiddenColumns
 
   layout 'fluid'
 
