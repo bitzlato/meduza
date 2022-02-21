@@ -25,7 +25,7 @@ module Daemons
       ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         last_id = transaction_source.last_processed_blockchain_tx_id
-        Rails.logger.find("Last processed blockchain tx_id for #{cc_code} is #{last_id}")
+        Rails.logger.info("Last processed blockchain tx_id for #{cc_code} is #{last_id}")
         btxs = self.class.scope
           .where('id > ?', last_id.to_i)
           .where(cc_code: cc_code)
