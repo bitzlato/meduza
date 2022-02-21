@@ -1,4 +1,4 @@
--if hided_columns.empty?
+- if hided_columns.empty?
   p.text-muted No hided columns
 - else
   h3 Hided columns. Unhide:
@@ -6,4 +6,7 @@
     - hided_columns.each do |column|
       li 
         = link_to column, unhide_column_url(column)
+    li
+      = link_to 'Unhide all', unhide_all_url
 
+p= session[hided_columns_key] 
