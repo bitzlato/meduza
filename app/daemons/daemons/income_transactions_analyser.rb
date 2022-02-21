@@ -34,12 +34,26 @@ module Daemons
           .limit(ValegaClient::MAX_ELEMENTS)
           .to_a
 
+        # Докидываем на проверку старые транзакции
+        if btxs.count < ValegaClient::MAX_ELEMENTS && cc_code == 'BTC'
+          ids = $redis.srandmember('txids', ValegaClient::MAX_ELEMENTS - btxs.count)
+          if ids.empty?
+            Rails.logger.info('No legacy transcations in the pool')
+          else
+            Rails.logger.info("Add legacy transactions to check #{ids}")
+            btxs += BlockchainTx.where(id: ids).pluck(:txid).to_a
+          end
+        end
+
         unless btxs.any?
           Rails.logger.info("No new blockchain transactions for cc_code=#{cc_code} (last id #{last_id})")
           next
         end
         Rails.logger.info("Process blockchain transactions with id=#{btxs.pluck(:id).join(',')} for #{cc_code}")
         ValegaAnalyzer.new.analyze_transaction btxs, cc_code
+        btxs.pluck(:id).each do |id|
+          $redis.srem 'txids', id.to_i
+        end
         transaction_source.update! last_processed_blockchain_tx_id: btxs.pluck(:id).max
         break unless @running
       rescue ValegaClient::TooManyRequests => err
