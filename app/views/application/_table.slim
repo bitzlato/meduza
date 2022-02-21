@@ -5,7 +5,7 @@
     - items = items.decorate unless items.respond_to?(:decorated?) && items.decorated?
   - decorator ||= items.first.decorator_class
   - columns = decorator.table_columns unless defined?(columns) && columns.present?
-  - columns = columns.map(&:to_s) - hided_columns
+  - columns = columns.map(&:to_s) - hidden_columns
   table.table.table-striped.table-hover.table-narrow class=(defined?(css_class) ? css_class : '')
     thead.thead-dark
       tr
