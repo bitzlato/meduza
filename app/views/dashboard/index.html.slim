@@ -3,7 +3,7 @@
 p Необработанных транзакций: #{BlockchainTx.where('id>?', BlockchainTx.find_by(txid: TransactionAnalysis.last.txid).id).count}
 p 
   | Последняя обработанная транзакция: 
-  = link_to transaction_analyses_path(ta) do
+  = link_to transaction_analysis_path(ta) do
     = "#{ta.txid} #{ta.cc_code} #{ta.updated_at}"
 hr
 h2 Топ-#{DashboardController::LIMIT} плохих парней
