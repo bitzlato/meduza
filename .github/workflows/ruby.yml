@@ -16,13 +16,9 @@ on:
 jobs:
   test:
     env:
-      # REDIS_HOST: redis
-      # The default Redis port
-      # REDIS_PORT: 6379
       RAILS_ENV: test
-      DATABASE_HOST: 127.0.0.1
-      DATABASE_USER: postgres
-      DATABASE_PASS: postgres
+      MEDUZA_DATABASE_URL: 'postgres://postgres:postgres@127.0.0.1/meduza_test'
+      PGPASSWORD: postgres
       REDIS_URL: redis://localhost:6379
     runs-on: ubuntu-latest
     strategy:

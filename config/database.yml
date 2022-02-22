@@ -59,6 +59,7 @@ test:
   adapter: postgresql
   encoding: unicode
   database: meduza_test<%= ENV['TEST_ENV_NUMBER'] %>
+  url: <%= ENV['MEDUZA_DATABASE_URL'] %>
   pool: 5
 
 # As with config/credentials.yml, you never want to store sensitive information,
