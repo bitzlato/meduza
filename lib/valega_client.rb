@@ -4,7 +4,8 @@ require 'redis-namespace'
 class ValegaClient
   include Singleton
 
-  PAUSE_BETWEEN_REQUESTS = 11.seconds
+  # 5 секунд ограничение от valega, добавляем еще 1 секунду на всякий случай
+  PAUSE_BETWEEN_REQUESTS = 6.seconds
 
   Error = Class.new StandardError
   UnknownError = Class.new Error

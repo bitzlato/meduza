@@ -1,9 +1,5 @@
 - tx_id = TransactionAnalysis.maximum(:blockchain_tx_id)
 p Необработанных транзакций: #{BlockchainTx.where('id>?', tx_id).count}
-p 
-  | Последняя обработанная транзакция: 
-  = link_to transaction_analysis_path(ta) do
-    = "#{ta.txid} #{ta.cc_code} #{ta.updated_at}"
 hr
 h2 Топ-#{DashboardController::LIMIT} плохих парней
 = render 'analyzed_users/analyzed_users', analyzed_users: analyzed_users

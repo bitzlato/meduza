@@ -10,10 +10,12 @@ class TransactionAnalysisDecorator < ApplicationDecorator
   end
 
   def analyzed_user
+    return '-' if object.analyzed_user.nil?
     h.link_to 'link', h.analyzed_user_path(object.analyzed_user)
   end
 
   def analysis_result
+    return '-' if object.analysis_result.nil?
     h.link_to 'link', h.analysis_result_path(object.analysis_result)
   end
 end

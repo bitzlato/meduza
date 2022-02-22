@@ -92,7 +92,7 @@ group :deploy do
   gem 'capistrano', require: false
   gem 'capistrano3-puma'
   gem 'capistrano-bundler', require: false
-  gem 'capistrano-db-tasks', require: false
+  gem 'capistrano-db-tasks', require: false, github: 'brandymint/capistrano-db-tasks', branch: 'feature/extra_args_for_dump'
   gem 'capistrano-dotenv-tasks'
   gem 'capistrano-faster-assets', require: false
   gem 'capistrano-git-with-submodules'
