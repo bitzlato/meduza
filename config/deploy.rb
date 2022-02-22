@@ -24,7 +24,7 @@ set :deploy_to, -> { "/home/#{fetch(:user)}/#{fetch(:application)}" }
 
 set :disallow_pushing, true
 
-set :db_dump_extra_opts, '-n meduza'
+set :db_dump_extra_opts, '-n meduza -n public -t meduza.* -t public.blockchain_tx '
 
 set :rbenv_type, :user
 set :rbenv_ruby, File.read('.ruby-version').strip
