@@ -1,20 +1,21 @@
 require 'csv'
 
-class TransactionsExporter
-  ATTRIBUTES = TransactionAnalysis.attribute_names
-  attr_accessor :output, :records
+class CsvBuilder
+  attr_accessor :records, :attributes
 
-  def initialize(records, output)
-    @records = records
-    @output = output
+  def initialize(records)
+    @records    = records
+    @attributes = records.klass.attribute_names
   end
 
-  def generate(scope)
-    output << ATTRIBUTES
-    scope.each do |row|
-      output << CSV.generate_line(
-        TransactionAnalysis.attribute_names.map { |attr| row.send attr }
-      )
+  def enumerator
+    # yielder << attributes
+    Enumerator.new do |yielder|
+      records.lazy.each do |row|
+        yielder << CSV.generate_line(
+          attributes.map { |attr| row.send attr }
+        )
+      end
     end
   end
 end
