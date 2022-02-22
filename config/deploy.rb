@@ -24,8 +24,7 @@ set :deploy_to, -> { "/home/#{fetch(:user)}/#{fetch(:application)}" }
 
 set :disallow_pushing, true
 
-# set :db_dump_dir, "./db"
-set :db_dump_extra_opts, '--force'
+set :db_dump_extra_opts, '-n meduza'
 
 set :rbenv_type, :user
 set :rbenv_ruby, File.read('.ruby-version').strip

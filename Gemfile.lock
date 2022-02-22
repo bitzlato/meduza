@@ -8,6 +8,14 @@ GIT
       i18n
 
 GIT
+  remote: https://github.com/brandymint/capistrano-db-tasks.git
+  revision: beb2df14cd06c02f6230483f71ecefbc6aaf883f
+  branch: feature/extra_args_for_dump
+  specs:
+    capistrano-db-tasks (0.6)
+      capistrano (>= 3.0.0)
+
+GIT
   remote: https://github.com/brandymint/capistrano-systemd-multiservice.git
   revision: 47c98c65aa3d8f601efa4b947faf249c5abc9cab
   specs:
@@ -114,8 +122,6 @@ GEM
       sshkit (>= 1.9.0)
     capistrano-bundler (2.0.1)
       capistrano (~> 3.1)
-    capistrano-db-tasks (0.6)
-      capistrano (>= 3.0.0)
     capistrano-dotenv-tasks (0.1.5)
       capistrano (~> 3.0)
     capistrano-faster-assets (1.1.0)
@@ -453,7 +459,7 @@ DEPENDENCIES
   byebug
   capistrano
   capistrano-bundler
-  capistrano-db-tasks
+  capistrano-db-tasks!
   capistrano-dotenv-tasks
   capistrano-faster-assets
   capistrano-git-with-submodules
