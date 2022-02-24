@@ -20,7 +20,7 @@ div.mb-2
       span.text-muted= t '.too_much_records_to_export'
     - elsif paginated_records.total_count.positive?
       = download_link
-    = link_to 'Export to CSV', url_for(q: params.fetch(:q, {}).permit!.to_hash, format: :csv)
+    = link_to 'Export to CSV', url_for(q: params.fetch(:q, {}).permit!.to_hash, format: :csv), class: 'ml-2'
 
 = render 'table', items: paginated_records.decorate if paginated_records.count.positive?
 = paginate paginated_records
