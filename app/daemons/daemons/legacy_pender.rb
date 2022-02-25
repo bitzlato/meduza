@@ -15,7 +15,8 @@ module Daemons
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
           .where(cc_code: cc_code)
           .order(:id)
-          .find_each do |btx|
+          .limit(ValegaClient::MAX_ELEMENTS)
+          .each do |btx|
           Rails.logger.info("Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
           TransactionAnalysis.create!(txid: btx.txid, cc_code: btx.cc_code, source: 'p2p') unless btx.transaction_analyses.present?
           transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
