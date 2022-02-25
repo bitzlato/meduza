@@ -28,9 +28,9 @@ module Daemons
           .analyze_transaction(tas.pluck(:txid), cc_code)
           .each do |ar|
 
-          ta = tas.find_by(cc_code: cc_code, txid: txid) || TransactionAnalysis.create!(
+          ta = tas.find_by(cc_code: cc_code, txid: ar.txid) || TransactionAnalysis.create!(
             analysis_result: ar,
-            txid: txid,
+            txid: ar.txid,
             cc_code: cc_code
           )
           ta.update! analysis_result: ar
