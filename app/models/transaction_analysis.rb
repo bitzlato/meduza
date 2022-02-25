@@ -60,8 +60,13 @@ class TransactionAnalysis < ApplicationRecord
 
   private
 
+  def log_record!(record)
+    record = record.merge(from_state: aasm.from_state, to_state: aasm.to_state, event: aasm.current_event, at: Time.zone.now.iso8601)
+    Rails.logger.info "TransactionAnalysis##{id} log record #{record}"
+  end
+
   def log_status_change
-    Rails.logger.info "Transfer##{id} changing from #{aasm.from_state} to #{aasm.to_state} (event: #{aasm.current_event})"
+    Rails.logger.info "TransactionAnalysis##{id} changing from #{aasm.from_state} to #{aasm.to_state} (event: #{aasm.current_event})"
     log_record!(from_state: aasm.from_state, to_state: aasm.to_state, event: aasm.current_event, at: Time.zone.now.iso8601)
   end
 
