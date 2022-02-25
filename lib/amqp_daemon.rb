@@ -70,9 +70,10 @@ workers = ARGV.map do |binding_id|
   # Enable manual acknowledge mode by setting manual_ack: true.
   queue.subscribe manual_ack: true do |delivery_info, metadata, payload|
     logger.info { "Received: #{payload}" }
-    Bugsnag.add_on_error( proc { |event|
+    callback = proc do |event|
       event.add_metadata(:amqp, { message_payload: payload, message_metadata: metadata, message_delivery_info: delivery_info })
-    })
+    end
+    Bugsnag.add_on_error(callback)
 
     # Invoke Worker#process with floating number of arguments.
     args          = [JSON.parse(payload), metadata, delivery_info]
