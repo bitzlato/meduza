@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-module Workers
-  module AMQP
-    class Base # rubocop:disable Lint/EmptyClass
-    end
+module AMQP
+  class Base # rubocop:disable Lint/EmptyClass
   end
 end

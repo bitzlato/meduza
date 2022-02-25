@@ -30,7 +30,7 @@ module AMQP
       end
 
       def binding_worker(id, args = [])
-        ::Workers::AMQP.const_get(id.to_s.camelize).new(*args)
+        ::AMQP.const_get(id.to_s.camelize).new(*args)
       end
 
       def routing_key(id)
