@@ -146,7 +146,6 @@ CREATE TABLE meduza.transaction_analyses (
     txid meduza.citext NOT NULL,
     cc_code character varying NOT NULL,
     risk_level integer NOT NULL,
-    input_addresses jsonb,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     analysis_result_id bigint,
@@ -443,6 +442,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211129194459'),
 ('20211130103912'),
 ('20220225101544'),
-('20220225113244');
+('20220225113244'),
+('20220225113612');
 
 

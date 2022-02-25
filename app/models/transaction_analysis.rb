@@ -17,11 +17,7 @@ class TransactionAnalysis < ApplicationRecord
     },
     touch: true
 
-  scope :include_address, ->(address) { where("input_addresses::jsonb ? :address", address: address) }
-
   scope :pending, -> { where state: :pending }
-
-  validates :input_addresses, presence: true, unless: :analysis_result
 
   before_create :set_analyzed_user
 

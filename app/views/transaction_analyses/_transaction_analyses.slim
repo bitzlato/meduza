@@ -30,9 +30,3 @@ table.table.table-narrow
         td= render 'risk_detailed', analysis: ta
         td= present_risk_confidence ta.risk_confidence
         td= ta.cc_code
-        - if params[:show_addresses]
-          td.text-small.p-0
-            - if ta.input_addresses.blank?
-              p Адресной проверки не проводилось
-            - else
-              = render 'address_analyses/address_analyses', address_analyses: AddressAnalysis.where(address: ta.input_addresses), table_class: 'table-sm'
