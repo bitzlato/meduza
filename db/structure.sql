@@ -80,7 +80,8 @@ CREATE TABLE meduza.analysis_results (
     raw_response jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    cc_code character varying
+    cc_code character varying,
+    type character varying NOT NULL
 );
 
 
@@ -138,6 +139,43 @@ ALTER SEQUENCE meduza.analyzed_users_id_seq OWNED BY meduza.analyzed_users.id;
 
 
 --
+-- Name: pending_analyses; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.pending_analyses (
+    id bigint NOT NULL,
+    address_transaction character varying NOT NULL,
+    state character varying DEFAULT 'pending'::character varying NOT NULL,
+    cc_code character varying NOT NULL,
+    routing_key character varying,
+    correlation_id character varying,
+    source character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    type character varying
+);
+
+
+--
+-- Name: pending_analyses_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.pending_analyses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: pending_analyses_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.pending_analyses_id_seq OWNED BY meduza.pending_analyses.id;
+
+
+--
 -- Name: transaction_analyses; Type: TABLE; Schema: meduza; Owner: -
 --
 
@@ -150,10 +188,9 @@ CREATE TABLE meduza.transaction_analyses (
     updated_at timestamp(6) without time zone NOT NULL,
     analysis_result_id bigint,
     risk_confidence numeric,
-    state character varying NOT NULL,
     meta jsonb DEFAULT '{}'::jsonb NOT NULL,
-    source character varying NOT NULL,
-    direction character varying
+    direction character varying,
+    pending_analyses_id bigint
 );
 
 
@@ -251,6 +288,13 @@ ALTER TABLE ONLY meduza.analyzed_users ALTER COLUMN id SET DEFAULT nextval('medu
 
 
 --
+-- Name: pending_analyses id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.pending_analyses ALTER COLUMN id SET DEFAULT nextval('meduza.pending_analyses_id_seq'::regclass);
+
+
+--
 -- Name: transaction_analyses id; Type: DEFAULT; Schema: meduza; Owner: -
 --
 
@@ -286,6 +330,14 @@ ALTER TABLE ONLY meduza.analysis_results
 
 ALTER TABLE ONLY meduza.analyzed_users
     ADD CONSTRAINT analyzed_users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pending_analyses pending_analyses_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.pending_analyses
+    ADD CONSTRAINT pending_analyses_pkey PRIMARY KEY (id);
 
 
 --
@@ -377,17 +429,10 @@ CREATE INDEX index_transaction_analyses_on_analysis_result_id ON meduza.transact
 
 
 --
--- Name: index_transaction_analyses_on_source; Type: INDEX; Schema: meduza; Owner: -
+-- Name: index_transaction_analyses_on_pending_analyses_id; Type: INDEX; Schema: meduza; Owner: -
 --
 
-CREATE INDEX index_transaction_analyses_on_source ON meduza.transaction_analyses USING btree (source);
-
-
---
--- Name: index_transaction_analyses_on_state; Type: INDEX; Schema: meduza; Owner: -
---
-
-CREATE INDEX index_transaction_analyses_on_state ON meduza.transaction_analyses USING btree (state);
+CREATE INDEX index_transaction_analyses_on_pending_analyses_id ON meduza.transaction_analyses USING btree (pending_analyses_id);
 
 
 --
@@ -431,6 +476,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220225113612'),
 ('20220225114014'),
 ('20220225134028'),
-('20220225135745');
+('20220225135745'),
+('20220225151910'),
+('20220225153241');
 
 

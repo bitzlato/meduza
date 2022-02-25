@@ -11,24 +11,24 @@ module Daemons
       Rails.logger.info("[PendingExecutor] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
         Rails.logger.info("Process #{cc_code}")
-        tas = TransactionAnalysis
+        pas = PendingAnalysis
           .pending
           .where(cc_code: cc_code)
           .order(:id)
           .limit(ValegaClient::MAX_ELEMENTS)
 
         # Докидываем на проверку старые транзакции
-        unless tas.any?
+        unless pas.any?
           Rails.logger.info("No new pending transactions for cc_code=#{cc_code}")
           next
         end
-        Rails.logger.info("Process pending transactions #{tas.pluck(:txid).join(',')} for #{cc_code}")
+        Rails.logger.info("Process pending transactions #{pas.pluck(:address_transaction).join(',')} for #{cc_code}")
         ValegaAnalyzer
           .new
-          .analyze_transaction(tas.pluck(:txid), cc_code)
+          .analyze_transaction(pas.pluck(:address_transaction), cc_code)
           .each do |ar|
 
-          ta = tas.find_by(cc_code: cc_code, txid: ar.txid) || TransactionAnalysis.create!(
+          ta = pas.find_by(cc_code: cc_code, txid: ar.txid) || TransactionAnalysis.create!(
             analysis_result: ar,
             txid: ar.txid,
             cc_code: cc_code

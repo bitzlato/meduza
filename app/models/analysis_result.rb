@@ -1,4 +1,6 @@
 class AnalysisResult < ApplicationRecord
+  self.inheritance_column = nil
+
   alias_attribute :txid, :address_transaction
 
   has_many :address_analysis
