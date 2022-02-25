@@ -103,7 +103,7 @@ class ValegaClient
 
   def parse_response(response)
     data = JSON.parse response.body
-    Rails.logger.debug("VealegaClient status=#{response.status} body=#{response.body}")
+    Rails.logger.info("VealegaClient status=#{response.status} body=#{response.body}")
     raise_error! data unless data.fetch('result')
     data.fetch('data')
   end
