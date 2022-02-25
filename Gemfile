@@ -113,3 +113,7 @@ gem "redis-namespace", "~> 1.8"
 gem "draper", "~> 4.0"
 
 gem "bunny", "~> 2.19"
+
+gem "aasm", "~> 5.2"
+
+gem "after_commit_everywhere", "~> 1.1"

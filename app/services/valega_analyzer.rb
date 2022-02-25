@@ -36,15 +36,14 @@ class ValegaAnalyzer
   end
 
   # @param blockchain_txs Array[BlockchainTx]
-  def analyze_transaction(blockchain_txs, cc_code)
-    blockchain_txs = blockchain_txs.to_a
+  def analyze_transaction(address_transactions, cc_code)
     ValegaClient
       .instance
-      .risk_analysis(address_transactions: blockchain_txs.map(&:txid), asset_type_id: ValegaClient.get_asset_type_id(cc_code))
-      .map { |response| perform_response response, cc_code, blockchain_txs }
+      .risk_analysis(address_transactions: address_transactions, asset_type_id: ValegaClient.get_asset_type_id(cc_code))
+      .map { |response| perform_response response, cc_code }
   end
 
-  def perform_response(response, cc_code, blockchain_txs)
+  def perform_response(response, cc_code)
     txid = response.fetch('value')
     risks = response.slice('risk_level', 'risk_confidence')
 
@@ -52,19 +51,10 @@ class ValegaAnalyzer
       risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response)
     )
 
-    btx = blockchain_txs.find { |btx| btx.txid == txid }
-
-    attrs = risks.merge(
-      blockchain_tx: btx,
-      txid: txid,
-      cc_code: btx.cc_code,
+    TransactionAnalysis.create!(
       analysis_result: ar,
-    )
-    ta = TransactionAnalysis
-      .create_with(attrs)
-      .find_or_create_by!(blockchain_tx_id: btx.id)
-
-    ta.analysis_result = ar
-    ta.save! if ta.changed?
+      txid: txid,
+      cc_code: cc_code
+     )
   end
 end

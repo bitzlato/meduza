@@ -33,6 +33,8 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    aasm (5.2.0)
+      concurrent-ruby (~> 1.0)
     actioncable (6.1.4.1)
       actionpack (= 6.1.4.1)
       activesupport (= 6.1.4.1)
@@ -104,6 +106,9 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
+    after_commit_everywhere (1.1.0)
+      activerecord (>= 4.2)
+      activesupport
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
     amq-protocol (2.3.2)
@@ -460,8 +465,10 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  aasm (~> 5.2)
   active_link_to
   active_record_upsert
+  after_commit_everywhere (~> 1.1)
   bootsnap (>= 1.4.4)
   bugsnag
   bugsnag-capistrano
