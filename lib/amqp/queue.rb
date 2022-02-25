@@ -26,7 +26,7 @@ module AMQP
       # enqueue = publish to direct exchange
       def enqueue(id, payload, attrs={})
         eid = AMQP::Config.binding_exchange_id(id) || :default
-        attrs.merge!({routing_key: AMQP::Config.routing_key(id)})
+        attrs.reverse_merge!({routing_key: AMQP::Config.routing_key(id)})
         publish(eid, payload, attrs)
       end
 

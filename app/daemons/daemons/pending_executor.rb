@@ -38,7 +38,7 @@ module Daemons
           action = ta.risk_level == 3 ? :block : :pass
           data = { txid: ta.txid, action: action, transaction_analyses_id: ta.id }
           Rails.logger.info("Pending transaction ##{ta.id} #{ta.txid} processed with results #{ta.as_json}")
-          AMQP::Queue.enqueue( :transaction_checker, data, ta.meta.slice('routing_key', 'correlation_id')) if ta.present?
+          AMQP::Queue.exchange(:transaction_checker, data, ta.meta.slice('routing_key', 'correlation_id')) if ta.present? && ta.meta.present?
         end
 
         break unless @running
