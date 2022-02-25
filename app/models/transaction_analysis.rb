@@ -35,7 +35,7 @@ class TransactionAnalysis < ApplicationRecord
     after_all_transitions :log_status_change
 
     event :done do
-      transitions from: :pending, to: :checked, guard: :analysis_result?
+      transitions from: :pending, to: :checked, guard: :analysis_result_id?
     end
 
     event :error do
