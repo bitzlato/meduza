@@ -4,7 +4,7 @@ class TransactionAnalysis < ApplicationRecord
   belongs_to :analysis_result, optional: true
   belongs_to :analyzed_user, optional: true
 
-  belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid
+  belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
   has_one :deposit, through: :blockchain_tx
   has_one :user, through: :deposit
 
@@ -18,8 +18,6 @@ class TransactionAnalysis < ApplicationRecord
     touch: true
 
   scope :pending, -> { where state: :pending }
-
-  before_create :set_analyzed_user
 
   delegate :amount, to: :blockchain_tx, allow_nil: true
   delegate :risk_msg, :transaction_entity_name, to: :analysis_result
@@ -36,6 +34,7 @@ class TransactionAnalysis < ApplicationRecord
 
     event :done do
       transitions from: :pending, to: :done
+      after :set_analyzed_user
     end
 
     event :error do
