@@ -385,6 +385,20 @@ CREATE INDEX index_transaction_analyses_on_analyzed_user_id ON meduza.transactio
 
 
 --
+-- Name: index_transaction_analyses_on_source; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_transaction_analyses_on_source ON meduza.transaction_analyses USING btree (source);
+
+
+--
+-- Name: index_transaction_analyses_on_state; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_transaction_analyses_on_state ON meduza.transaction_analyses USING btree (state);
+
+
+--
 -- Name: index_transaction_analyses_on_txid; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -428,6 +442,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211129191823'),
 ('20211129194459'),
 ('20211130103912'),
-('20220225101544');
+('20220225101544'),
+('20220225113244');
 
 
