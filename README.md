@@ -12,6 +12,8 @@
 
 ```
 cap production systemd:puma:setup
+cap production systemd:daemon:setup
+cap production systemd:amqp_daemon:setup
 cap production master_key:setup
 ```
 
