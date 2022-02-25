@@ -26,18 +26,19 @@ module Daemons
         ValegaAnalyzer
           .new
           .analyze_transaction(tas.pluck(:txid), cc_code)
-          .each do |ta|
+          .each do |ar|
 
-          pt = tas.find_by(ta.txid)
-          pt.update! status: :checked
+          ta = tas.find_by(cc_code: cc_code, txid: txid) || TransactionAnalysis.create!(
+            analysis_result: ar,
+            txid: txid,
+            cc_code: cc_code
+          )
+          ta.update! analysis_result: ar
+          ta.done! ar
           action = ta.risk_level == 3 ? :block : :pass
-          data = { txid: pt.txid, action: action, transaction_analyses_id: ta.id }
-          Rails.logger.info("Pending transaction ##{pt.id} #{pt.txid} processed with results #{ta.as_json}")
-          exchange.publish(
-            data,
-            routing_key: pt.metadata.reply_to,
-            correlation_id: pt.metadata.correlation_id
-          ) if pt.metadata.present?
+          data = { txid: ta.txid, action: action, transaction_analyses_id: ta.id }
+          Rails.logger.info("Pending transaction ##{at.id} #{at.txid} processed with results #{ta.as_json}")
+          exchange.publish( data, at.meta.slice('routing_key', 'correlation_id')) if at.meta.present?
         end
 
         break unless @running

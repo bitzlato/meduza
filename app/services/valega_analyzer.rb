@@ -47,14 +47,8 @@ class ValegaAnalyzer
     txid = response.fetch('value')
     risks = response.slice('risk_level', 'risk_confidence')
 
-    ar = AnalysisResult.create!(
+    AnalysisResult.create!(
       risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response)
     )
-
-    TransactionAnalysis.create!(
-      analysis_result: ar,
-      txid: txid,
-      cc_code: cc_code
-     )
   end
 end
