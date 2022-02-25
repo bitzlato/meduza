@@ -245,6 +245,7 @@ GEM
     guard-rubocop (1.5.0)
       guard (~> 2.0)
       rubocop (< 2.0)
+    hashie (5.0.0)
     htmlentities (4.3.4)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
@@ -503,6 +504,7 @@ DEPENDENCIES
   guard
   guard-minitest
   guard-rubocop
+  hashie (~> 5.0)
   jbuilder (~> 2.7)
   kaminari
   listen (~> 3.3)

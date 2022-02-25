@@ -117,3 +117,5 @@ gem "bunny", "~> 2.19"
 gem "aasm", "~> 5.2"
 
 gem "after_commit_everywhere", "~> 1.1"
+
+gem "hashie", "~> 5.0"
