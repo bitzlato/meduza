@@ -8,8 +8,8 @@ class TransactionAnalysis < ApplicationRecord
   belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
   has_many :deposits, through: :blockchain_tx
   has_many :withdrawals, through: :blockchain_tx
-  has_many :deposit_users, through: :deposits, as: :user
-  has_many :withdrawals_users, through: :withdrawals, as: :user
+  has_many :deposit_users, through: :deposits, source: :user
+  has_many :withdrawals_users, through: :withdrawals, source: :user
 
   scope :pending, -> { where state: :pending }
 
