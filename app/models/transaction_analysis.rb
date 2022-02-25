@@ -29,7 +29,7 @@ class TransactionAnalysis < ApplicationRecord
   delegate :risk_msg, :transaction_entity_name, to: :analysis_result
 
   SOURCES = %w[p2p amqp]
-  validates :sources, presence: true, inclusion: { in: SOURCES }
+  validates :source, presence: true, inclusion: { in: SOURCES }
 
   aasm column: :state, whiny_transitions: true, requires_lock: true do
     state :pending, initial: true

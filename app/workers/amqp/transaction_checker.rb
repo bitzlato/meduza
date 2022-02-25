@@ -3,7 +3,7 @@
 module AMQP
   class TransactionChecker < Base
     def process(payload, metadata)
-      PendingTranscation.create! payload.slice('txid', 'cc_code').merge meta: metadata
+      PendingTranscation.create! payload.slice('txid', 'cc_code').merge meta: metadata, source: 'amqp'
     rescue StandardError => e
       report_exception e, true, payload: payload
 
