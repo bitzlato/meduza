@@ -17,7 +17,7 @@ module Daemons
           .order(:id)
           .find_each do |btx|
           Rails.logger.info("Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
-          TransactionAnalysis.create!(txid: btx.txid, cc_code: btx.cc_code) unless btz.transaction_analyses.present?
+          TransactionAnalysis.create!(txid: btx.txid, cc_code: btx.cc_code) unless btx.transaction_analyses.present?
           transaction_source.update! last_processed_blockchain_tx_id: btx.id if btz.id > transaction_source.last_processed_blockchain_tx_id
         end
         break unless @running
