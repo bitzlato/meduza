@@ -21,7 +21,7 @@ table.table.table-narrow
         td.text-monospace
           = ta.txid
         td.text-monospace
-          = ta.blockchain_tx_id
+          = ta.blockchain_tx.try(:id)
         td.text-monospace
           = btx.deposit.try(:id) || '?'
         td.text-monospace

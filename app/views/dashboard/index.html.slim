@@ -1,5 +1,2 @@
-- tx_id = TransactionAnalysis.maximum(:blockchain_tx_id)
-p Необработанных транзакций: #{BlockchainTx.where('id>?', tx_id).count}
-hr
 h2 Топ-#{DashboardController::LIMIT} плохих парней
 = render 'analyzed_users/analyzed_users', analyzed_users: analyzed_users

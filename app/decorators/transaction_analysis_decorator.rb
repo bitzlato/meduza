@@ -6,7 +6,7 @@ class TransactionAnalysisDecorator < ApplicationDecorator
   end
 
   def blockchain_tx
-    object.blockchain_tx_id
+    object.blockchain_tx.try(:id)
   end
 
   def analyzed_user
