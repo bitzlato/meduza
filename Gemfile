@@ -111,3 +111,5 @@ gem 'money', '~> 6.16'
 gem "redis-namespace", "~> 1.8"
 
 gem "draper", "~> 4.0"
+
+gem "bunny", "~> 2.19"

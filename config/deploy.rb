@@ -81,6 +81,9 @@ set :systemd_sidekiq_instances, []
 set :systemd_daemon_role, :daemons
 set :systemd_daemon_instances, [:income_transactions_analyser]
 
+set :systemd_amqp_daemon_role, :amqp_daemons
+set :systemd_amqp_daemon_instances, [:transaction_checker]
+
 set :app_version, SemVer.find.to_s
 
 # after 'deploy:check', 'master_key:check'

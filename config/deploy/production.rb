@@ -6,5 +6,5 @@ set :stage, :production
 
 server ENV['PRODUCTION_HOST'],
        user: fetch(:user),
-       roles: %w[app db bugsnag webpack daemons].freeze,
+       roles: %w[app db bugsnag webpack daemons amqp_daemons].freeze,
        ssh_options: { forward_agent: true }
