@@ -8,17 +8,8 @@ class TransactionAnalysis < ApplicationRecord
   belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
   has_many :deposits, through: :blockchain_tx
   has_many :withdrawals, through: :blockchain_tx
-  has_many :deposit_users, through: :deposits, class_name: 'User'
-  has_many :withdrawals_users, through: :withdrawals, class_name: 'User'
-
-  #counter_culture :analyzed_user,
-    #column_name: proc {|model| model.analyzed_user_id.present? && model.risk_confidence == 1.0 ? "risk_level_#{model.risk_level}_count" : nil },
-    #column_names: {
-      #TransactionAnalysis.where(risk_level: 1) => :risk_level_1_count,
-      #TransactionAnalysis.where(risk_level: 2) => :risk_level_2_count,
-      #TransactionAnalysis.where(risk_level: 3) => :risk_level_3_count,
-    #},
-    #touch: true
+  has_many :deposit_users, through: :deposits, as: :user
+  has_many :withdrawals_users, through: :withdrawals, as: :user
 
   scope :pending, -> { where state: :pending }
 
@@ -45,7 +36,7 @@ class TransactionAnalysis < ApplicationRecord
         update! direction: 'income' if deposits.any?
         update! direction: 'outcome' if withdrawals.any?
       end
-      # after :set_analyzed_users
+      after :set_analyzed_users
     end
 
     event :error do
@@ -65,6 +56,9 @@ class TransactionAnalysis < ApplicationRecord
   end
 
   private
+
+  def set_analyzed_users
+  end
 
   def log_record!(record)
     record = record.merge from_state: aasm.from_state, to_state: aasm.to_state, event: aasm.current_event, at: Time.zone.now.iso8601
