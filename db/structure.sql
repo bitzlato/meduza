@@ -150,10 +150,10 @@ CREATE TABLE meduza.transaction_analyses (
     updated_at timestamp(6) without time zone NOT NULL,
     analysis_result_id bigint,
     risk_confidence numeric,
-    analyzed_user_id bigint,
     state character varying NOT NULL,
     meta jsonb DEFAULT '{}'::jsonb NOT NULL,
-    source character varying NOT NULL
+    source character varying NOT NULL,
+    direction character varying
 );
 
 
@@ -377,13 +377,6 @@ CREATE INDEX index_transaction_analyses_on_analysis_result_id ON meduza.transact
 
 
 --
--- Name: index_transaction_analyses_on_analyzed_user_id; Type: INDEX; Schema: meduza; Owner: -
---
-
-CREATE INDEX index_transaction_analyses_on_analyzed_user_id ON meduza.transaction_analyses USING btree (analyzed_user_id);
-
-
---
 -- Name: index_transaction_analyses_on_source; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -413,14 +406,6 @@ ALTER TABLE ONLY meduza.address_analyses
 
 
 --
--- Name: transaction_analyses fk_rails_760f842201; Type: FK CONSTRAINT; Schema: meduza; Owner: -
---
-
-ALTER TABLE ONLY meduza.transaction_analyses
-    ADD CONSTRAINT fk_rails_760f842201 FOREIGN KEY (analyzed_user_id) REFERENCES meduza.analyzed_users(id);
-
-
---
 -- PostgreSQL database dump complete
 --
 
@@ -444,6 +429,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220225101544'),
 ('20220225113244'),
 ('20220225113612'),
-('20220225114014');
+('20220225114014'),
+('20220225134028'),
+('20220225135745');
 
 

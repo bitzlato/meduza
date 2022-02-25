@@ -86,7 +86,6 @@ set :systemd_amqp_daemon_instances, [:transaction_checker]
 
 set :app_version, SemVer.find.to_s
 
-# after 'deploy:check', 'master_key:check'
 after 'deploy:publishing', 'systemd:puma:reload-or-restart'
 after 'deploy:publishing', 'systemd:daemon:reload-or-restart'
 after 'deploy:publishing', 'systemd:amqp_daemon:reload-or-restart'
