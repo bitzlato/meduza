@@ -6,6 +6,7 @@ class TransactionAnalysis < ApplicationRecord
 
   belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
   has_one :deposit, through: :blockchain_tx
+  has_one :withdrawal, through: :blockchain_tx
   has_one :user, through: :deposit
 
   counter_culture :analyzed_user,
