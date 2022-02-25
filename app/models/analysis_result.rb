@@ -1,5 +1,5 @@
 class AnalysisResult < ApplicationRecord
-  alias_attribute :address_transaction, :txid
+  alias_attribute :txid, :address_transaction
 
   has_many :address_analysis
 
