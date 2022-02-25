@@ -2,7 +2,7 @@ class TransactionAnalysisDecorator < ApplicationDecorator
   delegate_all
 
   def self.table_columns
-    %i[updated_at cc_code txid amount blockchain_tx user_id analysis_result risk_level risk_confidence]
+    %i[updated_at cc_code txid amount blockchain_tx analysis_result risk_level risk_confidence]
   end
 
   def blockchain_tx

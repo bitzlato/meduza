@@ -6,6 +6,7 @@ class ValegaAnalyzer
       super(msg)
     end
   end
+
   # Делает анализ предоставленных адесов
   # @param addresses Array[String]
   def analyze_addresses(addresses, cc_code)
@@ -20,15 +21,9 @@ class ValegaAnalyzer
         raise CheckError.new, response.fetch('error'), response if response.key? 'error'
         risks = response.slice('risk_level', 'risk_confidence')
 
-        ar = AnalysisResult.create!(
-          risks
-          .merge(
-            address_transaction: address,
-            raw_response: response
-        )
-        )
+        AnalysisResult.create! risks.merge(address_transaction: address, cc_code: cc_code, raw_response: response)
 
-        AddressAnalysis.upsert!(risks.merge(address: address, analysis_result: ar, updated_at: Time.zone.now))
+        # AddressAnalysis.upsert!(risks.merge(address: address, analysis_result: ar, updated_at: Time.zone.now))
       rescue CheckError => err
         report_exception err, true, err.meta
       end
@@ -40,15 +35,13 @@ class ValegaAnalyzer
     ValegaClient
       .instance
       .risk_analysis(address_transactions: address_transactions, asset_type_id: ValegaClient.get_asset_type_id(cc_code))
-      .map { |response| perform_response response, cc_code }
-  end
+      .map do |response|
+        txid = response.fetch('value')
+        risks = response.slice('risk_level', 'risk_confidence')
 
-  def perform_response(response, cc_code)
-    txid = response.fetch('value')
-    risks = response.slice('risk_level', 'risk_confidence')
-
-    AnalysisResult.create!(
-      risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response)
-    )
+        AnalysisResult.create! risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response)
+      rescue CheckError => err
+        report_exception err, true, err.meta
+    end
   end
 end

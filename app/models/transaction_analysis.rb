@@ -1,6 +1,8 @@
 class TransactionAnalysis < ApplicationRecord
   include AASM
 
+  upsert_keys [:txid]
+
   belongs_to :analysis_result, optional: true
 
   belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
