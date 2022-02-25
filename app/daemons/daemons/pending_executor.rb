@@ -37,8 +37,8 @@ module Daemons
           ta.done! ar
           action = ta.risk_level == 3 ? :block : :pass
           data = { txid: ta.txid, action: action, transaction_analyses_id: ta.id }
-          Rails.logger.info("Pending transaction ##{at.id} #{at.txid} processed with results #{ta.as_json}")
-          exchange.publish( data, at.meta.slice('routing_key', 'correlation_id')) if at.meta.present?
+          Rails.logger.info("Pending transaction ##{ta.id} #{ta.txid} processed with results #{ta.as_json}")
+          exchange.publish( data, ta.meta.slice('routing_key', 'correlation_id')) if ta.present?
         end
 
         break unless @running
