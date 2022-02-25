@@ -45,10 +45,11 @@ module Daemons
       rescue ValegaClient::TooManyRequests => err
         report_exception err, true
         Rails.logger.error "Retry: #{err.message}"
-        sleep 1
+        sleep 10
         retry
       rescue StandardError => e
         report_exception e, true, cc_code: cc_code
+        sleep 10
       end
     end
   end
