@@ -8,7 +8,7 @@ module Daemons
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
-      Rails.logger.info("Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
+      Rails.logger.info("[PendingExecutor] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
         Rails.logger.info("Process #{cc_code}")
         tas = TransactionAnalysis
