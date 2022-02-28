@@ -32,10 +32,6 @@ class TransactionAnalysis < ApplicationRecord
     [cc_code, txid, 'risk_level:' + risk_level, risk_msg, transaction_entity_name].join('; ')
   end
 
-  def update_direction!
-    update! direction: direction
-  end
-
   def detect_direction
     withdrawals_count = withdrawals.count
     deposits_count = deposits.count
