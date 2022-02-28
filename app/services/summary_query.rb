@@ -6,12 +6,10 @@
 #
 class SummaryQuery
   SUMMARY_MODELS = {
-    Deposit => { grouped_by: %i[cc_code status is_dust], aggregations: ['sum(amount)', 'sum(fee)', :total] },
-    Withdrawal => { grouped_by: %i[cc_code status], aggregations: ['sum(amount)', 'sum(fee)', 'sum(real_pay_fee)', :total] },
     TransactionAnalysis => { grouped_by: %i[direction risk_level], aggregations: [:total] },
     AddressAnalysis => { grouped_by: %i[risk_level], aggregations: ['count(risk_level)'] },
     AnalyzedUser => { grouped_by: %w[risk_level_3_count>0], aggregations: [:total], order: '' },
-    AnalysisResult => { grouped_by: %w[direction cc_code], aggregations: [:risk_confidence, :risk_level] },
+    AnalysisResult => { grouped_by: %w[type cc_code], aggregations: [:risk_confidence, :risk_level] },
   }.freeze
 
   # rubocop:disable Metrics/MethodLength
