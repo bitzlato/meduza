@@ -65,9 +65,11 @@ module Daemons
     def rpc_callback(pending_analisis)
       analysis_result = pending_analisis
       action = analysis_result.risk_level == 3 ? :block : :pass
-      data = { address_transaction: pending_analisis.address_transaction, action: action, analysis_result_id: analysis_result.id }
+      payload = { address_transaction: pending_analisis.address_transaction, cc_code: pending_analisis.cc_code, action: action, analysis_result_id: analysis_result.id }
+      properties = pending_analisis.attributes.slice('routing_key', 'correlation_id')
+      Rails.logger.info "rpc_callback with payload #{payload} and properties #{properties}"
 
-      AMQP::Queue.exchange(:transaction_checker, data, pending_analisis.attributes.slice('routing_key', 'correlation_id'))
+      AMQP::Queue.exchange(:transaction_checker, payload, properties)
     end
   end
 end

@@ -46,6 +46,17 @@ RPC Сообщения отправлять в exchange `meduza.transaction_chec
 :correlation_id: Useful to correlate RPC responses with requests.
 ```
 
+В ответ прилетает следующая структура:
+
+```
+{ 
+  address_transaction: 'address or transaction id', # Проверенный адрес или транзакция
+  cc_code: 'BTC', 
+  action: 'block'|'pass',
+  analysis_result_id: 123, # ID Результатов анализа в базе meduza
+}
+```
+
 ## Как оно работает?
 
 * `AMQP::TransactionChecker` - подписывается на очередь в rabbimq, принимает от
