@@ -22,7 +22,7 @@ module Daemons
           Rails.logger.debug("No new pending transactions for cc_code=#{cc_code}")
           next
         end
-        Rails.logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
+        Rails.logger.info("[PendingExecutor] Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
         ValegaAnalyzer
           .new
           .analyze_transaction(pending_analises.pluck(:address_transaction), cc_code)
@@ -53,7 +53,7 @@ module Daemons
         break unless @running
       rescue ValegaClient::TooManyRequests => err
         report_exception err, true
-        Rails.logger.error "Retry: #{err.message}"
+        Rails.logger.error "[PendingExecutor] Retry: #{err.message}"
         sleep 10
         retry
       rescue StandardError => e
@@ -67,7 +67,7 @@ module Daemons
       action = analysis_result.risk_level == 3 ? :block : :pass
       payload = { address_transaction: pending_analisis.address_transaction, cc_code: pending_analisis.cc_code, action: action, analysis_result_id: analysis_result.id }
       properties = pending_analisis.attributes.slice('routing_key', 'correlation_id')
-      Rails.logger.info "rpc_callback with payload #{payload} and properties #{properties}"
+      Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
 
       AMQP::Queue.exchange(:meduza, payload, properties)
     end
