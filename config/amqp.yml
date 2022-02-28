@@ -7,7 +7,7 @@ connect:
 exchange:
   transaction_checker:
     name: meduza.transaction_checker
-    type: headers # direct, topic
+    type: direct
 
 queue:
   transaction_checker:
