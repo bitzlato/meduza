@@ -22,3 +22,13 @@ cap production master_key:setup
 ```
 cap production deploy
 ```
+
+## Как оно работает?
+
+* `AMQP::TransactionChecker` - подписывается на очередь в rabbimq, принимает от
+  нее заказы на проверку адресов и кидает их в `PendingAnalysis`
+* `Daemons::LegacyPender` каждую секунду пробегается по `blockchain_tx` и создает
+  для каждой транзакции новую запись `PendingAnalysis`
+* `Daemons::PendingExecutor` каждые 2 секунды пробегается по `PendingAnalysis`,
+  проверяет их через `ValegaAnalyzer`, создаёт `TransactionAnalysis` с
+  результатами, устанаилвает статус `PendingAnalysis` в `done`.

@@ -26,10 +26,5 @@ module Daemons
         break unless @running
       end
     end
-
-    private
-
-    def self.scope
-    end
   end
 end
