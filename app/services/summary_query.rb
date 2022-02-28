@@ -11,6 +11,7 @@ class SummaryQuery
     TransactionAnalysis => { grouped_by: %i[direction risk_level], aggregations: [:total] },
     AddressAnalysis => { grouped_by: %i[risk_level], aggregations: ['count(risk_level)'] },
     AnalyzedUser => { grouped_by: %w[risk_level_3_count>0], aggregations: [:total], order: '' },
+    AnalysisResult => { grouped_by: %w[direction cc_code], aggregations: [:risk_confidence, :risk_level] },
   }.freeze
 
   # rubocop:disable Metrics/MethodLength
