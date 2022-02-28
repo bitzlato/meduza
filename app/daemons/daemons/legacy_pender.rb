@@ -11,16 +11,17 @@ module Daemons
       count = ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         transaction_source.reload
-        self.class.scope
+        BlockchainTx
+          .receive
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
           .where(cc_code: cc_code)
           .order(:id)
           .limit(ValegaClient::MAX_ELEMENTS)
           .each do |btx|
-          Rails.logger.info("Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
-          TransactionAnalysis.create!(txid: btx.txid, cc_code: btx.cc_code) unless btx.transaction_analyses.present?
-          transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
-        end.count
+            Rails.logger.info("Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
+            PendingAnalysis.create! address_transaction: btx.txid, cc_code: btx.cc_code, type: :transaction, source: 'p2p' unless PendingAnalysis.find_by(address_transaction: btx.txid).present?
+            transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
+          end.count
         Rails.logger.info("[LegacyPender] #{count} processed")
         break unless @running
       end
@@ -29,9 +30,6 @@ module Daemons
     private
 
     def self.scope
-      BlockchainTx
-        .receive
-        .where(cc_code: ANALYZABLE_CODES.to_a)
     end
   end
 end
