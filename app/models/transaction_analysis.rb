@@ -1,6 +1,7 @@
 class TransactionAnalysis < ApplicationRecord
   upsert_keys [:txid]
 
+  # TODO renale to last_analysis_result
   belongs_to :analysis_result
   belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
 
