@@ -29,7 +29,7 @@ module Daemons
               reply_to:       'meduza.p2p.rpc_callback',
               correlation_id: btx.id
             }
-            AMQP::Queue.enqueue(:meduza, payload, properties)
+            AMQP::Queue.enqueue(:transaction_checker, payload, properties)
             # PendingAnalysis.create! address_transaction: btx.txid, cc_code: btx.cc_code, type: :transaction, source: 'p2p' unless PendingAnalysis.find_by(address_transaction: btx.txid).present?
             transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
           end.count

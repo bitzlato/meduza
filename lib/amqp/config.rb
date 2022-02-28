@@ -17,7 +17,10 @@ module AMQP
       end
 
       def binding_exchange_id(id)
-        data.fetch(:binding).fetch(id).fetch(:exchange)
+        data.
+          fetch(:binding).
+          fetch(id).
+          fetch(:exchange)
       end
 
       def binding_exchange(id)
