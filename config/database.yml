@@ -26,8 +26,8 @@ default: &default
 
 development:
   <<: *default
-  url: <%= ENV['MEDUZA_DATABASE_URL'] %>
-  # database: meduza_development
+  # url: <%= ENV['MEDUZA_DATABASE_URL'] %>
+  database: meduza_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.

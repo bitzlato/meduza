@@ -152,7 +152,8 @@ CREATE TABLE meduza.pending_analyses (
     source character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    type character varying
+    type character varying,
+    analysis_result_id bigint
 );
 
 
@@ -422,6 +423,13 @@ CREATE UNIQUE INDEX index_analyzed_users_on_user_id_uniq ON meduza.analyzed_user
 
 
 --
+-- Name: index_pending_analyses_on_analysis_result_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_pending_analyses_on_analysis_result_id ON meduza.pending_analyses USING btree (analysis_result_id);
+
+
+--
 -- Name: index_transaction_analyses_on_analysis_result_id; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -440,6 +448,14 @@ CREATE INDEX index_transaction_analyses_on_pending_analyses_id ON meduza.transac
 --
 
 CREATE UNIQUE INDEX index_transaction_analyses_on_txid ON meduza.transaction_analyses USING btree (txid);
+
+
+--
+-- Name: pending_analyses fk_rails_27fc4b529c; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.pending_analyses
+    ADD CONSTRAINT fk_rails_27fc4b529c FOREIGN KEY (analysis_result_id) REFERENCES meduza.analysis_results(id);
 
 
 --
@@ -478,6 +494,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220225134028'),
 ('20220225135745'),
 ('20220225151910'),
-('20220225153241');
+('20220225153241'),
+('20220228071220');
 
 
