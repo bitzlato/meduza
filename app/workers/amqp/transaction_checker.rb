@@ -14,10 +14,6 @@ module AMQP
                 correlation_id:      metadata.correlation_id,
                 type:                :transaction
                )
-    rescue StandardError => e
-      report_exception e, true, payload: payload
-
-      raise e if is_db_connection_error?(e)
     end
   end
 end
