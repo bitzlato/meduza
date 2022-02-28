@@ -10,7 +10,7 @@ module Daemons
     def process
       Rails.logger.info("[PendingExecutor] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
       ANALYZABLE_CODES.each do |cc_code|
-        Rails.logger.info("Process #{cc_code}")
+        Rails.logger.debug("Process #{cc_code}")
         pending_analises = PendingAnalysis
           .pending
           .where(cc_code: cc_code)
@@ -19,7 +19,7 @@ module Daemons
 
         # Докидываем на проверку старые транзакции
         unless pending_analises.any?
-          Rails.logger.info("No new pending transactions for cc_code=#{cc_code}")
+          Rails.logger.debug("No new pending transactions for cc_code=#{cc_code}")
           next
         end
         Rails.logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
