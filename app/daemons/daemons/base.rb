@@ -14,12 +14,12 @@ module Daemons
     end
 
     def stop
-      Rails.logger.info { { message: 'Stop worker', service: self.class.name } }
+      Rails.logger.info { { message: 'Stop worker', app_version: AppVersion.to_s, service: self.class.name } }
       @running = false
     end
 
     def run
-      Rails.logger.info { { message: 'Start worker', service: self.class.name } }
+      Rails.logger.info { { message: 'Start worker', app_version: AppVersion.to_s, service: self.class.name } }
 
       while running
         begin
