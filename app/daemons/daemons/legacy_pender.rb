@@ -8,11 +8,10 @@ module Daemons
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
-      Rails.logger.debug("[LegacyPender] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes with limit #{LIMIT}")
       ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         transaction_source.reload
-        Rails.logger.debug("[LegacyPender] select from #{transaction_source.last_processed_blockchain_tx_id}")
+        Rails.logger.info("[LegacyPender] Select #{cc_code} from #{transaction_source.last_processed_blockchain_tx_id}")
         btx_count = BlockchainTx
           .receive
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
