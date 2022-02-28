@@ -6,10 +6,10 @@
 #
 class SummaryQuery
   SUMMARY_MODELS = {
-    TransactionAnalysis => { grouped_by: %i[direction risk_level], aggregations: [:total] },
+    TransactionAnalysis => { grouped_by: %i[direction risk_level], aggregations: ['count(id)'] },
     AddressAnalysis => { grouped_by: %i[risk_level], aggregations: ['count(risk_level)'] },
-    AnalyzedUser => { grouped_by: %w[risk_level_3_count>0], aggregations: [:total], order: '' },
-    AnalysisResult => { grouped_by: %w[type cc_code], aggregations: [:risk_confidence, :risk_level] },
+    AnalyzedUser => { grouped_by: %w[risk_level_3_count>0 risk_level_2_count>0], aggregations: [], order: '' },
+    AnalysisResult => { grouped_by: %w[type cc_code risk_confidence risk_level], aggregations: [:risk_confidence, :risk_level, 'count(id)'] },
   }.freeze
 
   # rubocop:disable Metrics/MethodLength
@@ -27,7 +27,7 @@ class SummaryQuery
 
     order = meta[:order] || meta[:grouped_by].first
 
-    plucks = ((extra_plucks + meta[:aggregations]) - [:total]).map do |p|
+    plucks = ((extra_plucks + meta[:aggregations])).map do |p|
       p.to_s.include?('(') || p.to_s.include?('.') ? p : [model_class.table_name, p].join('.')
     end
 
@@ -55,14 +55,6 @@ class SummaryQuery
   private
 
   def prepare_row(row, aggregations)
-    return row unless aggregations.include? :total
-
-    count = (aggregations - [:total]).count
-    total = if aggregations.join.include? 'debit'
-              row.last(2).first - row.last
-            else
-              row.slice(row.length - count, count).inject(&:+)
-            end
-    row + [total]
+    row
   end
 end

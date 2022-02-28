@@ -1,3 +1,5 @@
+h2 Summary
+
 table.table.table-bordered.table-condensed.table-narrow.table-sm.text-small
   thead.thead-dark
     tr
@@ -9,19 +11,14 @@ table.table.table-bordered.table-condensed.table-narrow.table-sm.text-small
 
   tbody
     - summary[:rows].each do |record|
-      - currency_id = record.first
       tr
         - q = {}
         - summary[:grouped_by].each_with_index do |column, index|
           - value = record[index]
           - q.merge! column.to_s + '_eq' => value
-          th
-            - if column.to_s.ends_with? 'currency_id'
-              = format_currency value
-            - else
-              = value
+          th= value
         - summary[:aggregations].each_with_index do |column, index|
           - value = record[index + summary[:grouped_by].length]
           td.text-right
             = link_to url_for(q: q) do
-              = format_money value, column == 'sum(fee)' ? find_fee_currency(currency_id) : currency_id
+              = value
