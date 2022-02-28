@@ -7,6 +7,9 @@ class AnalysisResult < ApplicationRecord
 
   validates :cc_code, presence: true
 
+  TYPES = %w[address transaction]
+  validates :type, presence: true, inclusion: { in: TYPES }
+
   delegate :risk_msg, :transaction_entity_name, to: :response
 
   def response

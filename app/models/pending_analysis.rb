@@ -6,6 +6,9 @@ class PendingAnalysis < ApplicationRecord
   SOURCES = %w[p2p amqp]
   validates :source, presence: true, inclusion: { in: SOURCES }
 
+  TYPES = %w[address transaction]
+  validates :type, presence: true, inclusion: { in: TYPES }
+
   aasm column: :state, whiny_transitions: true, requires_lock: true do
     state :pending, initial: true
     state :errored
