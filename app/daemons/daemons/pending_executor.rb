@@ -69,7 +69,7 @@ module Daemons
       properties = pending_analisis.attributes.slice('reply_to', 'correlation_id').merge routing_key: 'rpc_queue'
       Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
 
-      AMQP::Queue.exchange(:transaction_checker, payload, properties)
+      AMQP::Queue.publish(:transaction_checker, payload, properties)
     end
   end
 end
