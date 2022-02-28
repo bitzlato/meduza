@@ -16,11 +16,14 @@ module AMQP
         data[:connect]
       end
 
-      def binding_exchange_id(id)
+      def binding(id)
         data.
           fetch(:binding).
-          fetch(id).
-          fetch(:exchange)
+          fetch(id) || raise("No binding for #{id}")
+      end
+
+      def binding_exchange_id(id)
+        binding(id).fetch(:exchange)
       end
 
       def binding_exchange(id)
@@ -29,7 +32,7 @@ module AMQP
       end
 
       def binding_queue(id)
-        queue data[:binding][id][:queue]
+        queue binding(id).fetch(:queue)
       end
 
       def binding_worker(id, args = [])
@@ -41,7 +44,7 @@ module AMQP
       end
 
       def topics(id)
-        data[:binding][id][:topics].split(',')
+        binding(id).fetch(:topics).split(',')
       end
 
       def channel(id)
