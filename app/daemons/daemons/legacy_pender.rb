@@ -12,14 +12,14 @@ module Daemons
       count = ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         transaction_source.reload
-        BlockchainTx
+        count = BlockchainTx
           .receive
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
           .where(cc_code: cc_code)
           .order(:id)
           .limit(LIMIT)
           .each do |btx|
-            Rails.logger.info("Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
+            Rails.logger.info("[LegacyPender] Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
             payload = {
               txid:    btx.txid,
               cc_code: btx.cc_code,
