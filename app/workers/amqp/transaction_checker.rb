@@ -10,8 +10,8 @@ module AMQP
                 cc_code:             payload.fetch('cc_code'),
                 source:              payload.fetch('source'),
                 meta:                payload.fetch('meta', {}),
-                routing_key:         metadata.fetch('routing_key'),
-                correlation_id:      metadata.fetch('correlation_id'),
+                routing_key:         metadata.routing_key,
+                correlation_id:      metadata.correlation_id,
                 type:                :transaction
                )
     rescue StandardError => e
