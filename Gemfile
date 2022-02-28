@@ -87,6 +87,8 @@ gem 'sd_notify'
 gem 'semver2', '~> 3.4'
 gem 'bugsnag'
 
+gem 'strip_attributes'
+
 group :deploy do
   gem 'bugsnag-capistrano', require: false
   gem 'capistrano', require: false

@@ -431,6 +431,8 @@ GEM
       net-ssh (>= 2.8.0)
     sshkit-interactive (0.3.0)
       sshkit (~> 1.12)
+    strip_attributes (1.12.0)
+      activemodel (>= 3.0, < 8.0)
     temple (0.8.2)
     thor (1.1.0)
     tilt (2.0.10)
@@ -531,6 +533,7 @@ DEPENDENCIES
   simple_form
   slim-rails
   spring
+  strip_attributes
   turbolinks (~> 5)
   tzinfo-data
   web-console (>= 4.1.0)
