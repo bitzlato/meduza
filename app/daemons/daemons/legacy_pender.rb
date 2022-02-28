@@ -19,11 +19,12 @@ module Daemons
           .order(:id)
           .limit(LIMIT)
           .each do |btx|
-            Rails.logger.info("[LegacyPender] Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
+            Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
             payload = {
               txid:    btx.txid,
               cc_code: btx.cc_code,
-              source:  'p2p'
+              source:  'p2p',
+              meta: { blockchain_tx_id: btx.id }
             }
             properties = {
               reply_to:       'meduza.p2p.rpc_callback',

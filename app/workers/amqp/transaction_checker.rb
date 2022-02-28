@@ -9,6 +9,7 @@ module AMQP
                 transaction_address: payload.fetch('txid'),
                 cc_code:             payload.fetch('cc_code'),
                 source:              payload.fetch('source'),
+                meta:                payload.fetch('meta', {}),
                 routing_key:         metadata.fetch('routing_key'),
                 correlation_id:      metadata.fetch('correlation_id'),
                 type:                :transaction
