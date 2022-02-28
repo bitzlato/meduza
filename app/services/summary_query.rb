@@ -61,7 +61,6 @@ class SummaryQuery
     total = if aggregations.join.include? 'debit'
               row.last(2).first - row.last
             else
-              binding.pry
               row.slice(row.length - count, count).inject(&:+)
             end
     row + [total]
