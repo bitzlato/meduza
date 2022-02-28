@@ -56,8 +56,9 @@ module AMQP
       end
 
       def exchange(id)
-        type = data[:exchange][id][:type]
-        name = data[:exchange][id][:name]
+        ex = data.fetch(:exchange).fetch(id)
+        type = ex.fetch(:type)
+        name = ex.fetch(:name)
         [type, name]
       end
     end
