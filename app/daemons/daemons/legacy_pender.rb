@@ -12,6 +12,7 @@ module Daemons
       count = ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         transaction_source.reload
+        Rails.logger.info("[LegacyPender] select from #{transaction_source.last_processed_blockchain_tx_id}")
         count = BlockchainTx
           .receive
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
