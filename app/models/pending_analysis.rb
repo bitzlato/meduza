@@ -3,7 +3,7 @@ class PendingAnalysis < ApplicationRecord
 
   include AASM
 
-  SOURCES = %w[p2p amqp]
+  SOURCES = %w[p2p belomor]
   validates :source, presence: true, inclusion: { in: SOURCES }
 
   TYPES = %w[address transaction]
