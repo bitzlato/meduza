@@ -51,12 +51,12 @@ workers = ARGV.map do |binding_id|
 
     case args.first
     when 'direct'
-      routing_key = AMQP::Config.routing_key(binding_id, market)
-      logger.debug("Type 'direct' routing_key = #{routing_key}")
+      routing_key = AMQP::Config.routing_key(binding_id)
+      logger.info("Type 'direct' routing_key = #{routing_key}")
       queue.bind x, routing_key: routing_key
     when 'topic'
       AMQP::Config.topics(binding_id).each do |topic|
-        logger.debug("Type 'topic' routing_key (topic) = #{topic}")
+        logger.info("Type 'topic' routing_key (topic) = #{topic}")
         queue.bind x, routing_key: topic
       end
     else
