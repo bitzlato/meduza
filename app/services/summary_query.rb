@@ -8,9 +8,9 @@ class SummaryQuery
   SUMMARY_MODELS = {
     TransactionAnalysis => { grouped_by: %i[direction risk_level], aggregations: ['count(id)'] },
     AddressAnalysis     => { grouped_by: %i[risk_level], aggregations: ['count(risk_level)'] },
-    AnalyzedUser        => { grouped_by: %w[risk_level_3_count>0 risk_level_2_count>0], aggregations: [], order: '' },
+    AnalyzedUser        => { grouped_by: %w[risk_level_3_count>0 risk_level_2_count>0], aggregations: ['count(id)'], order: '' },
     AnalysisResult      => { grouped_by: %w[type cc_code risk_confidence risk_level], aggregations: [:risk_confidence, :risk_level, 'count(id)'] },
-    PendingAnalysis     => { grouped_by: %w[state cc_code source type], aggregations: [] },
+    PendingAnalysis     => { grouped_by: %w[state cc_code source type], aggregations: ['count(id)'] },
   }.freeze
 
   # rubocop:disable Metrics/MethodLength
