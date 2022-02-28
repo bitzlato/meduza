@@ -9,6 +9,8 @@
                            analyzed_user GET    /analyzed_users/:id(.:format)                                                                     analyzed_users#show
                         analysis_results GET    /analysis_results(.:format)                                                                       analysis_results#index
                          analysis_result GET    /analysis_results/:id(.:format)                                                                   analysis_results#show
+                     transaction_sources GET    /transaction_sources(.:format)                                                                    transaction_sources#index
+                        pending_analyses GET    /pending_analyses(.:format)                                                                       pending_analyses#index
            rails_postmark_inbound_emails POST   /rails/action_mailbox/postmark/inbound_emails(.:format)                                           action_mailbox/ingresses/postmark/inbound_emails#create
               rails_relay_inbound_emails POST   /rails/action_mailbox/relay/inbound_emails(.:format)                                              action_mailbox/ingresses/relay/inbound_emails#create
            rails_sendgrid_inbound_emails POST   /rails/action_mailbox/sendgrid/inbound_emails(.:format)                                           action_mailbox/ingresses/sendgrid/inbound_emails#create
