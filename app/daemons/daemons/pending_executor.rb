@@ -30,7 +30,7 @@ module Daemons
 
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
 
-          pending_analises.with_lock do
+          pending_analisis.with_lock do
             if analysis_result.transaction?
               TransactionAnalysis.find_or_create!(
                 txid: analysis_result.address_transaction,
