@@ -2,6 +2,7 @@ class PendingAnalysis < ApplicationRecord
   self.inheritance_column = nil
 
   include AASM
+  belongs_to :analysis_result, optional: true
 
   SOURCES = %w[p2p belomor]
   validates :source, presence: true, inclusion: { in: SOURCES }
@@ -26,6 +27,10 @@ class PendingAnalysis < ApplicationRecord
     event :error do
       transitions from: :pending, to: :errored
     end
+  end
+
+  def callback?
+    correlation_id? && routing_key?
   end
 
   private

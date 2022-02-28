@@ -7,6 +7,7 @@
 
 ## Refactor
 
+0. [ ] Установить analysis_result для transaction_analysis и сделать not null
 1. [ ] Отправлять на проверку через rabbitmiq LegacyPender отправляет событие в
    кролика, TransactionChecker принимает
 2. [ ] source заменить на референсе на transaction_source
