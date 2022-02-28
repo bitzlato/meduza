@@ -32,7 +32,7 @@ module Daemons
 
           pending_analisis.with_lock do
             if analysis_result.transaction?
-              TransactionAnalysis.find_or_create!(
+              TransactionAnalysis.find_or_create_by!(
                 txid: analysis_result.address_transaction,
                 cc_code: cc_code
               )
