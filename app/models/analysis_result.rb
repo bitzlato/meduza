@@ -16,6 +16,14 @@ class AnalysisResult < ApplicationRecord
     OpenStruct.new(raw_response)
   end
 
+  def transaction?
+    type == 'transaction'
+  end
+
+  def address?
+    type == 'address'
+  end
+
   def to_s
     [cc_code, address_transaction, 'risk_level:' + risk_level.to_s, 'risk_confidence:' + risk_confidence.to_s, risk_msg, transaction_entity_name].join('; ')
   end

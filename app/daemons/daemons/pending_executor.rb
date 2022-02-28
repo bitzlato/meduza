@@ -28,17 +28,21 @@ module Daemons
           .analyze_transaction(pas.pluck(:address_transaction), cc_code)
           .each do |ar|
 
-          ta = pas.find_by(cc_code: cc_code, txid: ar.txid) || TransactionAnalysis.create!(
-            analysis_result: ar,
-            txid: ar.txid,
-            cc_code: cc_code
-          )
-          ta.update! analysis_result: ar
-          ta.done! ar
-          action = ta.risk_level == 3 ? :block : :pass
-          data = { txid: ta.txid, action: action, transaction_analyses_id: ta.id }
-          Rails.logger.info("Pending transaction ##{ta.id} #{ta.txid} processed with results #{ta.as_json}")
-          AMQP::Queue.exchange(:transaction_checker, data, ta.meta.slice('routing_key', 'correlation_id')) if ta.present? && ta.meta.present?
+          if ar.transaction?
+            ta = pas.find_by(cc_code: cc_code, txid: ar.address_transaction) || TransactionAnalysis.create!(
+              analysis_result: ar,
+              txid: ar.txid,
+              cc_code: cc_code
+            )
+            ta.update! analysis_result: ar
+            ta.done! ar
+            action = ta.risk_level == 3 ? :block : :pass
+            data = { txid: ta.txid, action: action, transaction_analyses_id: ta.id }
+            Rails.logger.info("Pending transaction ##{ta.id} #{ta.txid} processed with results #{ta.as_json}")
+            AMQP::Queue.exchange(:transaction_checker, data, ta.meta.slice('routing_key', 'correlation_id')) if ta.present? && ta.meta.present?
+          else
+            raise "not supported #{ar}"
+          end
         end
 
         break unless @running
