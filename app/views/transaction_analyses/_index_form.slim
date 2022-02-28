@@ -1,4 +1,5 @@
 = render 'time_form' do |f|
   = f.input :risk_level_eq, collection: (1..3), include_blank: 'any', input_html: { style: 'max-width: 100px' }    
   = f.input :txid_eq, as: :string, input_html: { style: 'max-width: 500px' }
+  = f.input :direction_eq, collection: TransactionAnalysis::DIRECTIONS, input_html: { style: 'max-width: 500px' }
   = f.input :cc_code_eq, collection: TransactionAnalysis.group(:cc_code).count.keys, input_html: { style: 'max-width: 100px' }, include_blank: 'any'
