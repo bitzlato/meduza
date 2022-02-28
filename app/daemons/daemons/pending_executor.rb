@@ -40,9 +40,9 @@ module Daemons
                 )
               transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
               pending_analisis.update! analysis_result: analysis_result
+              rpc_callback pending_analisis if pending_analisis.callback?
               pending_analisis.done!
 
-              rpc_callback pending_analisis if pending_analisis.callback?
               # TODO analysis_result.address? создавать AddressAnalysis
             else
               raise "not supported #{analysis_result}"
@@ -63,7 +63,7 @@ module Daemons
     end
 
     def rpc_callback(pending_analisis)
-      analysis_result = pending_analisis
+      analysis_result = pending_analisis.analysis_result
       action = analysis_result.risk_level == 3 ? :block : :pass
       payload = { address_transaction: pending_analisis.address_transaction, cc_code: pending_analisis.cc_code, action: action, analysis_result_id: analysis_result.id }
       properties = pending_analisis.attributes.slice('reply_to', 'correlation_id').merge routing_key: 'rpc_queue'
