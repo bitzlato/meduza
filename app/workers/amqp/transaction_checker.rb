@@ -6,7 +6,7 @@ module AMQP
       Rails.logger.info "TransactionChecker payload=#{payload}, metadata=#{metadata}"
       PendingAnalysis.
         create!(
-                transaction_address: payload.fetch('txid'),
+                address_transaction: payload.fetch('txid'),
                 cc_code:             payload.fetch('cc_code'),
                 source:              payload.fetch('source'),
                 meta:                payload.fetch('meta', {}),
