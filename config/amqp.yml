@@ -19,8 +19,8 @@ binding:
   transaction_checker:
     queue: transaction_checker
     # clean_start: true
-    exchange: meduza
+    exchange: transaction_checker
 
 channel:
-  meduza:
+  transaction_checker:
     prefetch: 10
