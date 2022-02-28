@@ -33,6 +33,8 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    aasm (5.2.0)
+      concurrent-ruby (~> 1.0)
     actioncable (6.1.4.1)
       actionpack (= 6.1.4.1)
       activesupport (= 6.1.4.1)
@@ -104,8 +106,12 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
+    after_commit_everywhere (1.1.0)
+      activerecord (>= 4.2)
+      activesupport
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
+    amq-protocol (2.3.2)
     ast (2.4.2)
     bindex (0.8.1)
     bootsnap (1.9.1)
@@ -114,6 +120,9 @@ GEM
       concurrent-ruby (~> 1.0)
     bugsnag-capistrano (2.1.0)
     builder (3.2.4)
+    bunny (2.19.0)
+      amq-protocol (~> 2.3, >= 2.3.1)
+      sorted_set (~> 1, >= 1.0.2)
     byebug (11.1.3)
     capistrano (3.16.0)
       airbrussh (>= 1.0.0)
@@ -236,6 +245,7 @@ GEM
     guard-rubocop (1.5.0)
       guard (~> 2.0)
       rubocop (< 2.0)
+    hashie (5.0.0)
     htmlentities (4.3.4)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
@@ -343,6 +353,7 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    rbtree (0.4.5)
     redis (4.5.1)
     redis-namespace (1.8.1)
       redis (>= 3.0.4)
@@ -385,6 +396,7 @@ GEM
       rubyzip (>= 1.2.2)
     semantic_range (3.0.0)
     semver2 (3.4.2)
+    set (1.0.2)
     shellany (0.0.1)
     sidekiq (6.3.1)
       connection_pool (>= 2.2.2)
@@ -403,6 +415,9 @@ GEM
       actionpack (>= 3.1)
       railties (>= 3.1)
       slim (>= 3.0, < 5.0)
+    sorted_set (1.0.3)
+      rbtree
+      set (~> 1.0)
     spring (3.0.0)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
@@ -416,6 +431,8 @@ GEM
       net-ssh (>= 2.8.0)
     sshkit-interactive (0.3.0)
       sshkit (~> 1.12)
+    strip_attributes (1.12.0)
+      activemodel (>= 3.0, < 8.0)
     temple (0.8.2)
     thor (1.1.0)
     tilt (2.0.10)
@@ -451,11 +468,14 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  aasm (~> 5.2)
   active_link_to
   active_record_upsert
+  after_commit_everywhere (~> 1.1)
   bootsnap (>= 1.4.4)
   bugsnag
   bugsnag-capistrano
+  bunny (~> 2.19)
   byebug
   capistrano
   capistrano-bundler
@@ -486,6 +506,7 @@ DEPENDENCIES
   guard
   guard-minitest
   guard-rubocop
+  hashie (~> 5.0)
   jbuilder (~> 2.7)
   kaminari
   listen (~> 3.3)
@@ -512,6 +533,7 @@ DEPENDENCIES
   simple_form
   slim-rails
   spring
+  strip_attributes
   turbolinks (~> 5)
   tzinfo-data
   web-console (>= 4.1.0)

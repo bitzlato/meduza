@@ -21,8 +21,7 @@ module RansackSupport
       format.html do
         render locals: {
           records: records,
-          summary: nil,
-          # summary: SummaryQuery.new.summary(records), Временно отключил так как SummaryQuery не корректно работает
+          summary: SummaryQuery.new.summary(q.result),
           paginated_records: paginate(records)
         }
       end

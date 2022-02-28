@@ -87,6 +87,8 @@ gem 'sd_notify'
 gem 'semver2', '~> 3.4'
 gem 'bugsnag'
 
+gem 'strip_attributes'
+
 group :deploy do
   gem 'bugsnag-capistrano', require: false
   gem 'capistrano', require: false
@@ -111,3 +113,11 @@ gem 'money', '~> 6.16'
 gem "redis-namespace", "~> 1.8"
 
 gem "draper", "~> 4.0"
+
+gem "bunny", "~> 2.19"
+
+gem "aasm", "~> 5.2"
+
+gem "after_commit_everywhere", "~> 1.1"
+
+gem "hashie", "~> 5.0"

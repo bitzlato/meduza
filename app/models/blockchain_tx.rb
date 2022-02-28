@@ -1,7 +1,7 @@
 class BlockchainTx < ApplicationRecord
   self.table_name = :blockchain_tx
 
-  has_many :transaction_analyses
+  has_many :transaction_analyses, foreign_key: :txid, primary_key: :txid
 
   has_one :deposit
   has_one :withdrawal

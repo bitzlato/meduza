@@ -1,0 +1,2 @@
+class PendingAnalysesController < ResourcesController
+end

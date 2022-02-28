@@ -1,28 +1,24 @@
 class TransactionAnalysis < ApplicationRecord
-  belongs_to :analysis_result, optional: true
-  belongs_to :analyzed_user, optional: true
-  belongs_to :blockchain_tx
+  upsert_keys [:txid]
 
-  has_one :deposit, through: :blockchain_tx
-  has_one :user, through: :deposit
+  # TODO renale to last_analysis_result
+  belongs_to :analysis_result
+  belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
 
-  counter_culture :analyzed_user,
-    column_name: proc {|model| model.analyzed_user_id.present? && model.risk_confidence == 1.0 ? "risk_level_#{model.risk_level}_count" : nil },
-    column_names: {
-      TransactionAnalysis.where(risk_level: 1) => :risk_level_1_count,
-      TransactionAnalysis.where(risk_level: 2) => :risk_level_2_count,
-      TransactionAnalysis.where(risk_level: 3) => :risk_level_3_count,
-    },
-    touch: true
-
-  scope :include_address, ->(address) { where("input_addresses::jsonb ? :address", address: address) }
-
-  validates :input_addresses, presence: true, unless: :analysis_result
-
-  before_create :set_analyzed_user
+  has_many :deposits, through: :blockchain_tx
+  has_many :withdrawals, through: :blockchain_tx
+  has_many :deposit_users, through: :deposits, source: :user
+  has_many :withdrawals_users, through: :withdrawals, source: :user
 
   delegate :amount, to: :blockchain_tx, allow_nil: true
   delegate :risk_msg, :transaction_entity_name, to: :analysis_result
+
+  DIRECTIONS = %w[income outcome both unknown internal]
+  validates :direction, inclusion: { in: DIRECTIONS }, if: :direction?
+
+  before_create do
+    self.direction = detect_direction
+  end
 
   def self.actual?(txid)
     ta = find_by(txid: txid)
@@ -35,13 +31,18 @@ class TransactionAnalysis < ApplicationRecord
     [cc_code, txid, 'risk_level:' + risk_level, risk_msg, transaction_entity_name].join('; ')
   end
 
-  def user_id
-    user.try(:id)
-  end
+  def detect_direction
+    withdrawals_count = withdrawals.count
+    deposits_count = deposits.count
 
-  private
-
-  def set_analyzed_user
-    self.analyzed_user ||= AnalyzedUser.find_or_create_by!(user: user) if user.present?
+    if withdrawals_count>0 && deposits_count>0
+      :both
+    elsif withdrawals_count>0
+      :outcome
+    elsif deposits_count>0
+      :income
+    else
+      :unknown
+    end
   end
 end

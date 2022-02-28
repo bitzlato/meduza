@@ -1,0 +1,29 @@
+[Unit]
+Description = <%= fetch(:application) %> (<%= fetch(:stage) %>) AMQP daemon (%i)
+After=syslog.target network.target
+# OnFailure=daemon_notifications@%n.service
+
+[Service]
+Type=simple
+Environment=RAILS_ENV=<%= fetch(:rails_env) %>
+Environment=RAILS_ROOT=<%= current_path %>
+Environment=PWD=<%= current_path %>
+EnvironmentFile=<%= current_path %>/.env
+# Helpful for debugging socket activation, etc.
+WorkingDirectory=<%= current_path %>
+ExecStart=/home/<%= fetch(:user) %>/.rbenv/bin/rbenv exec bundle exec ruby ./lib/amqp_daemon.rb %i
+ExecStop=/bin/kill -TERM $MAINPID
+MemoryHigh=1024M
+MemoryMax=1200M
+Slice=daemon.slice
+
+KillMode=mixed
+Restart=always
+RestartSec=1
+SyslogIdentifier=<%= fetch(:application) %>-amqp_daemon-%i
+
+[Install]
+# Use default.target to autoboot user service
+# https://superuser.com/questions/1025091/start-a-systemd-user-service-at-boot
+# WantedBy = multi-user.target
+WantedBy=default.target

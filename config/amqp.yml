@@ -1,0 +1,26 @@
+connect:
+  host: <%= ENV.fetch('RABBITMQ_HOST', 'localhost') %>
+  port: <%= ENV.fetch('RABBITMQ_PORT', '5672') %>
+  username: <%= ENV.fetch('RABBITMQ_USER', 'guest') %>
+  password: <%= ENV.fetch('RABBITMQ_PASSWORD', 'guest') %>
+
+exchange:
+  meduza:
+    name: meduza.transaction_checker
+    type: headers # direct, topic
+
+queue:
+  transaction_checker:
+    name: meduza.transaction_checker
+    durable: true
+
+# Bind amqp daemon to queue and exchange.
+binding:
+  transaction_checker:
+    queue: transaction_checker
+    # clean_start: true
+    exchange: meduza
+
+channel:
+  meduza:
+    prefetch: 10

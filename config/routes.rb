@@ -11,5 +11,6 @@ Rails.application.routes.draw do
   resources :transaction_analyses, only: [:index, :show]
   resources :analyzed_users, only: [:index, :show]
   resources :analysis_results, only: [:index, :show]
-  resources :transaction_sources, only: [:index]
+  resources :transaction_sources, only: [:index, :show]
+  resources :pending_analyses, only: [:index, :show]
 end

@@ -1,0 +1,2 @@
+class TransactionSourcesController < ResourcesController
+end

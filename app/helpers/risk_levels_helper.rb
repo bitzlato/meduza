@@ -6,11 +6,13 @@ module RiskLevelsHelper
   }.freeze
 
   def present_risk_level(risk_level)
+    return '-' if risk_level.nil?
     rl = RISK_LEVELS[risk_level]
     content_tag :span, rl.fetch(:title), class: ['badge', rl.fetch(:css_class)].join(' '), title: "risk_level=#{risk_level}"
   end
 
   def present_risk_confidence(risk_confidence)
+    return '-' if risk_confidence.nil?
     risk_confidence = (risk_confidence * 100).to_i
     content_tag :div, class: 'progress' do
       content_tag :div, "#{risk_confidence}%", style: "width: #{risk_confidence}%", class: "progress-bar", role: "progressbar", 'aria-valuenow' => risk_confidence, 'aria-valuemin' => 0,

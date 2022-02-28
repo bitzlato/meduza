@@ -79,13 +79,16 @@ set :systemd_sidekiq_role, :sidekiq
 set :systemd_sidekiq_instances, []
 
 set :systemd_daemon_role, :daemons
-set :systemd_daemon_instances, [:income_transactions_analyser]
+set :systemd_daemon_instances, [:legacy_pender, :pending_executor]
+
+set :systemd_amqp_daemon_role, :amqp_daemons
+set :systemd_amqp_daemon_instances, [:transaction_checker]
 
 set :app_version, SemVer.find.to_s
 
-# after 'deploy:check', 'master_key:check'
 after 'deploy:publishing', 'systemd:puma:reload-or-restart'
 after 'deploy:publishing', 'systemd:daemon:reload-or-restart'
+after 'deploy:publishing', 'systemd:amqp_daemon:reload-or-restart'
 
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
 
