@@ -27,7 +27,7 @@ class PendingAnalysis < ApplicationRecord
   end
 
   def callback?
-    correlation_id? && routing_key?
+    correlation_id? && reply_to?
   end
 
   private

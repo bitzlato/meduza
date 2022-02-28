@@ -57,6 +57,8 @@ RPC Сообщения отправлять в exchange `meduza.transaction_chec
 }
 ```
 
+с `routing_key='rpc_queue'`
+
 ## Как оно работает?
 
 * `AMQP::TransactionChecker` - подписывается на очередь в rabbimq, принимает от

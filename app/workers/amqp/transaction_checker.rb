@@ -10,7 +10,7 @@ module AMQP
                 cc_code:             payload.fetch('cc_code'),
                 source:              payload.fetch('source'),
                 meta:                payload.fetch('meta', {}),
-                routing_key:         metadata.routing_key,
+                reply_to:            metadata.reply_to,
                 correlation_id:      metadata.correlation_id,
                 type:                :transaction
                )

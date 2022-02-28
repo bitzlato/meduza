@@ -147,13 +147,14 @@ CREATE TABLE meduza.pending_analyses (
     address_transaction character varying NOT NULL,
     state character varying DEFAULT 'pending'::character varying NOT NULL,
     cc_code character varying NOT NULL,
-    routing_key character varying,
+    reply_to character varying,
     correlation_id character varying,
     source character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     type character varying,
-    analysis_result_id bigint
+    analysis_result_id bigint,
+    meta jsonb
 );
 
 
@@ -495,6 +496,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220225135745'),
 ('20220225151910'),
 ('20220225153241'),
-('20220228071220');
+('20220228071220'),
+('20220228142051'),
+('20220228142958');
 
 
