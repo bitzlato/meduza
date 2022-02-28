@@ -8,12 +8,12 @@ module Daemons
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
-      Rails.logger.info("[LegacyPender] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes with limit #{LIMIT}")
-      count = ANALYZABLE_CODES.each do |cc_code|
+      Rails.logger.debug("[LegacyPender] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes with limit #{LIMIT}")
+      ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         transaction_source.reload
-        Rails.logger.info("[LegacyPender] select from #{transaction_source.last_processed_blockchain_tx_id}")
-        count = BlockchainTx
+        Rails.logger.debug("[LegacyPender] select from #{transaction_source.last_processed_blockchain_tx_id}")
+        btx_count = BlockchainTx
           .receive
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
           .where(cc_code: cc_code)
@@ -34,7 +34,7 @@ module Daemons
             # PendingAnalysis.create! address_transaction: btx.txid, cc_code: btx.cc_code, type: :transaction, source: 'p2p' unless PendingAnalysis.find_by(address_transaction: btx.txid).present?
             transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
           end.count
-        Rails.logger.info("[LegacyPender] #{count} processed")
+        Rails.logger.debug("[LegacyPender] #{btx_count} processed for #{cc_code}")
         break unless @running
       end
     end
