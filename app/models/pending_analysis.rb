@@ -19,9 +19,6 @@ class PendingAnalysis < ApplicationRecord
 
     event :done do
       transitions from: :pending, to: :done
-      after do
-        report_exception 'income/outcome transaction analysis', true, id: id if deposits.any? && withdrawals.any?
-      end
     end
 
     event :error do
