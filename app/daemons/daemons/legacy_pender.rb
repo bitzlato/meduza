@@ -4,6 +4,7 @@ module Daemons
   # Берёт все не обработанные транзакции из P2P blockchain_tx и засовывает в pending_transactions
   class LegacyPender < Base
     @sleep_time = 1.seconds
+    LIMIT = 20
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
@@ -16,10 +17,20 @@ module Daemons
           .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
           .where(cc_code: cc_code)
           .order(:id)
-          .limit(ValegaClient::MAX_ELEMENTS)
+          .limit(LIMIT)
           .each do |btx|
             Rails.logger.info("Put to penging_transaction #{btx.id}: #{btx.txid} #{cc_code}")
-            PendingAnalysis.create! address_transaction: btx.txid, cc_code: btx.cc_code, type: :transaction, source: 'p2p' unless PendingAnalysis.find_by(address_transaction: btx.txid).present?
+            payload = {
+              txid:    btx.txid,
+              cc_code: btx.cc_code,
+              source:  'p2p'
+            }
+            properties = {
+              reply_to:       'meduza.p2p.rpc_callback',
+              correlation_id: btx.id
+            }
+            AMQP::Queue.exchange(:meduza, payload, properties)
+            # PendingAnalysis.create! address_transaction: btx.txid, cc_code: btx.cc_code, type: :transaction, source: 'p2p' unless PendingAnalysis.find_by(address_transaction: btx.txid).present?
             transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
           end.count
         Rails.logger.info("[LegacyPender] #{count} processed")
