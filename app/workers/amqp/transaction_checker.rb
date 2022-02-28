@@ -8,10 +8,10 @@ module AMQP
         create!(
                 transaction_address: payload.fetch('txid'),
                 cc_code:             payload.fetch('cc_code'),
-                is_address:          false,
-                source:              'amqp',
+                source:              payload.fetch('source'),
                 routing_key:         metadata.fetch('routing_key'),
                 correlation_id:      metadata.fetch('correlation_id'),
+                type:                :transaction
                )
     rescue StandardError => e
       report_exception e, true, payload: payload
