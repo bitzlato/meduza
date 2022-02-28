@@ -32,17 +32,18 @@ module Daemons
 
           pending_analisis.with_lock do
             if analysis_result.transaction?
-              TransactionAnalysis
+              transaction_analysis = TransactionAnalysis
                 .create_with(analysis_result: analysis_result)
                 .find_or_create_by!(
                   txid: analysis_result.address_transaction,
                   cc_code: cc_code
                 )
-              ta.update! analysis_result: analysis_result unless ta.analysis_result == analysis_result
+              transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
               pending_analisis.update! analysis_result: analysis_result
               pending_analisis.done!
 
               rpc_callback pending_analisis if pending_analisis.callback?
+              # TODO analysis_result.address? создавать AddressAnalysis
             else
               raise "not supported #{analysis_result}"
             end
