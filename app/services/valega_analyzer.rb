@@ -42,7 +42,7 @@ class ValegaAnalyzer
         raise CheckError.new, response.fetch('error'), response if response.key? 'error'
         risks = response.slice('risk_level', 'risk_confidence')
 
-        AnalysisResult.create! risks.merge(address_transaction: address, cc_code: cc_code, raw_response: response)
+        AnalysisResult.create! risks.merge(address_transaction: address, cc_code: cc_code, raw_response: response, type: 'address')
 
         # AddressAnalysis.upsert!(risks.merge(address: address, analysis_result: ar, updated_at: Time.zone.now))
       rescue CheckError => err
@@ -60,7 +60,7 @@ class ValegaAnalyzer
         txid = response.fetch('value')
         risks = response.slice('risk_level', 'risk_confidence')
 
-        AnalysisResult.create! risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response)
+        AnalysisResult.create! risks.merge(address_transaction: txid, cc_code: cc_code, raw_response: response, type: 'transaction')
       rescue CheckError => err
         report_exception err, true, err.meta
     end
