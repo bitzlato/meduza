@@ -55,7 +55,7 @@ module Daemons
       channel = bunny_conn.create_channel
       @reply_queue = channel.queue('', exclusive: true)
       @reply_queue.subscribe do |_delivery_info, properties, payload|
-        Rails.logger.info "Receive reply_to with payload #{payload} and properties #{properties}"
+        Rails.logger.info "[LegacyPender] Receive reply_to with payload #{payload} and properties #{properties}"
       end
     end
   end
