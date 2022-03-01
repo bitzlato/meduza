@@ -9,9 +9,7 @@ class PendingAnalysis < ApplicationRecord
   end
 
   validates :cc_code, presence: true
-
-  SOURCES = %w[p2p belomor]
-  validates :source, presence: true, inclusion: { in: SOURCES }
+  validates :source, presence: true
 
   TYPES = %w[address transaction]
   validates :type, presence: true, inclusion: { in: TYPES }
