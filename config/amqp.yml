@@ -21,6 +21,7 @@ binding:
   legacy_rpc_callback:
     exchange: meduza
     queue: meduza.legacy_rpc_callback
+    durable: true
     type: direct
     routing_key: legacy_rpc_callback
 
