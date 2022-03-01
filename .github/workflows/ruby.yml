@@ -61,7 +61,7 @@ jobs:
     - name: Bundle install
       run: bundle install
     - name: Setup database
-      run: bundle exec rake db:create db:migrate RAILS_ENV=test
+      run: ./bin/rails db:create db:migrate RAILS_ENV=test
     - name: Seed database
       run: bundle exec rake db:seed
     - run: bundle exec rake
