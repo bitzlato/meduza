@@ -27,7 +27,7 @@ cap production deploy
 
 https://www.rabbitmq.com/tutorials/tutorial-six-ruby.html
 
-RPC Сообщения отправлять в exchange `meduza.transaction_checker`
+RPC Сообщения отправлять в exchange `meduza` с `route_key=check_transaction`
 
 Пример `payload`:
 
@@ -46,7 +46,7 @@ RPC Сообщения отправлять в exchange `meduza.transaction_chec
 :correlation_id: Useful to correlate RPC responses with requests.
 ```
 
-В ответ прилетает следующая структура:
+В ответ прилетает следующая структура в exchange `meduza`
 
 ```
 { 
@@ -56,8 +56,6 @@ RPC Сообщения отправлять в exchange `meduza.transaction_chec
   analysis_result_id: 123, # ID Результатов анализа в базе meduza
 }
 ```
-
-с `routing_key='rpc_queue'`
 
 ## Как оно работает?
 
