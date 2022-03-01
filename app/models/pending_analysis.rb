@@ -36,6 +36,10 @@ class PendingAnalysis < ApplicationRecord
     correlation_id? && reply_to?
   end
 
+  def self.sources
+    PendingAnalysis.group(:source).count.keys
+  end
+
   private
 
   def log_record!(record)
