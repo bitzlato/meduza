@@ -22,31 +22,6 @@ module AMQP
           fetch(id) || raise("No binding for #{id}")
       end
 
-      def binding_exchange_id(id)
-        binding(id).fetch(:exchange)
-      end
-
-      def binding_exchange(id)
-        eid = binding_exchange_id(id)
-        eid && exchange(eid)
-      end
-
-      def binding_queue(id)
-        queue binding(id).fetch(:queue)
-      end
-
-      def binding_worker(id, args = [])
-        ::AMQP.const_get(id.to_s.camelize).new(*args)
-      end
-
-      def routing_key(id)
-        binding_queue(id).first
-      end
-
-      def topics(id)
-        binding(id).fetch(:topics).split(',')
-      end
-
       def channel(id)
         (data[:channel] && data[:channel][id]) || {}
       end

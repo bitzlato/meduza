@@ -34,8 +34,10 @@ Signal.trap('INT',  &terminate)
 Signal.trap('TERM', &terminate)
 
 workers = ARGV.map do |binding_id|
-  worker = AMQP::Config.binding_worker(binding_id)
-  queue  = ch.queue(*AMQP::Config.binding_queue(binding_id))
+  binding = AMQP::Config.binding binding_id
+
+  worker = ::AMQP.const_get(binding_id.to_s.camelize).new
+  queue  = ch.queue(binding.fetch(:queue), *binding.fetch(:queue_options, {}))
   logger.debug "Bind as '#{binding_id}' with worker '#{worker.class}' to queue '#{queue.name}'"
 
   if defined? Bugsnag
@@ -46,26 +48,23 @@ workers = ARGV.map do |binding_id|
     end
   end
 
-  if args = AMQP::Config.binding_exchange(binding_id)
-    x = ch.send(*args)
-
-    case args.first
-    when 'direct'
-      routing_key = AMQP::Config.routing_key(binding_id)
-      logger.info("Type 'direct' routing_key = #{routing_key}")
-      queue.bind x, routing_key: routing_key
-    when 'topic'
-      AMQP::Config.topics(binding_id).each do |topic|
-        logger.info("Type 'topic' routing_key (topic) = #{topic}")
-        queue.bind x, routing_key: topic
-      end
-    else
-      queue.bind x
+  case binding.dig(:type).to_s
+  when 'direct'
+    routing_key = binding.fetch(:routing_key)
+    logger.info("Type 'direct' routing_key = #{routing_key}")
+    queue.bind x, routing_key: routing_key
+  when 'topic'
+    binding.dig(:topics).each do |topic|
+      logger.info("Type 'topic' routing_key (topic) = #{topic}")
+      queue.bind x, routing_key: topic
     end
+  when 'headers'
+    queue.bind x
+  else
+    raise 'unknown type'
   end
 
-  clean_start = AMQP::Config.data[:binding][binding_id][:clean_start]
-  queue.purge if clean_start
+  queue.purge if binding.dig(:clean_start)
 
   # Enable manual acknowledge mode by setting manual_ack: true.
   queue.subscribe manual_ack: true do |delivery_info, metadata, payload|

@@ -9,23 +9,21 @@ exchange:
     name: meduza
     type: direct
 
-queue:
-  transaction_checker:
-    name: meduza.transaction_checker
-    durable: true
-  rpc_callbacks:
-    name: meduza.rpc_callbacks
-
-# Bind amqp daemon to queue and exchange.
 binding:
-  rpc_callbacks:
-    queue: rpc_callbacks
+  check_transaction:
     exchange: meduza
-
-  transaction_checker:
-    queue: transaction_checker
+    queue: meduza.check_transaction
+    queue_options:
+      durable: true
+    type: direct
+    routing_key: check_transaction
     # clean_start: true
+
+  legacy_rpc_callback:
     exchange: meduza
+    queue: meduza.legacy_rpc_callback
+    type: direct
+    routing_key: legacy_rpc_callback
 
 channel:
   meduza:

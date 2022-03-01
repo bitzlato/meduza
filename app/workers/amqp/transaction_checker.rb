@@ -3,7 +3,7 @@
 module AMQP
   class TransactionChecker < Base
     def process(payload, metadata)
-      Rails.logger.info "TransactionChecker payload=#{payload}, metadata=#{metadata}"
+      Rails.logger.info "[TransactionChecker] payload=#{payload}, metadata=#{metadata}"
       PendingAnalysis.
         create!(
                 address_transaction: payload.fetch('txid'),
