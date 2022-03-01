@@ -38,7 +38,7 @@ workers = ARGV.map do |binding_id|
   logger.info "Bind as '#{binding_id}' with args #{binding}"
 
   worker = ::AMQP.const_get(binding_id.to_s.camelize).new
-  queue  = ch.queue(binding.fetch(:queue), *binding.fetch(:queue_options, {}))
+  queue  = ch.queue(binding.fetch(:queue), durable: binding.dig(:durable))
 
   if defined? Bugsnag
     Bugsnag.configure do |config|

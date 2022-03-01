@@ -13,8 +13,7 @@ binding:
   transaction_checker:
     exchange: meduza
     queue: meduza.check_transaction
-    queue_options:
-      durable: true
+    durable: true
     type: direct
     routing_key: check_transaction
     # clean_start: true
