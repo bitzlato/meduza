@@ -10,6 +10,7 @@ module AMQP
         source:              payload.fetch('source'),
       ).present?
         Rails.logger.debug("Skip #{payload}")
+        return
       end
       PendingAnalysis.
         create!(
