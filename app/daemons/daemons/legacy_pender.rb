@@ -35,7 +35,7 @@ module Daemons
               meta: { blockchain_tx_id: btx.id }
             }
             properties = {
-              reply_to:       reply_queue.name,
+              reply_to:       AMQP::Config.routing_key(:rpc_callbacks),
               correlation_id: btx.id
             }
             AMQP::Queue.enqueue(:transaction_checker, payload, properties)

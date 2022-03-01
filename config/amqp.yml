@@ -13,9 +13,16 @@ queue:
   transaction_checker:
     name: meduza.transaction_checker
     durable: true
+  rpc_callbacks:
+    name: meduza.rpc_callbacks
+    durable: true
 
 # Bind amqp daemon to queue and exchange.
 binding:
+  rpc_callbacks:
+    queue: rpc_callbacks
+    exchange: transaction_checker
+
   transaction_checker:
     queue: transaction_checker
     # clean_start: true

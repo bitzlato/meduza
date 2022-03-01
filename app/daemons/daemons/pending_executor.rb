@@ -68,8 +68,7 @@ module Daemons
       payload = { address_transaction: pending_analisis.address_transaction, cc_code: pending_analisis.cc_code, action: action, analysis_result_id: analysis_result.id }
       properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
       Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
-
-      AMQP::Queue.publish(:transaction_checker, payload, properties)
+      AMQP::Queue.publish :transaction_checker, payload, properties
     end
   end
 end
