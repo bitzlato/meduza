@@ -5,7 +5,7 @@ connect:
   password: <%= ENV.fetch('RABBITMQ_PASSWORD', 'guest') %>
 
 exchange:
-  transaction_checker:
+  meduza:
     name: meduza.transaction_checker
     type: direct
 
@@ -15,19 +15,18 @@ queue:
     durable: true
   rpc_callbacks:
     name: meduza.rpc_callbacks
-    durable: true
 
 # Bind amqp daemon to queue and exchange.
 binding:
   rpc_callbacks:
     queue: rpc_callbacks
-    exchange: transaction_checker
+    exchange: meduza
 
   transaction_checker:
     queue: transaction_checker
     # clean_start: true
-    exchange: transaction_checker
+    exchange: meduza
 
 channel:
-  transaction_checker:
+  meduza:
     prefetch: 10
