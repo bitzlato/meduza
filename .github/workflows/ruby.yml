@@ -17,6 +17,7 @@ jobs:
   test:
     env:
       RAILS_ENV: test
+      MEDUZA_TEST_DATABASE_URL: 'postgres://postgres:postgres@127.0.0.1/meduza_test'
       PGPASSWORD: postgres
       REDIS_URL: redis://localhost:6379
     runs-on: ubuntu-latest
