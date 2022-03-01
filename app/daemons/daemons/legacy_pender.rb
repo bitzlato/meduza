@@ -8,12 +8,6 @@ module Daemons
 
     attr_reader :reply_queue
 
-    def initialize
-      super
-
-      setup_reply_queue
-    end
-
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       ANALYZABLE_CODES.each do |cc_code|
