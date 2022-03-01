@@ -17,7 +17,7 @@ class PendingAnalysis < ApplicationRecord
   validates :type, presence: true, inclusion: { in: TYPES }
 
   validates :address_transaction, presence: true
-  validates :address_transaction, uniqueness: { in: %i[cc_code source] }, on: :create, if: :pending?
+  validates :address_transaction, uniqueness: { in: %i[cc_code source status] }, on: :create, if: :pending?
 
   aasm column: :state, whiny_transitions: true, requires_lock: true do
     state :pending, initial: true
