@@ -36,6 +36,7 @@ Signal.trap('TERM', &terminate)
 workers = ARGV.map do |binding_id|
   binding = AMQP::Config.binding binding_id
 
+
   worker = ::AMQP.const_get(binding_id.to_s.camelize).new
   queue  = ch.queue(binding.fetch(:queue), *binding.fetch(:queue_options, {}))
   logger.debug "Bind as '#{binding_id}' with worker '#{worker.class}' to queue '#{queue.name}'"
@@ -48,18 +49,21 @@ workers = ARGV.map do |binding_id|
     end
   end
 
+  exchange = ch.send(* AMQP::Config.exchange( binding.fetch(:exchange) ) )
+
   case binding.dig(:type).to_s
   when 'direct'
+    ch.send
     routing_key = binding.fetch(:routing_key)
     logger.info("Type 'direct' routing_key = #{routing_key}")
-    queue.bind x, routing_key: routing_key
+    queue.bind exchange, routing_key: routing_key
   when 'topic'
     binding.dig(:topics).each do |topic|
       logger.info("Type 'topic' routing_key (topic) = #{topic}")
-      queue.bind x, routing_key: topic
+      queue.bind exchange, routing_key: topic
     end
   when 'headers'
-    queue.bind x
+    queue.bind exchange
   else
     raise 'unknown type'
   end
