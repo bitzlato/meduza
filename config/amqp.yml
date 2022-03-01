@@ -10,7 +10,7 @@ exchange:
     type: direct
 
 binding:
-  transaction_checker:
+  check_transaction:
     exchange: meduza
     queue: meduza.check_transaction
     queue_options:

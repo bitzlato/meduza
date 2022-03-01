@@ -35,11 +35,10 @@ Signal.trap('TERM', &terminate)
 
 workers = ARGV.map do |binding_id|
   binding = AMQP::Config.binding binding_id
-
+  logger.info "Bind as '#{binding_id}' with args #{binding_id}"
 
   worker = ::AMQP.const_get(binding_id.to_s.camelize).new
   queue  = ch.queue(binding.fetch(:queue), *binding.fetch(:queue_options, {}))
-  logger.debug "Bind as '#{binding_id}' with worker '#{worker.class}' to queue '#{queue.name}' with options #{binding.fetch(:queue_options, {})}"
 
   if defined? Bugsnag
     Bugsnag.configure do |config|
