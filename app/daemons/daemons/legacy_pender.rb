@@ -30,7 +30,7 @@ module Daemons
             }
             AMQP::Queue.publish :meduza, payload,
               correlation_id: btx.id,
-              routing_key: AMQP::Config.binding(:check_transaction).fetch(:routing_key),
+              routing_key: AMQP::Config.binding(:transaction_checker).fetch(:routing_key),
               reply_to: AMQP::Config.binding(:legacy_rpc_callback).fetch(:routing_key)
             transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
           end.count
