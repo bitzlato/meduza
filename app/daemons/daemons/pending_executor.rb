@@ -66,7 +66,7 @@ module Daemons
       analysis_result = pending_analisis.analysis_result
       action = analysis_result.risk_level == 3 ? :block : :pass
       payload = { address_transaction: pending_analisis.address_transaction, cc_code: pending_analisis.cc_code, action: action, analysis_result_id: analysis_result.id }
-      properties = pending_analisis.attributes.slice('reply_to', 'correlation_id').merge routing_key: 'rpc_queue'
+      properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
       Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
 
       AMQP::Queue.publish(:transaction_checker, payload, properties)
