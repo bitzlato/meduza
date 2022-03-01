@@ -25,7 +25,7 @@ module AMQP
 
       def publish(eid, payload, attrs={})
         payload = JSON.dump payload
-        Rails.logger.info { { message: 'amqp queue publish', payload: payload, eid: eid, attrs: attrs }}
+        Rails.logger.info { { message: 'AMQP queue publish', payload: payload, eid: eid, attrs: attrs }}
         exchange(eid).publish(payload, attrs)
       end
     end

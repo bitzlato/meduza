@@ -10,7 +10,6 @@ module Daemons
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
-      return
       ANALYZABLE_CODES.each do |cc_code|
         transaction_source = TransactionSource.find_or_create_by!(cc_code: cc_code)
         transaction_source.reload
