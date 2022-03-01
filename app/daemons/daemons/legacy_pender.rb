@@ -6,6 +6,14 @@ module Daemons
     @sleep_time = 1.seconds
     LIMIT = 20
 
+    attr_reader :reply_queue
+
+    def initialize
+      super
+
+      setup_reply_queue
+    end
+
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       ANALYZABLE_CODES.each do |cc_code|
@@ -27,7 +35,7 @@ module Daemons
               meta: { blockchain_tx_id: btx.id }
             }
             properties = {
-              reply_to:       'meduza.p2p.rpc_callback',
+              reply_to:       reply_queue.name,
               correlation_id: btx.id
             }
             AMQP::Queue.enqueue(:transaction_checker, payload, properties)
@@ -36,6 +44,18 @@ module Daemons
           end.count
         Rails.logger.debug("[LegacyPender] #{btx_count} processed for #{cc_code}")
         break unless @running
+      end
+    end
+
+    private
+
+    def setup_reply_queue
+      bunny_conn = Bunny.new AMQP::Config.connect
+      bunny_conn.start
+      channel = bunny_conn.create_channel
+      @reply_queue = channel.queue('', exclusive: true)
+      @reply_queue.subscribe do |_delivery_info, properties, payload|
+        Rails.logger.info "Receive reply_to with payload #{payload} and properties #{properties}"
       end
     end
   end
