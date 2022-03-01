@@ -6,6 +6,8 @@ module Daemons
     @sleep_time = 1.seconds
     LIMIT = 20
 
+    attr_reader :reply_queue
+
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       ANALYZABLE_CODES.each do |cc_code|
@@ -26,16 +28,26 @@ module Daemons
               source:  'p2p',
               meta: { blockchain_tx_id: btx.id }
             }
-            properties = {
-              reply_to:       'meduza.p2p.rpc_callback',
-              correlation_id: btx.id
-            }
-            AMQP::Queue.enqueue(:transaction_checker, payload, properties)
-            # PendingAnalysis.create! address_transaction: btx.txid, cc_code: btx.cc_code, type: :transaction, source: 'p2p' unless PendingAnalysis.find_by(address_transaction: btx.txid).present?
+            AMQP::Queue.publish :meduza, payload,
+              correlation_id: btx.id,
+              routing_key: AMQP::Config.binding(:transaction_checker).fetch(:routing_key),
+              reply_to: AMQP::Config.binding(:legacy_rpc_callback).fetch(:routing_key)
             transaction_source.update! last_processed_blockchain_tx_id: btx.id if btx.id > transaction_source.last_processed_blockchain_tx_id
           end.count
         Rails.logger.debug("[LegacyPender] #{btx_count} processed for #{cc_code}")
         break unless @running
+      end
+    end
+
+    private
+
+    def setup_reply_queue
+      bunny_conn = Bunny.new AMQP::Config.connect
+      bunny_conn.start
+      channel = bunny_conn.create_channel
+      @reply_queue = channel.queue('', exclusive: true)
+      @reply_queue.subscribe do |_delivery_info, properties, payload|
+        Rails.logger.info "[LegacyPender] Receive reply_to with payload #{payload} and properties #{properties}"
       end
     end
   end

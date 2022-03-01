@@ -82,7 +82,7 @@ set :systemd_daemon_role, :daemons
 set :systemd_daemon_instances, [:legacy_pender, :pending_executor]
 
 set :systemd_amqp_daemon_role, :amqp_daemons
-set :systemd_amqp_daemon_instances, [:transaction_checker]
+set :systemd_amqp_daemon_instances, [:transaction_checker, :legacy_rpc_callback]
 
 set :app_version, SemVer.find.to_s
 

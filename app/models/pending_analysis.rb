@@ -4,11 +4,20 @@ class PendingAnalysis < ApplicationRecord
   include AASM
   belongs_to :analysis_result, optional: true
 
+  before_validation if: :cc_code do
+    self.cc_code = cc_code.upcase
+  end
+
+  validates :cc_code, presence: true
+
   SOURCES = %w[p2p belomor]
   validates :source, presence: true, inclusion: { in: SOURCES }
 
   TYPES = %w[address transaction]
   validates :type, presence: true, inclusion: { in: TYPES }
+
+  validates :address_transaction, presence: true
+  validates :address_transaction, uniqueness: { in: %i[cc_code source] }, on: :create, if: :pending?
 
   aasm column: :state, whiny_transitions: true, requires_lock: true do
     state :pending, initial: true
