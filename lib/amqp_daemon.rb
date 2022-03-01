@@ -53,7 +53,6 @@ workers = ARGV.map do |binding_id|
 
   case binding.dig(:type).to_s
   when 'direct'
-    ch.send
     routing_key = binding.fetch(:routing_key)
     logger.info("Type 'direct' routing_key = #{routing_key}")
     queue.bind exchange, routing_key: routing_key
