@@ -4,6 +4,13 @@ module AMQP
   class TransactionChecker < Base
     def process(payload, metadata)
       Rails.logger.info "[TransactionChecker] payload=#{payload}, metadata=#{metadata}"
+      if PendingAnalysis.find_by(
+        address_transaction: payload.fetch('txid'),
+        cc_code:             payload.fetch('cc_code'),
+        source:              payload.fetch('source'),
+      ).present?
+        Rails.logger.debug("Skip #{payload}")
+      end
       PendingAnalysis.
         create!(
                 address_transaction: payload.fetch('txid'),
