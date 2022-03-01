@@ -23,8 +23,8 @@ module Daemons
           next
         end
         Rails.logger.info("[PendingExecutor] Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
-        pending_analises = pending_analises.reject do |pa|
-          transaction_analysis = TransactionAnalysis.find_by(cc_code: pa.cc_code, txid: pa.address_transaction)
+        pending_analises = pending_analises.reject do |pending_analisis|
+          transaction_analysis = TransactionAnalysis.find_by(cc_code: pending_analisis.cc_code, txid: pending_analisis.address_transaction)
           if transaction_analysis.present? && transaction_analysis.analysis_result.present?
             Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis.as_json}")
             pending_analisis.update! analysis_result: analysis_result
