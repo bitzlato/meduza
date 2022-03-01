@@ -50,6 +50,7 @@ jobs:
         env:
           # required
           POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: 5432
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
@@ -60,7 +61,7 @@ jobs:
     - name: Bundle install
       run: bundle install
     - name: Setup database
-      run: bundle exec rake db:create db:migrate
+      run: bundle exec rake db:create db:migrate RAILS_ENV=test
     - name: Seed database
       run: bundle exec rake db:seed
     - run: bundle exec rake
