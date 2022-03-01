@@ -36,7 +36,7 @@ module Daemons
         end
         ValegaAnalyzer
           .new
-          .analyze_transaction(pending_analises.pluck(:address_transaction), cc_code)
+          .analyze_transaction(pending_analises.map(&:address_transaction), cc_code)
           .each do |analysis_result|
 
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
@@ -59,7 +59,7 @@ module Daemons
               raise "not supported #{analysis_result}"
             end
           end
-        end
+        end if pending_analisis.any?
 
         break unless @running
       rescue ValegaClient::TooManyRequests => err
