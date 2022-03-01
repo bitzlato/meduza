@@ -49,6 +49,7 @@ class ValegaAnalyzer
 
   # @param blockchain_txs Array[BlockchainTx]
   def analyze_transaction(address_transactions, cc_code)
+    return [] if address_transactions.empty?
     ValegaClient
       .instance
       .risk_analysis(address_transactions: address_transactions, asset_type_id: ValegaClient.get_asset_type_id(cc_code))

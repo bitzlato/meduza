@@ -34,6 +34,7 @@ module Daemons
             false
           end
         end
+        redo if pending_analises.empty?
         ValegaAnalyzer
           .new
           .analyze_transaction(pending_analises.map(&:address_transaction), cc_code)
@@ -59,7 +60,7 @@ module Daemons
               raise "not supported #{analysis_result}"
             end
           end
-        end if pending_analises.any?
+        end
 
         break unless @running
       rescue ValegaClient::TooManyRequests => err
