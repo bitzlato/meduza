@@ -1,0 +1,12 @@
+h4= key
+- is_defined = params.fetch(:q, {}).has_key? key
+- value = params.dig(:q, key).presence
+ul.nav.nav-pills.mb-3
+  li.nav-item
+    = link_to t('.all'), url_for(q: request.query_parameters.fetch(:q, {}).except(key)), class: active_class('nav-link', !is_defined)
+  - states.each do |state|
+    li.nav-item
+      - is_active = is_defined ? value == state : false
+      = link_to state || 'NULL', 
+        url_for(q: request.query_parameters.fetch(:q, {}).merge( key => state)), 
+        class: active_class('nav-link', is_active)
