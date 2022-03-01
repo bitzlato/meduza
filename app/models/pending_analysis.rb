@@ -4,7 +4,7 @@ class PendingAnalysis < ApplicationRecord
   include AASM
   belongs_to :analysis_result, optional: true
 
-  before_validation if: :cc-code do
+  before_validation if: :cc_code do
     self.cc_code = cc_code.upcase
   end
 
