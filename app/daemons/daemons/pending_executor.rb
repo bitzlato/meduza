@@ -26,7 +26,7 @@ module Daemons
         pending_analises = pending_analises.reject do |pa|
           transaction_analysis = TransactionAnalysis.find_by(cc_code: pa.cc_code, txid: pa.address_transaction)
           if transaction_analysis.present? && transaction_analysis.analysis_result.present?
-            Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis}")
+            Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis.as_json}")
             pending_analisis.update! analysis_result: analysis_result
             rpc_callback pending_analisis if pending_analisis.callback?
             pending_analisis.done!
