@@ -23,6 +23,17 @@ module Daemons
           next
         end
         Rails.logger.info("[PendingExecutor] Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
+        pending_analises = pending_analises.reject do |pa|
+          transaction_analysis = TransactionAnalysis.find_by(cc_code: pa.cc_code, txid: pa.address_transaction)
+          if transaction_analysis.present? && transaction_analysis.analysis_result.present?
+            Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis}")
+            pending_analisis.update! analysis_result: analysis_result
+            rpc_callback pending_analisis if pending_analisis.callback?
+            pending_analisis.done!
+          else
+            false
+          end
+        end
         ValegaAnalyzer
           .new
           .analyze_transaction(pending_analises.pluck(:address_transaction), cc_code)
