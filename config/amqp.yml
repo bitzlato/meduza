@@ -6,7 +6,7 @@ connect:
 
 exchange:
   meduza:
-    name: meduza.transaction_checker
+    name: meduza
     type: direct
 
 queue:
