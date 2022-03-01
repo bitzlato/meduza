@@ -59,7 +59,7 @@ module Daemons
               raise "not supported #{analysis_result}"
             end
           end
-        end if pending_analisis.any?
+        end if pending_analises.any?
 
         break unless @running
       rescue ValegaClient::TooManyRequests => err
