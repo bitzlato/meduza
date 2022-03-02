@@ -27,7 +27,7 @@ module Daemons
         Rails.logger.info("[PendingExecutor] Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
         pending_analises_for_valega = check_existen pending_analises
         if AML_ANALYZABLE_CODES.include? cc_code
-          check_in_valega pending_analises_for_valega, pending_analises
+          check_in_valega pending_analises_for_valega, pending_analises, cc_code
         else
           allow_all pending_analises_for_valega
         end
@@ -47,8 +47,8 @@ module Daemons
 
     def allow_all(pending_analises)
       pending_analises.each do |pending_analisis|
-        rpc_callback pending_analisis if pending_analisis.callback?
         pending_analisis.skip!
+        rpc_callback pending_analisis if pending_analisis.callback?
       end
     end
 
@@ -58,15 +58,15 @@ module Daemons
         if transaction_analysis.present? && transaction_analysis.analysis_result.present?
           Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis.as_json}")
           pending_analisis.update! analysis_result: transaction_analysis.analysis_result
-          rpc_callback pending_analisis if pending_analisis.callback?
           pending_analisis.done!
+          rpc_callback pending_analisis if pending_analisis.callback?
         else
           false
         end
       end
     end
 
-    def check_in_valega(pending_analises_for_valega, pending_analises)
+    def check_in_valega(pending_analises_for_valega, pending_analises, cc_code)
       pending_analises_for_valega.each_slice(ValegaClient::MAX_ELEMENTS) do |sliced|
         ValegaAnalyzer
           .new
@@ -85,8 +85,8 @@ module Daemons
               )
               transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
               pending_analisis.update! analysis_result: analysis_result
-              rpc_callback pending_analisis if pending_analisis.callback?
               pending_analisis.done!
+              rpc_callback pending_analisis if pending_analisis.callback?
 
               # TODO analysis_result.address? создавать AddressAnalysis
             else
@@ -112,6 +112,7 @@ module Daemons
       properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
       Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
       AMQP::Queue.publish :meduza, payload, properties
+      pending_analisis.touch :replied_at
     end
   end
 end

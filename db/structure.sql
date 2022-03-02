@@ -154,7 +154,8 @@ CREATE TABLE meduza.pending_analyses (
     updated_at timestamp(6) without time zone NOT NULL,
     type character varying,
     analysis_result_id bigint,
-    meta jsonb
+    meta jsonb,
+    replied_at timestamp without time zone NOT NULL
 );
 
 
@@ -498,6 +499,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220225153241'),
 ('20220228071220'),
 ('20220228142051'),
-('20220228142958');
+('20220228142958'),
+('20220302134255');
 
 
