@@ -104,7 +104,7 @@ module Daemons
       elsif pending_analisis.skipped?
         action = :pass
       else
-        report_exception 'Do nothing', true, pending_analisis
+        report_exception 'Do nothing', true, pending_analisis: pending_analisis.as_json
         return
       end
 
