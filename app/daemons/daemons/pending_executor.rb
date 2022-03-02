@@ -11,7 +11,7 @@ module Daemons
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       Rails.logger.info("[PendingExecutor] Start process with #{ANALYZABLE_CODES.to_a.join(',')} analyzable codes")
-      ANALYZABLE_CODES.each do |cc_code|
+       PendingAnalysis.group(:cc_code).count.keys.each do |cc_code|
         Rails.logger.debug("Process #{cc_code}")
         pending_analises = PendingAnalysis
           .pending
