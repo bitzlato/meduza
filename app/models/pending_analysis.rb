@@ -20,11 +20,16 @@ class PendingAnalysis < ApplicationRecord
     state :pending, initial: true
     state :errored
     state :done
+    state :skipped
 
     after_all_transitions :log_status_change
 
     event :done do
-      transitions from: :pending, to: :done
+      transitions from: :pending, to: :done, guard: :analysis_result_id?
+    end
+
+    event :skip do
+      transitions from: :pending, to: :skip
     end
 
     event :error do
