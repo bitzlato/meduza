@@ -29,7 +29,7 @@ class PendingAnalysis < ApplicationRecord
     end
 
     event :skip do
-      transitions from: :pending, to: :skip
+      transitions from: :pending, to: :skipped
     end
 
     event :error do
