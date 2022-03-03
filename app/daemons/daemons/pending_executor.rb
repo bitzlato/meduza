@@ -70,7 +70,7 @@ module Daemons
       pending_analises_for_valega.each_slice(ValegaClient::MAX_ELEMENTS) do |sliced|
         ValegaAnalyzer
           .new
-          .analyze_transaction(sliced.map(&:address_transaction), cc_code)
+          .analyze(sliced.map(&:address_transaction), cc_code)
           .each do |analysis_result|
 
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
@@ -100,7 +100,7 @@ module Daemons
     def rpc_callback(pending_analisis)
       if pending_analisis.done?
         analysis_result = pending_analisis.analysis_result
-        action = analysis_result.risk_level == 3 ? :block : :pass
+        action = ValegaAnalyzer.pass?(analysis_result.risk_level) ? :pass : :block
       elsif pending_analisis.skipped?
         action = :pass
       else

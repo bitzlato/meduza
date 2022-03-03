@@ -1,12 +1,17 @@
 class AddressAnalysis < ApplicationRecord
+  ACTUAL_PERIOD = 1.week
+
   belongs_to :analysis_result
 
-  upsert_keys [:address]
+  validate :cc_code, presence: true
+
+  upsert_keys [:address, :cc_code]
 
   def self.actual?(address)
-    aa = find_by(address: address)
-    return false if aa.nil?
+    find_by(address: address).try &:actual?
+  end
 
-    aa.updated_at > 1.week.ago
+  def actual?
+    pdated_at > ACTUAL_PERIOD.ago
   end
 end
