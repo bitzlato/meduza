@@ -10,7 +10,7 @@ exchange:
     type: direct
 
 binding:
-  transaction_checker:
+  transaction_pender:
     exchange: meduza
     queue: meduza.check_transaction
     durable: true

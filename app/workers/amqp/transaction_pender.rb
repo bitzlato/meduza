@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AMQP
-  class TransactionChecker < Base
+  class TransactionPender < Base
     def process(payload, metadata)
       Rails.logger.info "[TransactionChecker] payload=#{payload}, metadata=#{metadata}"
       if PendingAnalysis.pending.find_by(
