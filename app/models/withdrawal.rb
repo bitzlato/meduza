@@ -6,4 +6,8 @@ class Withdrawal < ApplicationRecord
   belongs_to :blockchain_tx
 
   scope :aml, -> { where status: :aml }
+
+  def pending!
+    update! status: :pending
+  end
 end
