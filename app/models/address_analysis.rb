@@ -3,7 +3,7 @@ class AddressAnalysis < ApplicationRecord
 
   belongs_to :analysis_result
 
-  validate :cc_code, presence: true
+  validates :cc_code, presence: true
 
   upsert_keys [:address, :cc_code]
 
