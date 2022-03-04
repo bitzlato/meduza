@@ -2,8 +2,6 @@
 
 one:
   user: one
-  maximal_risks_count: 1
 
 two:
   user: two
-  maximal_risks_count: 1
