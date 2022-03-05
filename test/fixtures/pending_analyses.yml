@@ -3,7 +3,13 @@
 one:
   address_transaction: MyString
   state: MyString
+  cc_code: BTC
+  type: address
+  source: ''
 
 two:
   address_transaction: MyString
   state: MyString
+  cc_code: BTC
+  type: address
+  source: ''

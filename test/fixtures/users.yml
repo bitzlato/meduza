@@ -1,0 +1,7 @@
+user:
+  subject: user
+  email_verified: true
+  chat_enabled: true
+  email_auth_enabled: true
+  real_email: user@bitzlato.com
+  ref_parent_user_id:

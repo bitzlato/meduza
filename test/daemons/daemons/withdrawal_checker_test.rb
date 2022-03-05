@@ -2,8 +2,6 @@ require "test_helper"
 require 'webmock/minitest'
 
 class Daemons::WithdrawalCheckerTest < ActiveSupport::TestCase
-  fixtures :withdrawals
-
   setup do
     ENV['BITZLATO_API_URL'] = 'http://bitzlato_api.example'
     ENV['P2P_API_ADM_JWK'] = '{ "kty": "EC", "d": "M6zhmFlGMVvOfopcHyD9ph8ljZ9sl5yqzgYenqDzV8o", "crv": "P-256", "x": "SF5i-hlPLub1vu8N2LH9S6yxm4jdPLojrUpiufEJW8U", "y": "IRWfAutSCureDjoOSnYNdOr75AV_dCo_mBuNuixaOnw" }'

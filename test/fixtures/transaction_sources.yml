@@ -1,7 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  last_processed_blockchain_tx_id: 
+  cc_code: BTC
+  last_processed_blockchain_tx_id:
 
 two:
-  last_processed_blockchain_tx_id: 
+  cc_code: BTC
+  last_processed_blockchain_tx_id:
