@@ -17,7 +17,7 @@ class Daemons::WithdrawalCheckerTest < ActiveSupport::TestCase
     response = MiniTest::Mock.new
     response.expect(:success?, true)
     bz_api = MiniTest::Mock.new
-    bz_api.expect(:freeze_user, response, [@withdrawal.user_id])
+    bz_api.expect(:freeze_user, response, [@withdrawal.user_id, Hash])
 
     AddressVerifier.stub_any_instance(:pass?, false) do
       BitzlatoAPI.stub :new, bz_api do
@@ -33,7 +33,7 @@ class Daemons::WithdrawalCheckerTest < ActiveSupport::TestCase
     response = MiniTest::Mock.new
     response.expect(:success?, false)
     bz_api = MiniTest::Mock.new
-    bz_api.expect(:freeze_user, response, [@withdrawal.user_id])
+    bz_api.expect(:freeze_user, response, [@withdrawal.user_id, Hash])
 
     AddressVerifier.stub_any_instance(:pass?, false) do
       BitzlatoAPI.stub :new, bz_api do

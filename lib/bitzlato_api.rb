@@ -1,24 +1,33 @@
 class BitzlatoAPI
-  attr_reader :connection
+  attr_reader :url, :debug
 
-  def initialize(connection: nil,
-                 bearer: nil,
-                 url: ENV.fetch('BITZLATO_API_URL'),
-                 debug: ENV.true?('BITZLATO_CURL_LOGGER'))
-    @connection = connection || Faraday.new(url: url) do |c|
-                                  c.use Faraday::Response::Logger
-                                  c.headers = {
-                                    'Content-Type' => 'application/json',
-                                    'Accept' => 'application/json',
-                                  }
-                                  c.request :curl, Rails.logger, :debug if debug
-                                  c.request :authorization, 'Bearer', bearer if bearer
-                                end
+  def initialize(url: ENV.fetch('BITZLATO_API_URL'), debug: ENV.true?('BITZLATO_CURL_LOGGER'))
+    @url = url
+    @debug = debug
   end
 
-  def freeze_user(user_id, secret = ENV.fetch('BITZLATO_FREEZE_SECRET'))
-    connection.post("api/freezing/freeze/#{user_id}/") do |conn|
-      conn.headers['X-Access-Key'] = secret
+  def freeze_user(user_id, params: {}, connection: nil, claims: {})
+    connection ||= build_freeze_connection(claims)
+    connection.post("api/freezing/freeze/#{user_id}/", JSON.generate(params))
+  end
+
+  private
+
+  def build_freeze_connection(claims: {})
+    build_connection do |conn|
+      conn.request :authorization, 'Bearer', JWTSig.feeze_sig.encode(claims)
+    end
+  end
+
+  def build_connection
+    Faraday.new(url: url) do |c|
+      c.use Faraday::Response::Logger
+      c.headers = {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+      }
+      c.request :curl, Rails.logger, :debug if debug
+      yield c if block_given?
     end
   end
 end

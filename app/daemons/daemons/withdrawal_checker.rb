@@ -23,7 +23,7 @@ module Daemons
     private
 
     def freeze_user!(withdrawal)
-      response = BitzlatoAPI.new.freeze_user(withdrawal.user_id)
+      response = BitzlatoAPI.new.freeze_user(withdrawal.user_id, params: { reasong: "Грязный вывод ##{withdrawal.id} на адресс #{withdrawal.address}"})
 
       if response.success?
         logger.info { "User ##{withdrawal.user_id} has been freezed" }
