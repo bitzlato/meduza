@@ -52,7 +52,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'pry'
-  gem 'pry-byebug'
+  gem 'pry-byebug', '~> 3.9.0'
   gem 'pry-rails'
 end
 
@@ -79,6 +79,9 @@ group :test do
   gem 'selenium-webdriver'
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
+
+  gem "minitest-stub_any_instance"
+  gem "webmock"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -121,3 +124,6 @@ gem "aasm", "~> 5.2"
 gem "after_commit_everywhere", "~> 1.1"
 
 gem "hashie", "~> 5.0"
+
+gem 'jwt', '~> 2.3.0'
+

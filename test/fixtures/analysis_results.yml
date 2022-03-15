@@ -4,8 +4,12 @@ one:
   address_transaction: 456
   risk_confidence: 1
   risk_level: 1
+  type: address
+  raw_response: '{}'
 
 two:
   address_transaction: 123
   risk_confidence: 1
   risk_level: 1
+  type: address
+  raw_response: '{}'

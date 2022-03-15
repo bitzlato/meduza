@@ -34,7 +34,10 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  url: <%= ENV['MEDUZA_DATABASE_URL'] %>
+  host: <%= ENV.fetch('PG_HOST', '127.0.0.1') %>
+  user: <%= ENV['PG_USER'] %>
+  password: <%= ENV['PGPASSWORD'] %>
+  database: meduza_test<%= ENV['TEST_ENV_NUMBER'] %>
   pool: 5
 
 # As with config/credentials.yml, you never want to store sensitive information,
