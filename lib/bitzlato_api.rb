@@ -15,7 +15,8 @@ class BitzlatoAPI
 
   def build_freeze_connection(claims: {})
     build_connection do |conn|
-      conn.request :authorization, 'Bearer', JWTSig.feeze_sig.encode(claims)
+      #conn.request :authorization, 'Bearer', JWTSig.feeze_sig.encode(claims)
+      conn.headers['X-Access-Key'] = ENV.fetch('FREEZING_FREEZE_UNFREEZE_SECRET')
     end
   end
 
