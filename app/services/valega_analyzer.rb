@@ -7,7 +7,7 @@ class ValegaAnalyzer
     end
   end
 
-  def pass?(risk_level)
+  def self.pass?(risk_level)
     risk_level == 1
   end
 
