@@ -10,7 +10,7 @@ module AMQP
         source:              payload.fetch('source'),
       ).present?
         # TODO отвечать сразу если есть
-        Rails.logger.debug("[TransactionChecker] Skip #{payload}")
+        Rails.logger.info("[TransactionChecker] Skip #{payload}")
         return
       end
       PendingAnalysis.

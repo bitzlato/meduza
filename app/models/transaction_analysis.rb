@@ -16,6 +16,8 @@ class TransactionAnalysis < ApplicationRecord
   DIRECTIONS = %w[income outcome both unknown internal]
   validates :direction, inclusion: { in: DIRECTIONS }, if: :direction?
 
+  # after_save :update_blockchain_tx_status
+
   before_create do
     self.direction = detect_direction
   end
@@ -44,5 +46,18 @@ class TransactionAnalysis < ApplicationRecord
     else
       :unknown
     end
+  end
+
+  def update_blockchain_tx_status
+    BlockchainTx.where(cc_code: cc_code, txid: txid).update_all(
+      meduza_status: {
+        transaction_analysis_id: id,
+        analysis_result_id: analysis_result_id,
+        risk_level: risk_level,
+        risk_confidence: risk_confidence,
+        created_at: created_at,
+        updated_at: Time.zone.now
+      }
+    )
   end
 end
