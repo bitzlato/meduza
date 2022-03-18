@@ -6,6 +6,8 @@ module Daemons
     @sleep_time = 1.seconds
     LIMIT = 20
 
+    CHECK_START_DATE = Date.parse('01-10-2021')
+
     attr_reader :reply_queue
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
@@ -16,7 +18,8 @@ module Daemons
         Rails.logger.debug("[LegacyPender] Select #{cc_code} from #{transaction_source.last_processed_blockchain_tx_id}")
         btx_count = BlockchainTx
           .receive
-          .where('id > ?', transaction_source.last_processed_blockchain_tx_id)
+          .where('created_at>=?', CHECK_START_DATE)
+          .where(meduza_status: nil)
           .where(cc_code: cc_code)
           .order(:id)
           .limit(LIMIT)
@@ -28,6 +31,7 @@ module Daemons
               source:  'p2p',
               meta: { blockchain_tx_id: btx.id }
             }
+            btx.update! meduza_status: { status: :pended }
             AMQP::Queue.publish :meduza, payload,
               correlation_id: btx.id,
               routing_key: AMQP::Config.binding(:transaction_pender).fetch(:routing_key),
