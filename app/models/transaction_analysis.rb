@@ -1,5 +1,5 @@
 class TransactionAnalysis < ApplicationRecord
-  upsert_keys [:txid]
+  upsert_keys [:txid, :cc_code]
 
   # TODO renale to last_analysis_result
   belongs_to :analysis_result
@@ -15,6 +15,8 @@ class TransactionAnalysis < ApplicationRecord
 
   DIRECTIONS = %w[income outcome both unknown internal]
   validates :direction, inclusion: { in: DIRECTIONS }, if: :direction?
+
+  validates :txid, uniqueness: { scope: :cc_code }, presence: true
 
   after_save :update_blockchain_tx_status
 

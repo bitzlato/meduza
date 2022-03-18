@@ -72,29 +72,33 @@ module Daemons
           .new
           .analyze(sliced.map(&:address_transaction), cc_code)
           .each do |analysis_result|
-
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
-
           pending_analisis.with_lock do
             if analysis_result.transaction?
-              transaction_analysis = TransactionAnalysis
-                .create_with(analysis_result: analysis_result)
-                .find_or_create_by!(
-                  txid: analysis_result.address_transaction,
-                  cc_code: cc_code
-              )
-              transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
-              pending_analisis.update! analysis_result: analysis_result
-              pending_analisis.done!
-              rpc_callback pending_analisis if pending_analisis.callback?
-
-              # TODO analysis_result.address? создавать AddressAnalysis
+              done_analisis pending_analisis, analysis_result
             else
               raise "not supported #{analysis_result}"
             end
           end
         end
       end
+    end
+
+    def done_analisis(pending_analisis, analysis_result)
+      transaction_analysis = TransactionAnalysis
+        .create_with(analysis_result: analysis_result)
+        .find_or_create_by!(
+          txid: analysis_result.address_transaction,
+          cc_code: cc_code
+      )
+      transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
+      pending_analisis.update! analysis_result: analysis_result
+      pending_analisis.done!
+      rpc_callback pending_analisis if pending_analisis.callback?
+
+      # TODO analysis_result.address? создавать AddressAnalysis
+    rescue ActiveRecord::RecordNotUnique => e
+      retry if e.record.is_a? TransactionAnalysis
     end
 
     def rpc_callback(pending_analisis)
