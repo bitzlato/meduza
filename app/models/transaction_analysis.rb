@@ -16,7 +16,7 @@ class TransactionAnalysis < ApplicationRecord
   DIRECTIONS = %w[income outcome both unknown internal]
   validates :direction, inclusion: { in: DIRECTIONS }, if: :direction?
 
-  # after_save :update_blockchain_tx_status
+  after_save :update_blockchain_tx_status
 
   before_create do
     self.direction = detect_direction
