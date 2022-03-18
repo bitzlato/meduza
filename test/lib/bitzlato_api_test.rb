@@ -5,7 +5,7 @@ class BitzlatoAPITest < ActiveSupport::TestCase
   setup do
     @conn = Faraday.new do |builder|
       builder.adapter :test do |stub|
-        stub.post(/\A\/api\/freezing\/freeze\/(\d+)\/\z/) do |env, meta|
+        stub.post(/\A\/admin\/p2p\/freeze\/(\d+)\/\z/) do |env, meta|
           [200,
            {'Content-Type' => 'text/plain'},
            "user_id: #{meta[:match_data][1]}"

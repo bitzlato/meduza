@@ -7,20 +7,13 @@ class BitzlatoAPI
   end
 
   def freeze_user(user_id, params: {}, connection: nil, claims: {})
-    connection ||= build_freeze_connection(claims)
-    connection.post("api/freezing/freeze/#{user_id}/", JSON.generate(params))
+    connection ||= build_connection(claims)
+    connection.post("/admin/p2p/freeze/#{user_id}/", JSON.generate(params))
   end
 
   private
 
-  def build_freeze_connection(claims: {})
-    build_connection do |conn|
-      #conn.request :authorization, 'Bearer', JWTSig.feeze_sig.encode(claims)
-      conn.headers['X-Access-Key'] = ENV.fetch('FREEZING_FREEZE_UNFREEZE_SECRET')
-    end
-  end
-
-  def build_connection
+  def build_connection(claims: {})
     Faraday.new(url: url) do |c|
       c.use Faraday::Response::Logger
       c.headers = {
@@ -28,6 +21,7 @@ class BitzlatoAPI
         'Accept' => 'application/json',
       }
       c.request :curl, Rails.logger, :debug if debug
+      c.request :authorization, 'Bearer', JWTSig.meduza_sig.encode(claims)
       yield c if block_given?
     end
   end
