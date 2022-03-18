@@ -89,7 +89,7 @@ module Daemons
         .create_with(analysis_result: analysis_result)
         .find_or_create_by!(
           txid: analysis_result.address_transaction,
-          cc_code: cc_code
+          cc_code: pending_analisis.cc_code
       )
       transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
       pending_analisis.update! analysis_result: analysis_result
