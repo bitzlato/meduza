@@ -27,9 +27,11 @@ module Daemons
         Rails.logger.info("[PendingExecutor] Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
         pending_analises_for_valega = check_existen pending_analises
         if AML_ANALYZABLE_CODES.include? cc_code
+          Rails.logger.info("[PendingExecutor] Check pending analises in valega #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
           check_in_valega pending_analises_for_valega, pending_analises, cc_code
         else
-          allow_all pending_analises_for_valega
+          Rails.logger.info("[PendingExecutor] Skip pending analises #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
+          skip_all pending_analises_for_valega
         end
         break unless @running
       rescue ValegaClient::TooManyRequests => err
@@ -45,7 +47,7 @@ module Daemons
 
     private
 
-    def allow_all(pending_analises)
+    def skip_all(pending_analises)
       pending_analises.each do |pending_analisis|
         pending_analisis.skip!
         rpc_callback pending_analisis if pending_analisis.callback?
