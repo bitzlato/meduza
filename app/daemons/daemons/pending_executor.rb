@@ -88,7 +88,7 @@ module Daemons
 
     def done_analisis(pending_analisis, analysis_result)
       transaction_analysis = TransactionAnalysis
-        .create_with(analysis_result: analysis_result)
+        .create_with(analysis_result: analysis_result, risk_level: analysis_result.risk_level, risk_confidence: analysis_result.risk_confidence)
         .find_or_create_by!(
           txid: analysis_result.address_transaction,
           cc_code: pending_analisis.cc_code

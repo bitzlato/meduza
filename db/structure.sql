@@ -190,7 +190,7 @@ CREATE TABLE meduza.transaction_analyses (
     risk_level integer,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    analysis_result_id bigint,
+    analysis_result_id bigint NOT NULL,
     risk_confidence numeric,
     meta jsonb DEFAULT '{}'::jsonb NOT NULL,
     direction character varying,
@@ -504,6 +504,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220302134255'),
 ('20220303143341'),
 ('20220303143427'),
-('20220318181931');
+('20220318181931'),
+('20220329142334');
 
 

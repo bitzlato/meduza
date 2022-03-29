@@ -18,6 +18,9 @@ class TransactionAnalysis < ApplicationRecord
 
   validates :txid, uniqueness: { scope: :cc_code }, presence: true
 
+  validates :risk_level, presence: true
+  validates :risk_confidence, presence: true
+
   after_save :update_blockchain_tx_status
 
   before_create do
