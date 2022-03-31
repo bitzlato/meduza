@@ -35,7 +35,6 @@ module AMQP
               state:              :pending,
           )
           finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s)).symbolize_keys
-          finded_attrs.sort.compactb
           report_exception 'Отличия в PA', true, { pending_analisis_id: pa.id, attr: attrs, finded_attrs: finded_attrs } unless finded_attrs.sort.join == attrs.sort.join
         rescue ActiveRecord::RecordInvalid => err
           Rails.logger.info "[TransactionPender] PendingAnalysis already exists #{payload} with error #{err}"
