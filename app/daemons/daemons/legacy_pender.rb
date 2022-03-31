@@ -25,7 +25,7 @@ module Daemons
             Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btc.txid}")
           end
 
-          ta = TransactionAnalysis.find_by(txid: btx.txid, cc_code: btc.cc_code)
+          ta = TransactionAnalysis.find_by(txid: btx.txid, cc_code: btx.cc_code)
           if ta.prasent?
             Rails.logger.info("[LegacyPender] TransactionAnalysis already exists #{btc.txid}")
             ta.update_blockchain_tx_status
