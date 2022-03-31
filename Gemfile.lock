@@ -247,6 +247,7 @@ GEM
     guard-rubocop (1.5.0)
       guard (~> 2.0)
       rubocop (< 2.0)
+    hash_diff (1.0.0)
     hashdiff (1.0.1)
     hashie (5.0.0)
     htmlentities (4.3.4)
@@ -515,6 +516,7 @@ DEPENDENCIES
   guard
   guard-minitest
   guard-rubocop
+  hash_diff (~> 1.0)
   hashie (~> 5.0)
   jbuilder (~> 2.7)
   jwt (~> 2.3.0)
