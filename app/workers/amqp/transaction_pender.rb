@@ -23,14 +23,24 @@ module AMQP
           reply_to:            metadata.reply_to,
           correlation_id:      metadata.correlation_id,
         }
-        pa = PendingAnalysis.
-          create_with(attrs).
-          find_or_create_by!(
-            address_transaction: payload.fetch('txid'),
-            cc_code:             payload.fetch('cc_code'),
-            source:              payload.fetch('source'),
-            state:              :pending,
-        )
+        attempts = 0
+        begin
+          attempts +=1
+          pa = PendingAnalysis.
+            create_with(attrs).
+            find_or_create_by!(
+              address_transaction: payload.fetch('txid'),
+              cc_code:             payload.fetch('cc_code'),
+              source:              payload.fetch('source'),
+              state:              :pending,
+          )
+        rescue ActiveRecord::RecordInvalid => err
+          if attempts < 2
+            retry
+          else
+            raise err
+          end
+        end
         finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s))
         diff = HashDiff::Comparison.new( attrs, finded_attrs ).diff
         report_exception 'WTF', true, { attr: attrs, finded_attrs: finded_attrs, diff: diff } if diff.present?
