@@ -20,17 +20,27 @@ module Daemons
           .limit(LIMIT)
           .each do |btx|
           Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
-          payload = {
-            txid:    btx.txid,
-            cc_code: btx.cc_code,
-            source:  'p2p',
-            meta: { blockchain_tx_id: btx.id }
-          }
-          btx.update! meduza_status: { status: :pended }
-          AMQP::Queue.publish :meduza, payload,
-            correlation_id: btx.id,
-            routing_key: AMQP::Config.binding(:transaction_pender).fetch(:routing_key),
-            reply_to: AMQP::Config.binding(:legacy_rpc_callback).fetch(:routing_key)
+          if PendingAnalysis.pending.exists?(txid: btx.txid, cc_code: btc.cc_code)
+            Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btc.txid}")
+          end
+
+          ta = TransactionAnalysis.find_by(txid: btx.txid, cc_code: btc.cc_code)
+          if ta.prasent?
+            Rails.logger.info("[LegacyPender] TransactionAnalysis already exists #{btc.txid}")
+            ta.update_blockchain_tx_status
+          else
+            payload = {
+              txid:    btx.txid,
+              cc_code: btx.cc_code,
+              source:  'p2p',
+              meta: { blockchain_tx_id: btx.id }
+            }
+            btx.update! meduza_status: { status: :pended }
+            AMQP::Queue.publish :meduza, payload,
+              correlation_id: btx.id,
+              routing_key: AMQP::Config.binding(:transaction_pender).fetch(:routing_key),
+              reply_to: AMQP::Config.binding(:legacy_rpc_callback).fetch(:routing_key)
+          end
         end.count
         Rails.logger.debug("[LegacyPender] #{btx_count} processed for #{cc_code}")
         break unless @running
