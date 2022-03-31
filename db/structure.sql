@@ -454,6 +454,13 @@ CREATE INDEX index_transaction_analyses_on_pending_analyses_id ON meduza.transac
 
 
 --
+-- Name: pending_analysis_adress_transaction_idx; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX pending_analysis_adress_transaction_idx ON meduza.pending_analyses USING btree (source, state, address_transaction);
+
+
+--
 -- Name: pending_analyses fk_rails_27fc4b529c; Type: FK CONSTRAINT; Schema: meduza; Owner: -
 --
 
@@ -506,6 +513,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220303143427'),
 ('20220318181931'),
 ('20220329142334'),
-('20220329142455');
+('20220329142455'),
+('20220331151440');
 
 
