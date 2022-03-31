@@ -4,8 +4,8 @@ module Daemons
   # Берёт все не обработанные транзакции из P2P blockchain_tx и засовывает в pending_transactions
   class LegacyPender < Base
     @sleep_time = 1.seconds
-    LIMIT = 100
-    MAX_PENDING_QUEUE_SIZE = 20
+    LIMIT = 10
+    MAX_PENDING_QUEUE_SIZE = 5
     CHECK_START_DATE = Date.parse('01-10-2021')
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
