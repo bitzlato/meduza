@@ -7,7 +7,7 @@ module AMQP
       ta = TransactionAnalysis.find_by(txid: payload.fetch('txid'), cc_code: payload.fetch('cc_code'))
       if ta.present?
         payload = {
-          address_transaction: ta.address_transaction,
+          address_transaction: ta.txid,
           cc_code: ta.cc_code,
           action: ValegaAnalyzer.pass?(ta.analysis_result.risk_level) ? :pass : :block,
           analysis_result_id: ta.analysis_result_id,
