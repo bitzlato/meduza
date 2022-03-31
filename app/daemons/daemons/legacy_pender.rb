@@ -11,11 +11,12 @@ module Daemons
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       AML_ANALYZABLE_CODES.each do |cc_code|
-        Rails.logger.debug("[LegacyPender] Select #{cc_code}")
-        btx_count = BlockchainTx
+        scope = BlockchainTx
           .where('created_at>=?', CHECK_START_DATE)
           .where(meduza_status: nil)
           .where(cc_code: cc_code)
+        Rails.logger.debug("[LegacyPender] Select #{cc_code} count is #{scope.count}")
+        btx_count = scope
           .order(:id)
           .limit(LIMIT)
           .each do |btx|
