@@ -3,7 +3,7 @@
 module AMQP
   class TransactionPender < Base
     def process(payload, metadata)
-      Rails.logger.info "[TransactionChecker] payload=#{payload}, metadata=#{metadata}"
+      Rails.logger.info "[TransactionPender] payload=#{payload}, metadata=#{metadata}"
       ta = TransactionAnalysis.find_by(txid: payload.fetch('txid'), cc_code: payload.fetch('cc_code'))
       if ta.present?
         payload = {
@@ -15,7 +15,7 @@ module AMQP
         }
         payload.merge! transaction_analysis_id: transaction_analysis.id if transaction_analysis.present?
         properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
-        Rails.logger.info "[TransactionAnalysis] rpc_callback with payload #{payload} and properties #{properties}"
+        Rails.logger.info "[TransactionPender] rpc_callback with payload #{payload} and properties #{properties}"
         AMQP::Queue.publish :meduza, payload, properties
       else
         attrs = {
@@ -26,6 +26,7 @@ module AMQP
         }
         attempts = 0
         begin
+          Rails.logger.info "[TransactionPender] find_or_create PendingAnalysis with payload #{payload} and attrs #{attrs}"
           attempts +=1
           pa = PendingAnalysis.
             create_with(attrs).
