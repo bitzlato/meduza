@@ -22,7 +22,7 @@ module Daemons
           next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
           Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
           if PendingAnalysis.pending.exists?(address_transaction: btx.txid, cc_code: btx.cc_code)
-            Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btc.txid}")
+            Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btx.txid}")
           end
 
           ta = TransactionAnalysis.find_by(txid: btx.txid, cc_code: btx.cc_code)
