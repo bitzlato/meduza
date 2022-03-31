@@ -34,12 +34,12 @@ module AMQP
               source:              payload.fetch('source'),
               state:              :pending,
           )
+          finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s))
+          diff = HashDiff::Comparison.new( attrs, finded_attrs ).diff
+          report_exception 'WTF', true, { attr: attrs, finded_attrs: finded_attrs, diff: diff } if diff.present?
         rescue ActiveRecord::RecordInvalid => err
           Rails.logger.info "[TransactionPender] PendingAnalysis already exists #{payload} with error #{err}"
         end
-        finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s))
-        diff = HashDiff::Comparison.new( attrs, finded_attrs ).diff
-        report_exception 'WTF', true, { attr: attrs, finded_attrs: finded_attrs, diff: diff } if diff.present?
       end
     end
   end
