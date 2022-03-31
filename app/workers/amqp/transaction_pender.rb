@@ -11,6 +11,14 @@ module AMQP
       ).present?
         # TODO отвечать сразу если есть
         Rails.logger.info("[TransactionChecker] Skip #{payload}")
+        payload = {
+          address_transaction: payload.fetch('txid'),
+          cc_code: payload.fetch('cc_code'),
+          action: :queued
+        }
+        properties = { routing_key: metadata.reply_to, correlation_id:  metadata.correlation_id }
+        Rails.logger.info "[TransactionAnalysis] rpc_callback with payload #{payload} and properties #{properties}"
+        AMQP::Queue.publish :meduza, payload, properties
         return
       end
       ta = TransactionAnalysis.find_by(txid: payload.fetch('txid'), cc_code: payload.fetch('cc_code'))
