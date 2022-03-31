@@ -21,7 +21,7 @@ class TransactionAnalysis < ApplicationRecord
   validates :risk_level, presence: true
   validates :risk_confidence, presence: true
 
-  after_save :update_blockchain_tx_status
+  after_commit :update_blockchain_tx_status, on: %i[create update]
 
   before_create do
     self.direction = detect_direction
@@ -54,14 +54,14 @@ class TransactionAnalysis < ApplicationRecord
   end
 
   def update_blockchain_tx_status
-    BlockchainTx.where(cc_code: cc_code, txid: txid).update_all(
-      meduza_status: {
+    BlockchainTx.where(cc_code:  cc_code, txid: txid).update_all(
+      meduza_status:             {
         transaction_analysis_id: id,
-        analysis_result_id: analysis_result_id,
-        risk_level: risk_level,
-        risk_confidence: risk_confidence,
-        created_at: created_at,
-        updated_at: Time.zone.now
+        analysis_result_id:      analysis_result_id,
+        risk_level:              risk_level,
+        risk_confidence:         risk_confidence,
+        created_at:              created_at,
+        updated_at:              Time.zone.now
       }
     )
   end
