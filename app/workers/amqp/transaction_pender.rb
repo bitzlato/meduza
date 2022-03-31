@@ -14,7 +14,7 @@ module AMQP
           from: :TransactionPender
         }
         payload.merge! transaction_analysis_id: ta.id if ta.present?
-        properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
+        properties = { correlation_id: metadata.correlation_id, routing_key: metadata.reply_to }
         Rails.logger.info "[TransactionPender] rpc_callback with payload #{payload} and properties #{properties}"
         AMQP::Queue.publish :meduza, payload, properties
       else
