@@ -21,7 +21,7 @@ module Daemons
           .each do |btx|
           next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
           Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
-          if PendingAnalysis.pending.exists?(txid: btx.txid, cc_code: btc.cc_code)
+          if PendingAnalysis.pending.exists?(txid: btx.txid, cc_code: btx.cc_code)
             Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btc.txid}")
           end
 
