@@ -27,4 +27,4 @@ binding:
 
 channel:
   meduza:
-    prefetch: 10
+    prefetch: 1
