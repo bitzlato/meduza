@@ -126,6 +126,3 @@ gem "after_commit_everywhere", "~> 1.1"
 gem "hashie", "~> 5.0"
 
 gem 'jwt', '~> 2.3.0'
-
-
-gem "hash_diff", "~> 1.0"
