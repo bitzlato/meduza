@@ -13,7 +13,6 @@ module Daemons
       AML_ANALYZABLE_CODES.each do |cc_code|
         Rails.logger.debug("[LegacyPender] Select #{cc_code}")
         btx_count = BlockchainTx
-          .receive
           .where('created_at>=?', CHECK_START_DATE)
           .where(meduza_status: nil)
           .where(cc_code: cc_code)
