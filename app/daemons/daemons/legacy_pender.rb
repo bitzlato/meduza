@@ -15,7 +15,7 @@ module Daemons
           .where('created_at>=?', CHECK_START_DATE)
           .where(meduza_status: nil)
           .where(cc_code: cc_code)
-        Rails.logger.debug("[LegacyPender] Select #{cc_code} count is #{scope.count}")
+        Rails.logger.info("[LegacyPender] Select #{cc_code} count is #{scope.count}")
         btx_count = scope
           .order(:id)
           .limit(LIMIT)
