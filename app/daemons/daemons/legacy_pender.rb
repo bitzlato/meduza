@@ -5,7 +5,7 @@ module Daemons
   class LegacyPender < Base
     @sleep_time = 1.seconds
     LIMIT = 100
-
+    MAX_PENDING_QUEUE_SIZE = 20
     CHECK_START_DATE = Date.parse('01-10-2021')
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
@@ -19,6 +19,7 @@ module Daemons
           .order(:id)
           .limit(LIMIT)
           .each do |btx|
+          next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
           Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
           if PendingAnalysis.pending.exists?(txid: btx.txid, cc_code: btc.cc_code)
             Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btc.txid}")
