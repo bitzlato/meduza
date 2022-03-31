@@ -24,10 +24,8 @@ module AMQP
           reply_to:            metadata.reply_to,
           correlation_id:      metadata.correlation_id,
         }
-        attempts = 0
         begin
           Rails.logger.info "[TransactionPender] find_or_create PendingAnalysis with payload #{payload} and attrs #{attrs}"
-          attempts +=1
           pa = PendingAnalysis.
             create_with(attrs).
             find_or_create_by!(
@@ -37,11 +35,7 @@ module AMQP
               state:              :pending,
           )
         rescue ActiveRecord::RecordInvalid => err
-          if attempts < 2
-            retry
-          else
-            raise err
-          end
+          Rails.logger.info "[TransactionPender] PendingAnalysis already exists #{payload} with error #{err}"
         end
         finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s))
         diff = HashDiff::Comparison.new( attrs, finded_attrs ).diff
