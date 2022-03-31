@@ -20,16 +20,17 @@ module Daemons
           .limit(LIMIT)
           .each do |btx|
           next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
-          Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
           if PendingAnalysis.pending.exists?(address_transaction: btx.txid, cc_code: btx.cc_code)
             Rails.logger.info("[LegacyPender] PendingAnalysis already exists #{btx.txid}")
+            return
           end
 
           ta = TransactionAnalysis.find_by(txid: btx.txid, cc_code: btx.cc_code)
           if ta.present?
-            Rails.logger.info("[LegacyPender] TransactionAnalysis already exists #{btx.txid}")
+            Rails.logger.info("[LegacyPender] TransactionAnalysis already exists #{btx.txid} update blockhain_tx")
             ta.update_blockchain_tx_status
           else
+            Rails.logger.info("[LegacyPender] Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
             payload = {
               txid:    btx.txid,
               cc_code: btx.cc_code,
