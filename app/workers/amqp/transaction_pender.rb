@@ -29,7 +29,7 @@ module AMQP
             address_transaction: payload.fetch('txid'),
             cc_code:             payload.fetch('cc_code'),
             source:              payload.fetch('source'),
-            status:              :pending,
+            state:              :pending,
         )
         finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s))
         diff = HashDiff::Comparison.new( attrs, finded_attrs ).diff
