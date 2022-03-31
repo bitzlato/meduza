@@ -10,7 +10,8 @@ module AMQP
           address_transaction: ta.address_transaction,
           cc_code: ta.cc_code,
           action: ValegaAnalyzer.pass?(ta.analysis_result.risk_level) ? :pass : :block,
-          analysis_result_id: ta.analysis_result_id
+          analysis_result_id: ta.analysis_result_id,
+          from: :TransactionPender
         }
         payload.merge! transaction_analysis_id: transaction_analysis.id if transaction_analysis.present?
         properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }

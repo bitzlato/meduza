@@ -50,7 +50,7 @@ module Daemons
     def skip_all(pending_analises)
       pending_analises.each do |pending_analisis|
         pending_analisis.skip!
-        rpc_callback pending_analisis if pending_analisis.callback?
+        rpc_callback pending_analisis, nil, from: :skip_all if pending_analisis.callback?
       end
     end
 
@@ -61,7 +61,7 @@ module Daemons
           Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis.as_json}")
           pending_analisis.update! analysis_result: transaction_analysis.analysis_result
           pending_analisis.done!
-          rpc_callback pending_analisis, transaction_analysis if pending_analisis.callback?
+          rpc_callback pending_analisis, transaction_analysis, from: :check_existen if pending_analisis.callback?
         else
           false
         end
@@ -96,14 +96,14 @@ module Daemons
       transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
       pending_analisis.update! analysis_result: analysis_result
       pending_analisis.done!
-      rpc_callback pending_analisis, transaction_analysis if pending_analisis.callback?
+      rpc_callback pending_analisis, transaction_analysis, from: :done_analisis if pending_analisis.callback?
 
       # TODO analysis_result.address? создавать AddressAnalysis
     rescue ActiveRecord::RecordNotUnique => e
       retry if e.record.is_a? TransactionAnalysis
     end
 
-    def rpc_callback(pending_analisis, transaction_analysis = nil)
+    def rpc_callback(pending_analisis, transaction_analysis = nil, extra = {})
       if pending_analisis.done?
         analysis_result = pending_analisis.analysis_result
         action = ValegaAnalyzer.pass?(analysis_result.risk_level) ? :pass : :block
@@ -120,7 +120,7 @@ module Daemons
         action: action,
         analysis_result_id: analysis_result.try(:id),
         pending_analisis_state: pending_analisis.state
-      }
+      }.merge extra
       payload.merge! transaction_analysis_id: transaction_analysis.id if transaction_analysis.present?
       properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
       Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
