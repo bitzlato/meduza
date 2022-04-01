@@ -3,7 +3,7 @@
 module AMQP
   class TransactionPender < Base
     def process(payload, metadata)
-      Rails.logger.info "[TransactionPender] payload=#{payload}, metadata=#{metadata}"
+      Rails.logger.info "[TransactionPender] process payload=#{payload}, metadata=#{metadata}"
       ta = TransactionAnalysis.find_by(txid: payload.fetch('txid'), cc_code: payload.fetch('cc_code'))
       if ta.present?
         payload = {
