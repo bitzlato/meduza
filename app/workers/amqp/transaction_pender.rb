@@ -21,8 +21,6 @@ module AMQP
         attrs = {
           meta:                payload.fetch('meta', {}),
           type:                payload.fetch('type', :transaction),
-          reply_to:            metadata.reply_to,
-          correlation_id:      metadata.correlation_id,
         }
         begin
           Rails.logger.info "[TransactionPender] find_or_create PendingAnalysis with payload #{payload} and attrs #{attrs}"
@@ -32,10 +30,14 @@ module AMQP
               address_transaction: payload.fetch('txid'),
               cc_code:             payload.fetch('cc_code'),
               source:              payload.fetch('source'),
-              state:              :pending,
+              state:               :pending,
+              reply_to:            metadata.reply_to,
+              correlation_id:      metadata.correlation_id,
           )
           finded_attrs = pa.attributes.slice(*attrs.keys.map(&:to_s)).symbolize_keys
-          report_exception 'Отличия в PA', true, { pending_analisis_id: pa.id, attr: attrs, finded_attrs: finded_attrs } unless finded_attrs.sort.join == attrs.sort.join
+          unless finded_attrs.sort.join == attrs.sort.join
+            report_exception 'Отличия в PendingAnalysis', true, { pending_analisis_id: pa.id, attr: attrs, finded_attrs: finded_attrs }
+          end
         rescue ActiveRecord::RecordInvalid => err
           Rails.logger.info "[TransactionPender] PendingAnalysis already exists #{payload} with error #{err}"
         end
