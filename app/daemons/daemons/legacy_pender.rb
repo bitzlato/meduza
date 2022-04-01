@@ -36,13 +36,13 @@ module Daemons
               txid:    btx.txid,
               cc_code: btx.cc_code,
               source:  'p2p',
-              meta: { blockchain_tx_id: btx.id }
+              meta: { blockchain_tx_id: btx.id, sent_at: Time.zone.now }
             }
-            btx.update! meduza_status: { status: :pended }
             AMQP::Queue.publish :meduza, payload,
               correlation_id: btx.id,
               routing_key: AMQP::Config.binding(:transaction_pender).fetch(:routing_key),
               reply_to: AMQP::Config.binding(:legacy_rpc_callback).fetch(:routing_key)
+            btx.update! meduza_status: { status: :pended }
           end
         end.count
         Rails.logger.debug("[LegacyPender] #{btx_count} processed for #{cc_code}")
