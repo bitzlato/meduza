@@ -15,6 +15,7 @@
 # gem 'pg'
 #
 default: &default
+  reconnect: true
   adapter: postgresql
   encoding: unicode
   # For details on connection pooling, see Rails configuration guide
@@ -25,20 +26,22 @@ default: &default
   url: <%= ENV['MEDUZA_DATABASE_URL'] %>
 
 development:
-  <<: *default
-  database: meduza_development
+  primary:
+    <<: *default
+    database: meduza_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  adapter: postgresql
-  encoding: unicode
-  host: <%= ENV.fetch('PG_HOST', '127.0.0.1') %>
-  user: <%= ENV['PG_USER'] %>
-  password: <%= ENV['PGPASSWORD'] %>
-  database: meduza_test<%= ENV['TEST_ENV_NUMBER'] %>
-  pool: 5
+  primary:
+    adapter: postgresql
+    encoding: unicode
+    host: <%= ENV.fetch('PG_HOST', '127.0.0.1') %>
+    user: <%= ENV['PG_USER'] %>
+    password: <%= ENV['PGPASSWORD'] %>
+    database: meduza_test<%= ENV['TEST_ENV_NUMBER'] %>
+    pool: 5
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -61,6 +64,10 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  reconnect: true
+  primary:
+    <<: *default
+
+  replica:
+    <<: *default
+    url: <%= ENV['MEDUZA_REPLICA_DATABASE_URL'] %>
 
