@@ -1,7 +1,5 @@
-class BlockchainTx < ApplicationRecord
+class BlockchainTx < BitzlatoRecord
   self.table_name = :blockchain_tx
-
-  connects_to database: { writing: :primary, reading: :replica } if Rails.env.production?
 
   has_many :transaction_analyses, foreign_key: :txid, primary_key: :txid
 
