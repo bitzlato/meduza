@@ -4,6 +4,7 @@ class TransactionAnalysis < ApplicationRecord
   # TODO renale to last_analysis_result
   belongs_to :analysis_result
   belongs_to :blockchain_tx, primary_key: :txid, foreign_key: :txid, optional: true
+  belongs_to :analyzed_user, optional: true
 
   has_many :deposits, through: :blockchain_tx
   has_many :withdrawals, through: :blockchain_tx
@@ -22,6 +23,7 @@ class TransactionAnalysis < ApplicationRecord
   validates :risk_confidence, presence: true
 
   after_commit :update_blockchain_tx_status, on: %i[create update]
+  after_commit :update_analyzed_user, on: %i[create]
 
   before_create do
     self.direction = detect_direction
@@ -52,6 +54,17 @@ class TransactionAnalysis < ApplicationRecord
       :unknown
     end
   end
+
+  def update_analyzed_user
+    user = blockchain_tx.try(:user)
+    return unless user
+    transaction do
+      update_column :analyzed_user, AnalyzedUser.find_or_create_by!(user_id: user.id)
+      self.analyzed_user.increment! "risk_level_#{risk_level}_count"
+    end
+  end
+
+  def
 
   def update_blockchain_tx_status
     BlockchainTx.where(cc_code:  cc_code, txid: txid).update_all(
