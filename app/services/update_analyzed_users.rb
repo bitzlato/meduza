@@ -1,0 +1,2 @@
+class UpdateAnalyzedUsers
+end

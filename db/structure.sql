@@ -194,7 +194,8 @@ CREATE TABLE meduza.transaction_analyses (
     risk_confidence numeric NOT NULL,
     meta jsonb DEFAULT '{}'::jsonb NOT NULL,
     direction character varying,
-    pending_analyses_id bigint
+    pending_analyses_id bigint,
+    analyzed_user_id bigint
 );
 
 
@@ -440,6 +441,13 @@ CREATE INDEX index_transaction_analyses_on_analysis_result_id ON meduza.transact
 
 
 --
+-- Name: index_transaction_analyses_on_analyzed_user_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_transaction_analyses_on_analyzed_user_id ON meduza.transaction_analyses USING btree (analyzed_user_id);
+
+
+--
 -- Name: index_transaction_analyses_on_cc_code_and_txid; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -474,6 +482,14 @@ ALTER TABLE ONLY meduza.pending_analyses
 
 ALTER TABLE ONLY meduza.address_analyses
     ADD CONSTRAINT fk_rails_4d26b9d298 FOREIGN KEY (analysis_result_id) REFERENCES meduza.analysis_results(id);
+
+
+--
+-- Name: transaction_analyses fk_rails_760f842201; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.transaction_analyses
+    ADD CONSTRAINT fk_rails_760f842201 FOREIGN KEY (analyzed_user_id) REFERENCES meduza.analyzed_users(id);
 
 
 --
@@ -514,6 +530,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220318181931'),
 ('20220329142334'),
 ('20220329142455'),
-('20220331151440');
+('20220331151440'),
+('20220407121620');
 
 
