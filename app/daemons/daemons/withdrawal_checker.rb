@@ -5,7 +5,7 @@ module Daemons
     @sleep_time = 2.seconds
 
     def process
-      logger.tagged('WithdrawChecker') do
+      logger.tagged('[WithdrawChecker]') do
         Withdrawal.aml.find_each do |withdrawal|
           logger.tagged("Withdrawal(#{withdrawal.id}) to address #{withdrawal.address}") do
             if AddressVerifier.new(withdrawal.address, withdrawal.cc_code).pass?
