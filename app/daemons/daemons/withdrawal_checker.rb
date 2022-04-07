@@ -7,36 +7,23 @@ module Daemons
     def process
       logger.tagged('WithdrawChecker') do
         logger.info { 'Start checking..' }
-        Withdrawal.aml.find_each do |withdrawal|
-          logger.tagged("Withdrawal(#{withdrawal.id}) to address #{withdrawal.address}") do
-            if AddressVerifier.new(withdrawal.address, withdrawal.cc_code).pass?
-              logger.info { 'Has been passed' }
-              withdrawal.pending!
-            else
-              logger.info { 'Has not been passed' }
-              freeze_user!(withdrawal)
-            end
+        Withdrawal.aml.where(meduza_status: nil).find_each do |withdrawal|
+          logger.tagged("Check withdrawal(#{withdrawal.id}) to address #{withdrawal.address}") do
+
+            payload = {
+              address: withdrawal.address,
+              cc_code: withdrawal.cc_code,
+              source:  'p2p',
+              meta: { withdrawal_id: btx.id, sent_at: Time.zone.now }
+            }
+            AMQP::Queue.publish :meduza, payload,
+              correlation_id: withdrawal.id,
+              routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
+              reply_to: AMQP::Config.binding(:withdrawal_rpc_callback).fetch(:routing_key)
+
+            withdrawal.update_column :meduza_status, { status: :pended }
           end
         end
-      end
-    end
-
-    private
-
-    def freeze_user!(withdrawal)
-      params = {
-        expire: 1.year.from_now.to_i,
-        reason: "Грязный вывод ##{withdrawal.id} на адресс #{withdrawal.address}",
-        type: 'all',
-        unfreeze: false
-      }
-      response = BitzlatoAPI.new.freeze_user(withdrawal.user_id, params: params)
-
-      if response.success?
-        logger.info { "User ##{withdrawal.user_id} has been freezed" }
-      else
-        logger.info { "User ##{withdrawal.user_id} has not been freezed because P2P is not available" }
-        raise "Wrong response status (#{response.status}) with body #{response.body}"
       end
     end
   end
