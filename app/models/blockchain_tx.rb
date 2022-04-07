@@ -6,7 +6,7 @@ class BlockchainTx < BitzlatoRecord
   has_one :deposit
   has_one :withdrawal
   has_one :deposit_user, through: :deposit, source: :user
-  has_one :withdraw_user, through: :withdraw, source: :user
+  has_one :withdraw_user, through: :withdrawal, source: :user
 
   scope :receive, -> { where("source ->> 'category' = 'receive'") }
 
