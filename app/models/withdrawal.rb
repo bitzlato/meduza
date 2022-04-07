@@ -7,8 +7,7 @@ class Withdrawal < ApplicationRecord
 
   scope :aml, -> { where status: :aml }
 
-  def pending!
-    # TODO: из-за сложности с тестовый базой игноирим валидацию
-    update_column :status, :pending
+  def pending!(meduza_status)
+    update_columns status: :pending, meduza_status: meduza_status
   end
 end

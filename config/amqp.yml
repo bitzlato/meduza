@@ -10,13 +10,26 @@ exchange:
     type: direct
 
 binding:
+  address_pender:
+    exchange: meduza
+    queue: meduza.check_address
+    durable: true
+    type: direct
+    routing_key: check_address
+
+  withdrawal_rpc_callback:
+    exchange: meduza
+    queue: meduza.withdrawal_rpc_callback
+    durable: true
+    type: direct
+    routing_key: withdrawal_rpc_callback
+
   transaction_pender:
     exchange: meduza
     queue: meduza.check_transaction
     durable: true
     type: direct
     routing_key: check_transaction
-    # clean_start: true
 
   legacy_rpc_callback:
     exchange: meduza
