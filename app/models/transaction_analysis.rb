@@ -22,12 +22,13 @@ class TransactionAnalysis < ApplicationRecord
   validates :risk_level, presence: true
   validates :risk_confidence, presence: true
 
-  after_commit :update_blockchain_tx_status, on: %i[create update]
   before_create :update_analyzed_user
 
   before_create do
     self.direction = detect_direction
   end
+
+  after_commit :update_blockchain_tx_status, on: %i[create update]
 
   def self.actual?(txid)
     ta = find_by(txid: txid)
@@ -62,14 +63,12 @@ class TransactionAnalysis < ApplicationRecord
     end
     user = blockchain_tx.user
     unless user
-      Rails.logger.info("No user for blockhain_tx with #{txid} for TransactionAnalysis")
+      Rails.logger.info("No user with #{txid} for TransactionAnalysis")
       return
     end
     self.analyzed_user = AnalyzedUser.find_or_create_by!(user_id: user.id)
     self.analyzed_user.increment! "risk_level_#{risk_level}_count"
   end
-
-  def
 
   def update_blockchain_tx_status
     BlockchainTx.where(cc_code:  cc_code, txid: txid).update_all(
