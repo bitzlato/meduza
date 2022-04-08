@@ -6,7 +6,7 @@ module AMQP
       logger.tagged('AddressPender') do
         logger.info "process payload=#{payload}, metadata=#{metadata}"
         aa = AddressAnalysis.find_by(address: payload.fetch('address'), cc_code: payload.fetch('cc_code'))
-        if aa.present?
+        if aa.present? && aa.actual?
           payload = {
             address_transaction: aa.address,
             cc_code: aa.cc_code,

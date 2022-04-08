@@ -1,5 +1,5 @@
 class AddressAnalysis < ApplicationRecord
-  ACTUAL_PERIOD = 1.week
+  ACTUAL_PERIOD = 15.minutes
 
   belongs_to :analysis_result
 
@@ -15,7 +15,7 @@ class AddressAnalysis < ApplicationRecord
   end
 
   def actual?
-    pdated_at > ACTUAL_PERIOD.ago
+    updated_at > ACTUAL_PERIOD.ago
   end
 
   def recheck!
