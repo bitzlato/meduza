@@ -6,13 +6,14 @@ module AMQP
       logger.tagged('AddressPender') do
         logger.info "process payload=#{payload}, metadata=#{metadata}"
         aa = AddressAnalysis.find_by(address: payload.fetch('address'), cc_code: payload.fetch('cc_code'))
-        if aa.present? && aa.actual?
+        if aa.present? && aa.actual? && !payload.dig(:force)
           payload = {
             address_transaction: aa.address,
             cc_code: aa.cc_code,
             action: aa.analysis_result.pass? ? :pass : :block,
             analysis_result_id: aa.analysis_result_id,
-            from: :AddressPender
+            from: :AddressPender,
+            meta:                payload.fetch('meta', {}),
           }
           payload.merge! address_analysis_id: aa.id if aa.present?
           properties = { correlation_id: metadata.correlation_id, routing_key: metadata.reply_to }
