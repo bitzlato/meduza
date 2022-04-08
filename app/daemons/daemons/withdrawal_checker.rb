@@ -5,6 +5,7 @@ module Daemons
     @sleep_time = 2.seconds
 
     def process
+      return # TODO
       logger.tagged('WithdrawChecker') do
         logger.info { 'Start checking..' }
         Withdrawal.aml.where(meduza_status: nil).find_each do |withdrawal|
@@ -14,7 +15,7 @@ module Daemons
               address: withdrawal.address,
               cc_code: withdrawal.cc_code,
               source:  'p2p',
-              meta: { withdrawal_id: btx.id, sent_at: Time.zone.now }
+              meta: { withdrawal_id: withdrawal.id, sent_at: Time.zone.now }
             }
             AMQP::Queue.publish :meduza, payload,
               correlation_id: withdrawal.id,

@@ -11,7 +11,7 @@ module AMQP
           logger.info("Pass withdrawal #{withdrawal.id}")
           withdrawal.pending!({ status: :checked, action: action })
         else
-          withdrawal.update_column meduza_status: { status: :checked, action: action }
+          withdrawal.update_columns meduza_status: { status: :checked, action: action }
           logger.info("Block withdrawal #{withdrawal.id}")
           freeze_user!(withdrawal)
         end

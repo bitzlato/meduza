@@ -22,36 +22,39 @@ module Daemons
           .where(meduza_status: nil)
           .where(cc_code: cc_code)
         logger.info("Select #{cc_code} count is #{scope.count}")
-        btx_count = scope
+        withdraws_count = scope
           .order(:id)
           .limit(LIMIT)
-          .each do |btx|
+          .each do |withdraw|
           next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
-          if PendingAnalysis.pending.exists?(address_transaction: btx.txid, cc_code: btx.cc_code)
-            logger.info("PendingAnalysis already exists #{btx.txid}")
+          if PendingAnalysis.pending.exists?(address_transaction: withdraw.address, cc_code: withdraw.cc_code)
+            logger.info("PendingAnalysis already exists #{withdraw.address}")
             return
           end
 
-          ta = TransactionAnalysis.find_by(txid: btx.txid, cc_code: btx.cc_code)
-          if ta.present?
-            logger.info("TransactionAnalysis already exists #{btx.txid} update blockhain_tx")
-            ta.update_blockchain_tx_status
+          aa = AddressAnalysis.find_by(address: withdraw.address, cc_code: withdraw.cc_code)
+          if aa.present?
+            action = ValegaAnalyzer.pass?(aa.analysis_result.risk_level) ? :pass : :block
+            logger.info("AddressAnalysis already exists #{withdraw.address} update blockhain_tx")
+            withdrawal.update_columns meduza_status: { status: :checked, action: action }
           else
-            logger.info("Put pending analysis #{btx.id}: #{btx.txid} #{cc_code}")
+            logger.info("Put pending analysis #{withdraw.id}: #{withdraw.address} #{cc_code}")
+
             payload = {
-              txid:    btx.txid,
-              cc_code: btx.cc_code,
+              address: withdrawal.address,
+              cc_code: withdrawal.cc_code,
               source:  'p2p',
-              meta: { blockchain_tx_id: btx.id, sent_at: Time.zone.now }
+              meta: { withdrawal_id: withdrawal.id, sent_at: Time.zone.now }
             }
             AMQP::Queue.publish :meduza, payload,
-              correlation_id: btx.id,
-              routing_key: AMQP::Config.binding(:transaction_pender).fetch(:routing_key),
-              reply_to: AMQP::Config.binding(:legacy_rpc_callback).fetch(:routing_key)
-            btx.update! meduza_status: { status: :pended }
+              correlation_id: withdrawal.id,
+              routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
+              reply_to: AMQP::Config.binding(:withdrawal_rpc_callback).fetch(:routing_key)
+
+            withdrawal.update_column :meduza_status, { status: :pended }
           end
         end.count
-        logger.debug("#{btx_count} processed for #{cc_code}")
+        logger.debug("#{withdraws_count} processed for #{cc_code}")
         break unless @running
       end
     end
