@@ -74,17 +74,24 @@ module Daemons
           .new
           .analyze(sliced.map(&:address_transaction), cc_code)
           .each do |analysis_result|
-          next if analysis_result.nil?
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
           if analysis_result.transaction?
             done_transaction_analisis pending_analisis, analysis_result
           elsif analysis_result.address?
             done_address_analisis pending_analisis, analysis_result
+          elsif analysis_result.error?
+            done_error_analysis pending_analisis, analysis_result
           else
             raise "not supported #{analysis_result}"
           end
         end
       end
+    end
+
+    def done_error_analysis(pending_analisis, analysis_result)
+      pending_analisis.update! analysis_result: analysis_result
+      pending_analisis.done!
+      rpc_callback pending_analisis, address_analysis, from: :done_error_analisis if pending_analisis.callback?
     end
 
     def done_address_analisis(pending_analisis, analysis_result)

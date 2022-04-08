@@ -5,15 +5,19 @@ class AnalysisResult < ApplicationRecord
 
   has_many :address_analysis
 
-  validates :cc_code, presence: true
+  validates :cc_code, presence: true, unless: :error?
 
-  TYPES = %w[address transaction]
+  TYPES = %w[address transaction error]
   validates :type, presence: true, inclusion: { in: TYPES }
 
   delegate :risk_msg, :report_url, :observations, to: :response
 
   def pass?
     ValegaAnalyzer.pass? risk_level, risk_confidence
+  end
+
+  def error?
+    type == 'error'
   end
 
   def entity_name
@@ -37,7 +41,11 @@ class AnalysisResult < ApplicationRecord
   end
 
   def message
-    [risk_msg.presence, entity_name.presence].compact.join('; ') || 'no message'
+    if error?
+      response.error || 'no error message'
+    else
+      [risk_msg.presence, entity_name.presence].compact.join('; ') || 'no message'
+    end
   end
 
   def to_s
