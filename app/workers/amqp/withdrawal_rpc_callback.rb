@@ -9,7 +9,13 @@ module AMQP
         action = payload['action']
         if payload['action'] == 'pass'
           logger.info("Pass withdrawal #{withdrawal.id}")
-          withdrawal.pending!({ status: :checked, action: action })
+          withdrawal.with_lock do
+            if withdrawal.status == 'aml'
+              withdrawal.pending!({ status: :checked, action: action })
+            else
+              logger.error "#{withdrawal} wrong status #{withdrawal.status}, skip"
+            end
+          end
         else
           withdrawal.update_columns meduza_status: { status: :checked, action: action }
           logger.info("Block withdrawal #{withdrawal.id}")
