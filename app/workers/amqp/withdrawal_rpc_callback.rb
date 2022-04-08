@@ -35,7 +35,7 @@ module AMQP
         type: 'all',
         unfreeze: false
       }
-      response = BitzlatoAPI.new.freeze_user(withdrawal.user_id, params: params)
+      response = BitzlatoAPI.new.freeze_user(withdrawal.user_id, params)
 
       if response.success?
         logger.info { "User ##{withdrawal.user_id} has been freezed" }
