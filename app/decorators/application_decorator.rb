@@ -20,7 +20,7 @@ class ApplicationDecorator < Draper::Decorator
   def self.table_tr_class(record); end
 
   def id
-    h.link_to object.id, url_for(object)
+    h.link_to object.id, h.url_for(object)
   end
 
   def self.attributes
