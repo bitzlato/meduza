@@ -5,12 +5,12 @@ ru:
         one: Депозит
         many: Депозиты
       transaction_analysis: 
-        one: Проверенная траназкция
+        one: Проверенная транзкция
         many: Проверенные транзакции
       address_analysis: 
         one: Проверенный адрес
         many: Проверенные адреса
-      analyzed_users:
+      analyzed_user:
         one: Проверенный пользователь
         many: Проверенные пользователи
       analysis_result:
