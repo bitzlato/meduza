@@ -37,7 +37,7 @@ module Daemons
 
           aa = AddressAnalysis.find_by(address: withdrawal.address, cc_code: withdrawal.cc_code)
           if aa.present?
-            action = ValegaAnalyzer.pass?(aa.analysis_result.risk_level) ? :pass : :block
+            action = aa.analysis_result.pass? ? :pass : :block
             logger.info("AddressAnalysis already exists #{withdrawal.address} update blockhain_tx")
             withdrawal.with_lock do
               withdrawal.update_columns meduza_status: withdrawal.meduza_status.merge( status: :checked, action: action )

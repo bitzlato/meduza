@@ -10,7 +10,7 @@ module AMQP
           payload = {
             address_transaction: aa.address,
             cc_code: aa.cc_code,
-            action: ValegaAnalyzer.pass?(aa.analysis_result.risk_level) ? :pass : :block,
+            action: aa.analysis_result.pass? ? :pass : :block,
             analysis_result_id: aa.analysis_result_id,
             from: :AddressPender
           }

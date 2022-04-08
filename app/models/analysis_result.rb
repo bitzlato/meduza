@@ -12,6 +12,10 @@ class AnalysisResult < ApplicationRecord
 
   delegate :risk_msg, :transaction_entity_name, to: :response
 
+  def pass?(analysis_result)
+    ValegaAnalyzer.pass? risk_level, risk_confidence
+  end
+
   def response
     OpenStruct.new(raw_response)
   end

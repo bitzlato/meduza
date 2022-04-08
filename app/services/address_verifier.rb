@@ -9,14 +9,17 @@ class AddressVerifier
   end
 
   def pass?
-    address_analysis =  find_actual_cached || verify
-    ValegaAnalyzer.pass?(address_analysis.risk_level)
+    (find_actual_cached || verify).
+      analysis_result.
+      pass?
   end
 
   private
 
   def find_actual_cached
-    AddressAnalysis.find_by(address: address, cc_code: cc_code).try(:actual?)
+    AddressAnalysis.
+      find_by(address: address, cc_code: cc_code).
+      try(:actual?)
   end
 
   def verify

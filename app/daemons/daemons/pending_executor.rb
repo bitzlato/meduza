@@ -122,7 +122,7 @@ module Daemons
     def rpc_callback(pending_analisis, transaction_analysis = nil, extra = {})
       if pending_analisis.done?
         analysis_result = pending_analisis.analysis_result
-        action = ValegaAnalyzer.pass?(analysis_result.risk_level) ? :pass : :block
+        action = analysis_result.pass? ? :pass : :block
       elsif pending_analisis.skipped?
         action = :pass
       else
