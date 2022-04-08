@@ -23,6 +23,10 @@ class ApplicationDecorator < Draper::Decorator
     table_columns
   end
 
+  def analysis_result
+    h.link_to object.analysis_result.message, h.analysis_result_path(object.analysis_result)
+  end
+
   def fee_amount
     h.format_money object.fee_amount, object.blockchain.fee_currency
   rescue RuntimeError # no native currency
