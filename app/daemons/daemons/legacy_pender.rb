@@ -40,7 +40,7 @@ module Daemons
             action = aa.analysis_result.pass? ? :pass : :block
             logger.info("AddressAnalysis already exists #{withdrawal.address} update blockhain_tx")
             withdrawal.with_lock do
-              withdrawal.update_columns meduza_status: withdrawal.meduza_status.merge( status: :checked, action: action )
+              withdrawal.update_columns meduza_status: (withdrawal.meduza_status || {}).merge( status: :checked, action: action )
             end
           else
             logger.info("Put pending analysis #{withdrawal.id}: #{withdrawal.address} #{cc_code}")
