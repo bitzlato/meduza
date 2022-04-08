@@ -8,7 +8,11 @@ class ValegaAnalyzer
   end
 
   def self.pass?(risk_level, risk_confidence)
-    risk_level != 3 && risk_confidence != 3
+    !block?(risk_level, risk_confidence)
+  end
+
+  def self.block?(risk_level, risk_confidence)
+    risk_level == 3 && risk_confidence == 1.0
   end
 
   def analyze(address_transactions, cc_code)
