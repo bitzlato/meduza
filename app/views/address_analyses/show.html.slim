@@ -6,7 +6,7 @@
     hr
     = render 'attributes', item: record
   .col-md-6
-    = link_to t('.recheck'), recheck_address_analysis_path(record), method: :put, data: { 'disable_with'=> 'start..' }, class: 'btn btn-primary'
+    = link_to t('.recheck'), recheck_address_analysis_path(record), method: :put, data: { 'disable_with'=> 'Start..' }, class: 'btn btn-success'
 h2= AnalysisResult.model_name.human
 = render 'table', items: address_analyses.analysis_results.order('created_at desc')
 
