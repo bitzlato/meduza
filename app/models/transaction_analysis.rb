@@ -12,7 +12,7 @@ class TransactionAnalysis < ApplicationRecord
   has_many :withdrawals_users, through: :withdrawals, source: :user
 
   delegate :amount, to: :blockchain_tx, allow_nil: true
-  delegate :risk_msg, :transaction_entity_name, to: :analysis_result
+  delegate :risk_msg, :entity_name, to: :analysis_result
 
   DIRECTIONS = %w[income outcome both unknown internal]
   validates :direction, inclusion: { in: DIRECTIONS }, if: :direction?
@@ -38,7 +38,7 @@ class TransactionAnalysis < ApplicationRecord
   end
 
   def to_s
-    [cc_code, txid, 'risk_level:' + risk_level, risk_msg, transaction_entity_name].join('; ')
+    [cc_code, txid, 'risk_level:' + risk_level, risk_msg, entity_name].join('; ')
   end
 
   def detect_direction
