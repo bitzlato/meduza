@@ -76,8 +76,8 @@ ALTER SEQUENCE meduza.address_analyses_id_seq OWNED BY meduza.address_analyses.i
 CREATE TABLE meduza.analysis_results (
     id bigint NOT NULL,
     address_transaction meduza.citext NOT NULL,
-    risk_confidence numeric NOT NULL,
-    risk_level integer NOT NULL,
+    risk_confidence numeric,
+    risk_level integer,
     raw_response jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
@@ -156,7 +156,7 @@ CREATE TABLE meduza.pending_analyses (
     type character varying,
     analysis_result_id bigint,
     meta jsonb,
-    replied_at timestamp without time zone NOT NULL
+    replied_at timestamp without time zone
 );
 
 
@@ -525,13 +525,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220228142051'),
 ('20220228142958'),
 ('20220302134255'),
-('20220303143341'),
 ('20220303143427'),
 ('20220318181931'),
 ('20220329142334'),
 ('20220329142455'),
 ('20220331151440'),
 ('20220407121620'),
-('20220408133353');
+('20220408133353'),
+('20220408151446');
 
 
