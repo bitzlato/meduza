@@ -2,8 +2,8 @@ class JWTSig
   ALGO = 'ES256'
 
   class << self
-    def meduza_sig(jwt: JSON.parse(ENV.fetch('MEDUZA_PRIVATE_KEY')), claims: {})
-      new(jwt: jwt, claims: { iss: 'meduza'})
+    def meduza_sig(jwk: JSON.parse(ENV.fetch('MEDUZA_PRIVATE_KEY')), claims: {})
+      new(jwk: jwk, claims: { iss: 'meduza'})
     end
   end
 
