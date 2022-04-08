@@ -25,8 +25,9 @@ class BitzlatoAPI
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
       }
+      c.request :url_encoded
       c.response :detailed_logger, logger
-      c.response :curl, logger
+      c.response :curl, logger, :warn
       c.request :authorization, 'Bearer', JWTSig.meduza_sig.encode(claims)
       yield c if block_given?
     end
