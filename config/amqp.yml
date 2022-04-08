@@ -17,6 +17,13 @@ binding:
     type: direct
     routing_key: check_address
 
+  legacy_withdrawal_rpc_callback:
+    exchange: meduza
+    queue: meduza.legacy_withdrawal_rpc_callback
+    durable: true
+    type: direct
+    routing_key: legacy_withdrawal_rpc_callback
+
   withdrawal_rpc_callback:
     exchange: meduza
     queue: meduza.withdrawal_rpc_callback
