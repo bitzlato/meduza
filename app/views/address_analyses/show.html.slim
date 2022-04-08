@@ -1,7 +1,8 @@
 - address_analyses = record
 .py-3= back_link url_for(address_analyses.class)
 h1= address_analyses.model_name.human + ' #' + address_analyses.id.to_s
-
+hr
+= render 'attributes', item: record
 h2= AnalysisResult.model_name.human
 = render 'table', items: address_analyses.analysis_results
 
