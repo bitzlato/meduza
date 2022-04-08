@@ -5,7 +5,7 @@ class BitzlatoAPI
   attr_reader :url, :debug, :logger
 
   def initialize(url: ENV.fetch('BITZLATO_API_URL'))
-    @url = URI url
+    @url = url
     @logger = Logger.new Rails.application.root.join('log/bitzlato_api.log')
     @logger.level = Logger::DEBUG
   end
@@ -21,7 +21,7 @@ class BitzlatoAPI
 
   def key_freeze_user(user_id, params)
     build_connection.
-      put(url.path + "/freezing/freeze/#{user_id}/", JSON.generate(params))
+      put("/freezing/freeze/#{user_id}/", JSON.generate(params))
   end
 
   private
