@@ -1,5 +1,5 @@
 module AMQP
-  class LegacyRpcCallback
+  class LegacyRpcCallback < Base
     #payload = {
       #address_transaction: pending_analisis.address_transaction,
       #cc_code: pending_analisis.cc_code,
