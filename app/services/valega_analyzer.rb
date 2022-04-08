@@ -25,6 +25,7 @@ class ValegaAnalyzer
           AnalysisResult.create!(
             address_transaction: response.fetch('value'),
             raw_response: response,
+            cc_code: cc_code,
             type: 'error'
           )
         else
