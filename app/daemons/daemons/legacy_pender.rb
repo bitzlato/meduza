@@ -17,7 +17,7 @@ module Daemons
     end
 
     def process_withdrawals
-      logger.tagger 'process_withdrawals' do
+      logger.tagged 'process_withdrawals' do
       AML_ANALYZABLE_CODES.each do |cc_code|
         scope = Withdrawal
           .where('created_at>=?', CHECK_START_DATE)
