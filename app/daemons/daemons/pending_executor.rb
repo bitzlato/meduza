@@ -76,7 +76,9 @@ module Daemons
           .each do |analysis_result|
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
           if analysis_result.transaction?
-            done_analisis pending_analisis, analysis_result
+            done_transaction_analisis pending_analisis, analysis_result
+          elsif analysis_result.address?
+            done_address_analisis pending_analisis, analysis_result
           else
             raise "not supported #{analysis_result}"
           end
@@ -84,7 +86,22 @@ module Daemons
       end
     end
 
-    def done_analisis(pending_analisis, analysis_result)
+    def done_address_analisis(pending_analisis, analysis_result)
+      address_analysis = AddressAnalysis
+        .create_with(analysis_result: analysis_result, risk_level: analysis_result.risk_level, risk_confidence: analysis_result.risk_confidence)
+        .find_or_create_by!(
+          address: analysis_result.address_transaction,
+          cc_code: pending_analisis.cc_code
+      )
+      address_analysis.update! analysis_result: analysis_result unless address_analysis.analysis_result == analysis_result
+      pending_analisis.update! analysis_result: analysis_result
+      pending_analisis.done!
+      rpc_callback pending_analisis, address_analysis, from: :done_address_analisis if pending_analisis.callback?
+    rescue ActiveRecord::RecordNotUnique => e
+      retry if e.record.is_a? TransactionAnalysis
+    end
+
+    def done_transaction_analisis(pending_analisis, analysis_result)
       transaction_analysis = TransactionAnalysis
         .create_with(analysis_result: analysis_result, risk_level: analysis_result.risk_level, risk_confidence: analysis_result.risk_confidence)
         .find_or_create_by!(
@@ -94,7 +111,7 @@ module Daemons
       transaction_analysis.update! analysis_result: analysis_result unless transaction_analysis.analysis_result == analysis_result
       pending_analisis.update! analysis_result: analysis_result
       pending_analisis.done!
-      rpc_callback pending_analisis, transaction_analysis, from: :done_analisis if pending_analisis.callback?
+      rpc_callback pending_analisis, transaction_analysis, from: :done_transaction_analisis if pending_analisis.callback?
 
       # TODO analysis_result.address? создавать AddressAnalysis
     rescue ActiveRecord::RecordNotUnique => e
