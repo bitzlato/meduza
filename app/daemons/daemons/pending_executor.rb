@@ -98,7 +98,7 @@ module Daemons
       pending_analisis.done!
       rpc_callback pending_analisis, address_analysis, from: :done_address_analisis if pending_analisis.callback?
     rescue ActiveRecord::RecordNotUnique => e
-      retry if e.record.is_a? TransactionAnalysis
+      retry if e.record.is_a? AddressAnalysis
     end
 
     def done_transaction_analisis(pending_analisis, analysis_result)
