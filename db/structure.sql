@@ -46,7 +46,7 @@ CREATE TABLE meduza.address_analyses (
     analysis_result_id bigint NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    cc_code character varying
+    cc_code character varying NOT NULL
 );
 
 
@@ -532,6 +532,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220331151440'),
 ('20220407121620'),
 ('20220408133353'),
-('20220408151446');
+('20220408151446'),
+('20220408181513');
 
 
