@@ -23,7 +23,8 @@ class ApplicationDecorator < Draper::Decorator
     table_columns
   end
 
-  def analysis_result
+  def analysis_result_message
+    return '-' if object.analysis_result.nil?
     h.link_to object.analysis_result.message, h.analysis_result_path(object.analysis_result)
   end
 

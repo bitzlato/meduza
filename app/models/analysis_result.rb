@@ -29,7 +29,7 @@ class AnalysisResult < ApplicationRecord
   end
 
   def message
-    ['risk_level:' + risk_level.to_s, 'risk_confidence:' + risk_confidence.to_s, risk_msg.presence, transaction_entity_name.presence].compact.join('; ')
+    [risk_msg.presence, transaction_entity_name.presence].compact.join('; ') || 'no message'
   end
 
   def to_s
