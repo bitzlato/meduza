@@ -19,11 +19,11 @@ class AddressAnalysis < ApplicationRecord
   end
 
   def analysis_results
-    AnalysisResult.where(cc_code: cc_code, address: address).order(:created_at)
+    AnalysisResult.where(cc_code: cc_code, address_transaction: address).order(:created_at)
   end
 
   def pending_analysis
-    PendingAnalysis.where(cc_code: cc_code, address: address).order(:created_at)
+    PendingAnalysis.where(cc_code: cc_code, address_transaction: address).order(:created_at)
   end
 
   def recheck!
