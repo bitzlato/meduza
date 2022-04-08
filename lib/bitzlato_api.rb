@@ -1,3 +1,4 @@
+require 'jwt_sig'
 class BitzlatoAPI
   attr_reader :url, :debug
 
