@@ -1,13 +1,24 @@
 ru:
   activerecord:
     models:
-      transaction_ananalysis: 
-        one: Транзакция
-        many: Транзакции
-      address_ananalysis: 
-        one: Адрес
-        many: Адреса
-        many: Транзакции
+      deposit:
+        one: Депозит
+        many: Депозиты
+      transaction_analysis: 
+        one: Проверенная траназкция
+        many: Проверенные транзакции
+      address_analysis: 
+        one: Проверенный адрес
+        many: Проверенные адреса
+      analyzed_users:
+        one: Проверенный пользователь
+        many: Проверенные пользователи
+      analysis_result:
+        one: Результат проверки
+        many: Результаты проверки
+      pending_analysis:
+        one: Элемент очереди
+        many: Очередь на проверку
     attributes:
       transaction_analysis:
         created_at: Создано
