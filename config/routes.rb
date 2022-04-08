@@ -7,7 +7,11 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
   root to: 'dashboard#index'
 
-  resources :address_analyses, only: [:index, :show]
+  resources :address_analyses, only: [:index, :show] do
+    member do
+      put :recheck
+    end
+  end
   resources :transaction_analyses, only: [:index, :show]
   resources :analyzed_users, only: [:index, :show]
   resources :analysis_results, only: [:index, :show]

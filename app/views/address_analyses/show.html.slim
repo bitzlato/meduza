@@ -1,8 +1,12 @@
 - address_analyses = record
 .py-3= back_link url_for(address_analyses.class)
-h1= address_analyses.model_name.human + ' #' + address_analyses.id.to_s
-hr
-= render 'attributes', item: record
+.row
+  .col-md-6
+    h1= address_analyses.model_name.human + ' #' + address_analyses.id.to_s
+    hr
+    = render 'attributes', item: record
+  .col-md-6
+    = link_to t('.recheck'), recheck_address_analysis_path(record), method: :put, data: { 'disable_with'=> 'start..' }, class: 'btn btn-primary'
 h2= AnalysisResult.model_name.human
 = render 'table', items: address_analyses.analysis_results.order('created_at desc')
 

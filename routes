@@ -1,6 +1,7 @@
                                   Prefix Verb   URI Pattern                                                                                       Controller#Action
                              sidekiq_web        /sidekiq                                                                                          Sidekiq::Web
                                     root GET    /                                                                                                 dashboard#index
+                recheck_address_analysis PUT    /address_analyses/:id/recheck(.:format)                                                           address_analyses#recheck
                         address_analyses GET    /address_analyses(.:format)                                                                       address_analyses#index
                         address_analysis GET    /address_analyses/:id(.:format)                                                                   address_analyses#show
                     transaction_analyses GET    /transaction_analyses(.:format)                                                                   transaction_analyses#index
@@ -10,7 +11,9 @@
                         analysis_results GET    /analysis_results(.:format)                                                                       analysis_results#index
                          analysis_result GET    /analysis_results/:id(.:format)                                                                   analysis_results#show
                      transaction_sources GET    /transaction_sources(.:format)                                                                    transaction_sources#index
+                      transaction_source GET    /transaction_sources/:id(.:format)                                                                transaction_sources#show
                         pending_analyses GET    /pending_analyses(.:format)                                                                       pending_analyses#index
+                        pending_analysis GET    /pending_analyses/:id(.:format)                                                                   pending_analyses#show
            rails_postmark_inbound_emails POST   /rails/action_mailbox/postmark/inbound_emails(.:format)                                           action_mailbox/ingresses/postmark/inbound_emails#create
               rails_relay_inbound_emails POST   /rails/action_mailbox/relay/inbound_emails(.:format)                                              action_mailbox/ingresses/relay/inbound_emails#create
            rails_sendgrid_inbound_emails POST   /rails/action_mailbox/sendgrid/inbound_emails(.:format)                                           action_mailbox/ingresses/sendgrid/inbound_emails#create
