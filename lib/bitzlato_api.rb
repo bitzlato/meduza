@@ -7,7 +7,7 @@ class BitzlatoAPI
   def initialize(url: ENV.fetch('BITZLATO_API_URL'), debug: ENV.true?('BITZLATO_CURL_LOGGER'))
     @url = URI url
     @debug = debug
-    @logger = Rails.application.root.join('log/bitzlato_api.log')
+    @logger = Logger.new Rails.application.root.join('log/bitzlato_api.log')
     @logger.level = Logger::DEBUG
   end
 
