@@ -19,7 +19,7 @@ class ValegaAnalyzer
       .map do |response|
         if response.key? 'error'
           AnalysisResult.create!(
-            address_transactions: response.fetch('value'),
+            address_transaction: response.fetch('value'),
             raw_response: response,
             type: 'error'
           )
