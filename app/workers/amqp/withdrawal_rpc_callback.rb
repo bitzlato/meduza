@@ -19,7 +19,9 @@ module AMQP
         else
           withdrawal.update_columns meduza_status: { status: :checked, action: action }
           logger.info("Block withdrawal #{withdrawal.id}")
-          freeze_user!(withdrawal)
+          # Отключили пока
+          # freeze_user!(withdrawal)
+          # withdrawal.update_columns meduza_status: withdrawal.meduza_status.merge(freezed: Time.zone.now.to_i)
         end
       end
     rescue ActiveRecord::RecordNotFound => err
