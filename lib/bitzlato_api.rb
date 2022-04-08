@@ -1,4 +1,6 @@
 require 'jwt_sig'
+require 'faraday/detailed_logger'
+
 class BitzlatoAPI
   attr_reader :url, :debug
 
@@ -21,7 +23,10 @@ class BitzlatoAPI
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
       }
-      c.request :curl, Rails.logger, :debug if debug
+      if debug
+        c.response :detailed_logger, Rails.logger
+        # c.request :curl, Rails.logger, :debug
+      end
       c.request :authorization, 'Bearer', JWTSig.meduza_sig.encode(claims)
       yield c if block_given?
     end
