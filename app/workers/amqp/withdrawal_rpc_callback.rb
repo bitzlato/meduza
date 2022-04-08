@@ -9,7 +9,7 @@ module AMQP
         withdrawal = Withdrawal.find metadata.correlation_id
 
         action = payload['action']
-        if payload['action'] == 'pass'
+        if action == 'pass'
           begin
             logger.info("Pass withdrawal #{withdrawal.id}")
             withdrawal.pending!({ status: :checked, action: action })

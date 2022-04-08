@@ -6,12 +6,12 @@ module Daemons
     @sleep_time = 1.seconds
     LIMIT = 10
     MAX_PENDING_QUEUE_SIZE = 5
-    CHECK_START_DATE = Date.parse('01-10-2021')
+    CHECK_START_DATE = Date.parse('01-04-2022')
 
     def process
       logger.tagged('LegacyPender') do
         process_transactions
-        # process_withdrawals
+        process_withdrawals
       end
     end
 
@@ -40,18 +40,20 @@ module Daemons
           else
             logger.info("Put pending analysis #{withdraw.id}: #{withdraw.address} #{cc_code}")
 
-            payload = {
-              address: withdrawal.address,
-              cc_code: withdrawal.cc_code,
-              source:  'p2p',
-              meta: { withdrawal_id: withdrawal.id, sent_at: Time.zone.now }
-            }
-            AMQP::Queue.publish :meduza, payload,
-              correlation_id: withdrawal.id,
-              routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
-              reply_to: AMQP::Config.binding(:withdrawal_rpc_callback).fetch(:routing_key)
+            withdraw.with_lock do
+              payload = {
+                address: withdrawal.address,
+                cc_code: withdrawal.cc_code,
+                source:  'legacy_pender',
+                meta: { withdrawal_id: withdrawal.id, sent_at: Time.zone.now }
+              }
+              AMQP::Queue.publish :meduza, payload,
+                correlation_id: withdrawal.id,
+                routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
+                reply_to: AMQP::Config.binding(:legacy_withdrawal_rpc_callback).fetch(:routing_key)
 
-            withdrawal.update_column :meduza_status, { status: :pended }
+              withdrawal.update_column :meduza_status, { status: :pended }
+            end
           end
         end.count
         logger.debug("#{withdraws_count} processed for #{cc_code}")
