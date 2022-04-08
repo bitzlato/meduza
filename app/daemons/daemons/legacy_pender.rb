@@ -27,20 +27,20 @@ module Daemons
         withdraws_count = scope
           .order(:id)
           .limit(LIMIT)
-          .each do |withdraw|
+          .each do |withdrawal|
           next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
-          if PendingAnalysis.pending.exists?(address_transaction: withdraw.address, cc_code: withdraw.cc_code)
-            logger.info("PendingAnalysis already exists #{withdraw.address}")
+          if PendingAnalysis.pending.exists?(address_transaction: withdrawal.address, cc_code: withdrawal.cc_code)
+            logger.info("PendingAnalysis already exists #{withdrawal.address}")
             return
           end
 
-          aa = AddressAnalysis.find_by(address: withdraw.address, cc_code: withdraw.cc_code)
+          aa = AddressAnalysis.find_by(address: withdrawal.address, cc_code: withdrawal.cc_code)
           if aa.present?
             action = ValegaAnalyzer.pass?(aa.analysis_result.risk_level) ? :pass : :block
-            logger.info("AddressAnalysis already exists #{withdraw.address} update blockhain_tx")
+            logger.info("AddressAnalysis already exists #{withdrawal.address} update blockhain_tx")
             withdrawal.update_columns meduza_status: { status: :checked, action: action }
           else
-            logger.info("Put pending analysis #{withdraw.id}: #{withdraw.address} #{cc_code}")
+            logger.info("Put pending analysis #{withdrawal.id}: #{withdrawal.address} #{cc_code}")
 
             withdrawal.with_lock do
               payload = {
