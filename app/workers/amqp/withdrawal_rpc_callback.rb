@@ -17,11 +17,9 @@ module AMQP
             report_exception err, true, { payload: payload, metadata: metadata }
           end
         else
-          withdrawal.update_columns meduza_status: { status: :checked, action: action }
           logger.info("Block withdrawal #{withdrawal.id}")
-          # Отключили пока
+          withdrawal.update_columns meduza_status: { status: :checked, action: action }
           freeze_user!(withdrawal)
-          withdrawal.update_columns meduza_status: withdrawal.meduza_status.merge(freezed: Time.zone.now.to_i)
         end
       end
     rescue ActiveRecord::RecordNotFound => err
@@ -45,6 +43,7 @@ module AMQP
         logger.info { "User ##{withdrawal.user_id} has not been freezed because P2P is not available" }
         raise "Wrong response status (#{response.status}) with body #{response.body}"
       end
+      withdrawal.update_columns meduza_status: withdrawal.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
     end
   end
 end
