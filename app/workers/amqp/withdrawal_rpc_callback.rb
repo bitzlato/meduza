@@ -33,7 +33,7 @@ module AMQP
     def freeze_user!(withdrawal)
       params = {
         expire: FREEZE_EXPIRE.from_now.to_i,
-        reason: "Грязный вывод ##{withdrawal.id} на адресс #{withdrawal.address}",
+        reason: "Грязный вывод ##{withdrawal.id} на адрес #{withdrawal.address}",
         type: 'all',
         unfreeze: false
       }
