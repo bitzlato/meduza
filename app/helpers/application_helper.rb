@@ -19,6 +19,17 @@ module ApplicationHelper
     'meduza'
   end
 
+  PENDING_CSS_CLASSES = {
+    'pending' => 'badge badge-secondary',
+    'done' => 'badge badge-success',
+    'errored' => 'badge badge-danger',
+    'skipped' => 'badge badge-info',
+  }
+
+  def pending_state(state)
+    content_tag :span, state, class: PENDING_CSS_CLASSES[state.to_s]
+  end
+
   def present_time(time)
     content_tag :div, class: 'text-nowrap text-muted text-small', title: I18n.l(time, format: :default) do
       time_ago_in_words time
