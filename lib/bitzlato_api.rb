@@ -21,23 +21,18 @@ class BitzlatoAPI
 
   def key_freeze_user(user_id, params)
     build_connection.
-      put("/freezing/freeze/#{user_id}/", JSON.generate(params))
+      put("/api/freezing/freeze/#{user_id}/", JSON.generate(params))
   end
 
   private
 
-  def headers
-    {
-      'X-Access-Key' => ENV.fetch('BITZLATO_FREEZE_API_KEY')
-    }
-  end
-
   def build_connection(claims = {})
-    Faraday.new(url: url, headers: headers) do |c|
+    Faraday.new(url: url) do |c|
       c.use Faraday::Response::Logger
       c.headers = {
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
+        'X-Access-Key' => ENV.fetch('BITZLATO_FREEZE_API_KEY')
       }
       c.request :url_encoded
       c.request :curl, logger, :debug
