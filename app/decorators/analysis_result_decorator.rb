@@ -5,6 +5,10 @@ class AnalysisResultDecorator < ApplicationDecorator
     %i[id created_at cc_code address_transaction type observations risk_level risk_confidence message entity_name entity_dir_name report_url]
   end
 
+  def self.attributes
+    object_class.attribute_names.map(&:to_sym)
+  end
+
   def report_url
     h.link_to object.report_url, object.report_url if object.report_url.present?
   end
