@@ -4,7 +4,7 @@ h1= address_analyses.model_name.human + ' #' + address_analyses.id.to_s
 hr
 = render 'attributes', item: record
 h2= AnalysisResult.model_name.human
-= render 'table', items: address_analyses.analysis_results
+= render 'table', items: address_analyses.analysis_results.order('created_at desc')
 
 h2= PendingAnalysis.model_name.human
-= render 'table', items: address_analyses.pending_analysis
+= render 'table', items: address_analyses.pending_analysis.order('created_at desc')
