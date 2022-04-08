@@ -42,7 +42,7 @@ module Daemons
           else
             logger.info("Put pending analysis #{withdraw.id}: #{withdraw.address} #{cc_code}")
 
-            withdraw.with_lock do
+            withdrawal.with_lock do
               payload = {
                 address: withdrawal.address,
                 cc_code: withdrawal.cc_code,
