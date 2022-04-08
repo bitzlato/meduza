@@ -8,6 +8,8 @@ class AddressAnalysis < ApplicationRecord
 
   upsert_keys [:address, :cc_code]
 
+  delegate :entity_name, :entity_dir_name, to: :analysis_result
+
   def self.actual?(address)
     find_by(address: address).try &:actual?
   end

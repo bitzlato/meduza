@@ -12,7 +12,7 @@ class TransactionAnalysis < ApplicationRecord
   has_many :withdrawals_users, through: :withdrawals, source: :user
 
   delegate :amount, to: :blockchain_tx, allow_nil: true
-  delegate :risk_msg, :entity_name, to: :analysis_result
+  delegate :risk_msg, :entity_name, :entity_dir_name, to: :analysis_result
 
   DIRECTIONS = %w[income outcome both unknown internal]
   validates :direction, inclusion: { in: DIRECTIONS }, if: :direction?
