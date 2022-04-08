@@ -1,37 +1,8 @@
-- address_analyses = [address_analysis]
-table.table.table-narrow
-  thead
-    tr
-      th Создано
-      th Обновлено
-      th Адрес
-      th Уровень риска
-      th Достоверность данных
-      th Подробнее
+.py-3= back_link url_for(address_analyses.class)
+h1= address_analyses.model_name.human + ' #' + address_analyses.id.to_s
 
-  tbody
-    - address_analyses.each do |aa|
-      tr
-        td
-          .text-nowrap.text-muted.text-small title=(l aa.created_at, format: :default)
-            = time_ago_in_words aa.created_at
-        td
-          .text-nowrap.text-muted.text-small title=(l aa.updated_at, format: :default)
-            = time_ago_in_words aa.updated_at
-        td.text-monospace
-          = aa.address
-        td
-          = present_risk_level aa.risk_level
-          - if aa.risk_level > 1 && aa.analysis_result.present? 
-            .mt-2.text-muted.text-small= aa.analysis_result.raw_response['risk_msg'] || 'No risk_msg found'
-        td= present_risk_confidence aa.risk_confidence
-        td= present_risk_confidence aa.risk_confidence
-        td
-          pre.text-small.text-muted
-            = JSON.pretty_generate(aa.analysis_result.raw_response) if aa.analysis_result.present?
-
-h2= t '.address_results'
+h2= AnalysisResult.model_name.human
 = render 'table', items: address_analyses.analysis_results
 
-h2= t '.pending_analysis'
+h2= PendingAnalysis.model_name.human
 = render 'table', items: address_analyses.pending_analysis
