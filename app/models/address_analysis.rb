@@ -18,6 +18,14 @@ class AddressAnalysis < ApplicationRecord
     updated_at > ACTUAL_PERIOD.ago
   end
 
+  def analysis_results
+    AnalysisResult.where(cc_code: cc_code, address: address).order(:created_at)
+  end
+
+  def pending_analysis
+    PendingAnalysis.where(cc_code: cc_code, address: address).order(:created_at)
+  end
+
   def recheck!
     payload = {
       address: address,

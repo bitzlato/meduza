@@ -3,6 +3,7 @@ table.table.table-narrow
   thead
     tr
       th Создано
+      th Обновлено
       th Адрес
       th Уровень риска
       th Достоверность данных
@@ -11,6 +12,9 @@ table.table.table-narrow
   tbody
     - address_analyses.each do |aa|
       tr
+        td
+          .text-nowrap.text-muted.text-small title=(l aa.created_at, format: :default)
+            = time_ago_in_words aa.created_at
         td
           .text-nowrap.text-muted.text-small title=(l aa.updated_at, format: :default)
             = time_ago_in_words aa.updated_at
@@ -25,3 +29,9 @@ table.table.table-narrow
         td
           pre.text-small.text-muted
             = JSON.pretty_generate(aa.analysis_result.raw_response) if aa.analysis_result.present?
+
+h2= t '.address_results'
+= render 'table', items: address_analyses.analysis_results
+
+h2= t '.pending_analysis'
+= render 'table', items: address_analyses.pending_analysis
