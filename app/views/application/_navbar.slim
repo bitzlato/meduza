@@ -7,6 +7,6 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light.flex-column.flex-md-row.sticky
       ul.navbar-nav.mr-auto
         - [AnalyzedUser, TransactionAnalysis, AddressAnalysis, AnalysisResult, PendingAnalysis].each do |model|
           li.nav-item.mr-2.d-flex.align-items-center
-            = active_link_to model.model_name.plural, url_for(model), class: 'my-lg-0 py-lg-0 nav-link'
+            = active_link_to model.model_name.human_plural, url_for(model), class: 'my-lg-0 py-lg-0 nav-link'
         li.nav-item.mr-2.d-flex.align-items-center
           = link_to 'Sidekiq', sidekiq_web_url, class: 'my-lg-0 py-lg-0 nav-link'
