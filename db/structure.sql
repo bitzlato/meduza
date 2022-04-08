@@ -378,10 +378,10 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: index_address_analyses_on_address; Type: INDEX; Schema: meduza; Owner: -
+-- Name: index_address_analyses_on_address_and_cc_code; Type: INDEX; Schema: meduza; Owner: -
 --
 
-CREATE UNIQUE INDEX index_address_analyses_on_address ON meduza.address_analyses USING btree (address);
+CREATE UNIQUE INDEX index_address_analyses_on_address_and_cc_code ON meduza.address_analyses USING btree (address, cc_code);
 
 
 --
@@ -531,6 +531,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220329142334'),
 ('20220329142455'),
 ('20220331151440'),
-('20220407121620');
+('20220407121620'),
+('20220408133353');
 
 
