@@ -1,5 +1,7 @@
 module AMQP
   class WithdrawalRpcCallback < Base
+    FREEZE_EXPIRE = 100.years
+
     def process(payload, metadata)
       logger.tagged 'WithdrawalRpcCallback' do
         logger.info "payload=#{payload}, metadata=#{metadata}"
@@ -28,7 +30,7 @@ module AMQP
 
     def freeze_user!(withdrawal)
       params = {
-        expire: 1.year.from_now.to_i,
+        expire: FREEZE_EXPIRE.from_now.to_i,
         reason: "Грязный вывод ##{withdrawal.id} на адресс #{withdrawal.address}",
         type: 'all',
         unfreeze: false
