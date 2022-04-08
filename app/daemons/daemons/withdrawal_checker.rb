@@ -5,7 +5,6 @@ module Daemons
     @sleep_time = 2.seconds
 
     def process
-      return # TODO
       logger.tagged('WithdrawChecker') do
         logger.info { 'Start checking..' }
         Withdrawal.aml.where(meduza_status: nil).find_each do |withdrawal|
