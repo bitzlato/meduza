@@ -2,7 +2,11 @@ class AnalysisResultDecorator < ApplicationDecorator
   delegate_all
 
   def self.table_columns
-    %i[id created_at cc_code address_transaction type observations risk_level risk_confidence entity_name entity_dir_name report_url raw_response]
+    %i[id created_at cc_code address_transaction type observations risk_level risk_confidence entity_name entity_dir_name report_url]
+  end
+
+  def report_url
+    h.link_to h.report_url, h.report_url if h.report_url.present?
   end
 
   def raw_response
