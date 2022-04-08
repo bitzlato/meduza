@@ -8,7 +8,7 @@ class AddressAnalysis < ApplicationRecord
 
   upsert_keys [:address, :cc_code]
 
-  delegate :entity_name, :entity_dir_name, to: :analysis_result
+  delegate :entity_name, :entity_dir_name, to: :analysis_result, allow_nil: true
 
   before_save do
     self.risk_level = analysis_result.try(:risk_level)

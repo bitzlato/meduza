@@ -17,7 +17,7 @@ class PendingAnalysis < ApplicationRecord
   validates :address_transaction, presence: true
   validates :address_transaction, uniqueness: { scope: %i[source state cc_code reply_to correlation_id] }, presence: true, on: :create, if: :pending?
 
-  delegate :risk_level, :risk_confidence, :entity_name, :entity_dir_name, to: :analysis_result
+  delegate :risk_level, :risk_confidence, :entity_name, :entity_dir_name, to: :analysis_result, allow_nil: true
 
   aasm column: :state, whiny_transitions: true, requires_lock: true do
     state :pending, initial: true

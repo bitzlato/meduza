@@ -10,7 +10,7 @@ class AnalysisResult < ApplicationRecord
   TYPES = %w[address transaction error]
   validates :type, presence: true, inclusion: { in: TYPES }
 
-  delegate :risk_msg, :report_url, :observations, to: :response
+  delegate :risk_msg, :report_url, :observations, to: :response, allow_nil: true
 
   def pass?
     ValegaAnalyzer.pass? risk_level, risk_confidence
