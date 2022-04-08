@@ -6,7 +6,7 @@ module Daemons
     @sleep_time = 1.seconds
     LIMIT = 10
     MAX_PENDING_QUEUE_SIZE = 5
-    CHECK_START_DATE = Date.parse('01-04-2022')
+    CHECK_START_DATE = Date.parse('01-03-2022')
 
     def process
       logger.tagged('LegacyPender') do
@@ -22,6 +22,7 @@ module Daemons
         scope = Withdrawal
           .where('created_at>=?', CHECK_START_DATE)
           .where(meduza_status: nil)
+          .where.not(status: :aml)
           .where(cc_code: cc_code)
         logger.info("Select #{cc_code} count is #{scope.count}")
         withdraws_count = scope
@@ -38,7 +39,9 @@ module Daemons
           if aa.present?
             action = ValegaAnalyzer.pass?(aa.analysis_result.risk_level) ? :pass : :block
             logger.info("AddressAnalysis already exists #{withdrawal.address} update blockhain_tx")
-            withdrawal.update_columns meduza_status: { status: :checked, action: action }
+            withdrawal.with_lock do
+              withdrawal.update_columns meduza_status: withdrawal.meduza_status.merge( status: :checked, action: action )
+            end
           else
             logger.info("Put pending analysis #{withdrawal.id}: #{withdrawal.address} #{cc_code}")
 
