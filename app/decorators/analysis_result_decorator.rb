@@ -6,7 +6,7 @@ class AnalysisResultDecorator < ApplicationDecorator
   end
 
   def report_url
-    h.link_to h.report_url, h.report_url if h.report_url.present?
+    h.link_to object.report_url, object.report_url if object.report_url.present?
   end
 
   def raw_response
