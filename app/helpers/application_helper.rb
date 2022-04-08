@@ -20,7 +20,7 @@ module ApplicationHelper
   end
 
   PENDING_CSS_CLASSES = {
-    'pending' => 'badge badge-secondary',
+    'pending' => 'badge badge-warning',
     'done' => 'badge badge-success',
     'errored' => 'badge badge-danger',
     'skipped' => 'badge badge-info',
