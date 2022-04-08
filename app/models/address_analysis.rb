@@ -10,6 +10,11 @@ class AddressAnalysis < ApplicationRecord
 
   delegate :entity_name, :entity_dir_name, to: :analysis_result
 
+  before_save do
+    self.risk_level = analysis_result.try(:risk_level)
+    self.risk_confidence = analysis_result.try(:risk_confidence)
+  end
+
   def self.actual?(address)
     find_by(address: address).try &:actual?
   end

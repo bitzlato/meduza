@@ -28,6 +28,11 @@ class TransactionAnalysis < ApplicationRecord
     self.direction = detect_direction
   end
 
+  before_save do
+    self.risk_level = analysis_result.try(:risk_level)
+    self.risk_confidence = analysis_result.try(:risk_confidence)
+  end
+
   after_commit :update_blockchain_tx_status, on: %i[create update]
 
   def self.actual?(txid)
