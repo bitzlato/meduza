@@ -65,7 +65,7 @@ module Daemons
     end
 
     def process_transactions
-      logger.tagger 'process_transactions' do
+      logger.tagged 'process_transactions' do
         AML_ANALYZABLE_CODES.each do |cc_code|
           scope = BlockchainTx
             .where('created_at>=?', CHECK_START_DATE)
