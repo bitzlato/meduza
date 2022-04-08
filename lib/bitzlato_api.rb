@@ -10,6 +10,10 @@ class BitzlatoAPI
     @logger.level = Logger::DEBUG
   end
 
+  def freeze_user(user_id, params)
+    key_freeze_user user_id, params
+  end
+
   def jwt_freeze_user(user_id, params)
     build_connection.
       post(url.path + "/admin/p2p/freeze/#{user_id}/", JSON.generate(params))
