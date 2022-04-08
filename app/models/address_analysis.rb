@@ -17,4 +17,14 @@ class AddressAnalysis < ApplicationRecord
   def actual?
     pdated_at > ACTUAL_PERIOD.ago
   end
+
+  def recheck!
+    payload = {
+      address: address,
+      cc_code: cc_code,
+      source:  'AddressAnalysis',
+      meta: { sent_at: Time.zone.now }
+    }
+    AMQP::Queue.publish :meduza, payload, routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key)
+  end
 end
