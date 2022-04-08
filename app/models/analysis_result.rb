@@ -12,7 +12,7 @@ class AnalysisResult < ApplicationRecord
 
   delegate :risk_msg, :transaction_entity_name, to: :response
 
-  def pass?(analysis_result)
+  def pass?
     ValegaAnalyzer.pass? risk_level, risk_confidence
   end
 
