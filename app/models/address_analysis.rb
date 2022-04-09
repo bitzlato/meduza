@@ -1,5 +1,5 @@
 class AddressAnalysis < ApplicationRecord
-  ACTUAL_PERIOD = 15.minutes
+  ACTUAL_PERIOD = 1.day
 
   belongs_to :analysis_result
 
