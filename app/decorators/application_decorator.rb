@@ -76,7 +76,7 @@ class ApplicationDecorator < Draper::Decorator
   end
 
   def txid
-    present_address object.txid
+    present_txid object.txid
   end
 
   def address_transaction
@@ -147,9 +147,7 @@ class ApplicationDecorator < Draper::Decorator
   def present_address(address)
     return h.middot if address.nil?
 
-    # h.link_to object.blockchain.explore_address_url(address), target: '_blank', class: 'text-monospace' do
     h.present_address address
-    #end
   end
 
   def present_time(time)
@@ -164,7 +162,6 @@ class ApplicationDecorator < Draper::Decorator
   def present_txid(txid)
     return h.middot if txid.nil?
 
-    h.content_tag :span, txid, class: 'text-monospace'
-    # h.link_to(txid, object.transaction_url, target: '_blank', class: 'text-monospace')
+    h.content_tag :code, txid, class: 'text-monospace'
   end
 end

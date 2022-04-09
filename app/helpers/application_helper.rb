@@ -37,7 +37,7 @@ module ApplicationHelper
   end
 
   def present_address(address)
-    content_tag(:div, address, class: 'text-monospace')
+    content_tag(:code, address, class: 'text-monospace')
   end
 
   def download_link(url = nil, size = nil)
