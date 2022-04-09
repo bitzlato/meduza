@@ -19,6 +19,12 @@ ru:
       pending_analysis:
         one: Элемент очереди
         many: Очередь на проверку
+      danger_transaction:
+        one: Опасная транзакция
+        many: Опасные транзакции
+      danger_address:
+        one: Опасный адрес
+        many: Опасные адреса
     attributes:
       transaction_analysis:
         created_at: Создано
