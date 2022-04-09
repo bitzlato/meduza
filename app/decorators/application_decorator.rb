@@ -152,7 +152,9 @@ class ApplicationDecorator < Draper::Decorator
   def present_address(address)
     return h.middot if address.nil?
 
-    h.present_address address
+    h.link_to h.address_analyses_path(q: { address_eq: txid }) do
+      h.present_address address
+    end
   end
 
   def present_time(time)
@@ -167,6 +169,8 @@ class ApplicationDecorator < Draper::Decorator
   def present_txid(txid)
     return h.middot if txid.nil?
 
-    h.content_tag :code, txid, class: 'text-monospace'
+    h.link_to h.transaction_analyses_path(q: { txid_eq: txid }) do
+      h.content_tag :code, txid, class: 'text-monospace'
+    end
   end
 end
