@@ -80,7 +80,17 @@ class ApplicationDecorator < Draper::Decorator
   end
 
   def address_transaction
-    present_address object.address_transaction
+    if object.type == 'address'
+      h.link_to h.address_analyses_path(q: { address_eq: object.address_transaction }) do
+        present_address object.address_transaction
+      end
+    elsif object.type == 'transaction'
+      h.link_to h.transaction_analyses_path(q: { address_eq: object.address_transaction }) do
+        present_address object.address_transaction
+      end
+    else
+      present_address object.address_transaction
+    end
   end
 
   def address
