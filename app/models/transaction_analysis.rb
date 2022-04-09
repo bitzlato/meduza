@@ -52,9 +52,9 @@ class TransactionAnalysis < ApplicationRecord
     return if analysis_result.nil?
     analyzed_user.with_lock do
       if analysis_result.pass?
-        analyzed_user.danger_transactions.find_or_create_by(txid: txid, cc_code: cc_code)
-      else
         analyzed_user.danger_transactions.where(txid: txid, cc_code: cc_code).delete_all
+      else
+        analyzed_user.danger_transactions.find_or_create_by(txid: txid, cc_code: cc_code)
       end
     end
   end
