@@ -26,6 +26,10 @@ module ApplicationHelper
     'skipped' => 'badge badge-info',
   }
 
+  def pretty_json(data)
+    JSON.pretty_generate data
+  end
+
   def pending_state(state)
     content_tag :span, state, class: PENDING_CSS_CLASSES[state.to_s]
   end

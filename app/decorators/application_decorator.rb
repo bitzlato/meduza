@@ -142,6 +142,11 @@ class ApplicationDecorator < Draper::Decorator
     h.present_risk_confidence object.risk_confidence
   end
 
+  def raw_response
+    return h.middot if object.raw_response.blank?
+    h.pretty_json object.raw_response
+  end
+
   private
 
   def present_address(address)
