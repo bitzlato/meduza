@@ -152,7 +152,7 @@ class ApplicationDecorator < Draper::Decorator
   def present_address(address)
     return h.middot if address.nil?
 
-    h.link_to h.address_analyses_path(q: { address_eq: object.txid }) do
+    h.link_to h.address_analyses_path(q: { address_eq: address }) do
       h.present_address address
     end
   end
