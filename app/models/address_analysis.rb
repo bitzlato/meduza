@@ -15,14 +15,31 @@ class AddressAnalysis < ApplicationRecord
     self.risk_confidence = analysis_result.try(:risk_confidence)
   end
 
-  #after_save do
-    #analyzed_users.each do |analyze_user|
-      #danger_addresses.find_or_create_by(address: address, cc_code: cc_code)
-    #end
-  #end
+  before_create :update_analzyed_users
+
+  after_save :update_danger_addresses
 
   def self.actual?(address)
     find_by(address: address).try &:actual?
+  end
+
+  def update_danger_addresses(force_users_update = false)
+    return if analyzed_user_ids.blank?
+    return if analysis_result.nil?
+
+    if force_users_update
+      update_analzyed_users
+      update_column :analyzed_user_ids, self.analyzed_user_ids
+    end
+    AnalyzedUser.where(id: analyzed_user_ids).find_each do |analyzed_user|
+      analyzed_user.with_lock do
+        if analysis_result.pass?
+          analyzed_user.danger_addresses.where(address: address, cc_code: cc_code).destroy_all
+        else
+          analyzed_user.danger_addresses.find_or_create_by(address: address, cc_code: cc_code)
+        end
+      end
+    end
   end
 
   def actual?
@@ -46,5 +63,11 @@ class AddressAnalysis < ApplicationRecord
       meta: { sent_at: Time.zone.now }
     }
     AMQP::Queue.publish :meduza, payload, routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key)
+  end
+
+  private
+
+  def update_analzyed_users
+    self.analyzed_user_ids = Withdrawal.where(address: address, cc_code: cc_code).group(:user_id).count.keys
   end
 end
