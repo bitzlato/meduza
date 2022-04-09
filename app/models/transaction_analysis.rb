@@ -33,6 +33,10 @@ class TransactionAnalysis < ApplicationRecord
     self.risk_confidence = analysis_result.try(:risk_confidence)
   end
 
+  after_save if: :analyze_user do
+    analyze_user.danger_transactions.find_or_create_by(txid: txid, cc_code: cc_code)
+  end
+
   after_commit :update_blockchain_tx_status, on: %i[create update]
 
   def self.actual?(txid)

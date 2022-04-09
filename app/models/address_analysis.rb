@@ -15,6 +15,12 @@ class AddressAnalysis < ApplicationRecord
     self.risk_confidence = analysis_result.try(:risk_confidence)
   end
 
+  #after_save do
+    #analyzed_users.each do |analyze_user|
+      #danger_addresses.find_or_create_by(address: address, cc_code: cc_code)
+    #end
+  #end
+
   def self.actual?(address)
     find_by(address: address).try &:actual?
   end
