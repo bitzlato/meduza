@@ -31,7 +31,7 @@ class AddressAnalysis < ApplicationRecord
       update_column :analyzed_user_ids, self.analyzed_user_ids
     end
     return if analyzed_user_ids.blank?
-    AnalyzedUser.where(id: analyzed_user_ids).find_each do |analyzed_user|
+    analyzed_users.find_each do |analyzed_user|
       analyzed_user.with_lock do
         if analysis_result.pass?
           analyzed_user.danger_addresses.where(address: address, cc_code: cc_code).destroy_all
@@ -40,6 +40,10 @@ class AddressAnalysis < ApplicationRecord
         end
       end
     end
+  end
+
+  def analyzed_users
+    AnalyzedUser.where(user_id: analyzed_user_ids)
   end
 
   def actual?
