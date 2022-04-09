@@ -84,8 +84,7 @@ class TransactionAnalysis < ApplicationRecord
       Rails.logger.info("No user with #{txid} for TransactionAnalysis")
       return
     end
-    self.analyzed_user ||= AnalyzedUser.find_or_create_by!(user_id: user.id)
-    self.analyzed_user.increment! "risk_level_#{risk_level}_count"
+    self.analyzed_user = AnalyzedUser.find_or_create_by!(user_id: user.id)
   end
 
   def update_blockchain_tx_status

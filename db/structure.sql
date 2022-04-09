@@ -113,9 +113,6 @@ ALTER SEQUENCE meduza.analysis_results_id_seq OWNED BY meduza.analysis_results.i
 CREATE TABLE meduza.analyzed_users (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
-    risk_level_1_count integer DEFAULT 0 NOT NULL,
-    risk_level_2_count integer DEFAULT 0 NOT NULL,
-    risk_level_3_count integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     danger_transactions_count integer DEFAULT 0 NOT NULL,
@@ -512,27 +509,6 @@ CREATE INDEX index_analysis_results_on_address_transaction ON meduza.analysis_re
 
 
 --
--- Name: index_analyzed_users_on_risk_level_1_count; Type: INDEX; Schema: meduza; Owner: -
---
-
-CREATE INDEX index_analyzed_users_on_risk_level_1_count ON meduza.analyzed_users USING btree (risk_level_1_count);
-
-
---
--- Name: index_analyzed_users_on_risk_level_2_count; Type: INDEX; Schema: meduza; Owner: -
---
-
-CREATE INDEX index_analyzed_users_on_risk_level_2_count ON meduza.analyzed_users USING btree (risk_level_2_count);
-
-
---
--- Name: index_analyzed_users_on_risk_level_3_count; Type: INDEX; Schema: meduza; Owner: -
---
-
-CREATE INDEX index_analyzed_users_on_risk_level_3_count ON meduza.analyzed_users USING btree (risk_level_3_count);
-
-
---
 -- Name: index_analyzed_users_on_user_id_uniq; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -695,6 +671,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220409154959'),
 ('20220409155203'),
 ('20220409155548'),
-('20220409185430');
+('20220409185430'),
+('20220409191607');
 
 
