@@ -47,7 +47,7 @@ CREATE TABLE meduza.address_analyses (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     cc_code character varying NOT NULL,
-    analyzed_user_ids jsonb
+    analyzed_user_ids jsonb DEFAULT '[]'::jsonb NOT NULL
 );
 
 
