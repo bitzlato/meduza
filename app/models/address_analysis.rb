@@ -24,13 +24,13 @@ class AddressAnalysis < ApplicationRecord
   end
 
   def update_danger_addresses(force_users_update = false)
-    return if analyzed_user_ids.blank?
     return if analysis_result.nil?
 
     if force_users_update
       update_analzyed_users
       update_column :analyzed_user_ids, self.analyzed_user_ids
     end
+    return if analyzed_user_ids.blank?
     AnalyzedUser.where(id: analyzed_user_ids).find_each do |analyzed_user|
       analyzed_user.with_lock do
         if analysis_result.pass?
