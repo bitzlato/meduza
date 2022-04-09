@@ -5,7 +5,7 @@ module Daemons
   class LegacyPender < Base
     @sleep_time = 1.seconds
     LIMIT = 10
-    MAX_PENDING_QUEUE_SIZE = 5
+    MAX_PENDING_QUEUE_SIZE = ValegaClient::MAX_ELEMENTS
     CHECK_START_DATE = Date.parse('01-01-2022')
 
     def process
