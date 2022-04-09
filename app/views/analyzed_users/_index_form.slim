@@ -3,9 +3,9 @@
 ul.nav.nav-pills.mb-3
   li.nav-item
     = link_to t('.high_risk_transactions'), 
-      url_for(q: clean_q.merge(danger_transactions_count_gt: 0)), class: active_class('nav-link', qq[:danger_transactions_count_gt])
+      url_for(q: clean_q.merge(danger_transactions_count_gt: 0, s: 'danger_transactions_count+desc')), class: active_class('nav-link', qq[:danger_transactions_count_gt])
   li.nav-item
     = link_to t('.high_risk_addresses'), 
-      url_for(q: clean_q.merge(danger_addresses_count_gt: 0)), class: active_class('nav-link', qq[:danger_addresses_count_gt])
+      url_for(q: clean_q.merge(danger_addresses_count_gt: 0, s: 'danger_addresses_count+desc')), class: active_class('nav-link', qq[:danger_addresses_count_gt])
   li.nav-item
     = link_to t('.all'), url_for(q: clean_q), class: active_class('nav-link', qq.blank?)
