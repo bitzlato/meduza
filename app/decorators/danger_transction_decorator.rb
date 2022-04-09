@@ -1,3 +1,3 @@
-class DangerTranscationDecorator < ApplicationDecorator
+class DangerTransactionDecorator < ApplicationDecorator
   delegate_all
 end
