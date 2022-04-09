@@ -7,4 +7,4 @@
   - if block_given? 
     = yield f
   = f.button :submit, class: 'btn btn-primary'
-  = link_to t('reset'), analyzed_users_path, class: 'btn btn-secondary ml-2' if params[:q].present?
+  = link_to t('reset'), url_for, class: 'btn btn-secondary ml-2' if params[:q].present?
