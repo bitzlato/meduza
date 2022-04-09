@@ -7,7 +7,7 @@ class AnalyzedUserDecorator < ApplicationDecorator
 
   def danger_transactions_count
     h.link_to object.danger_transactions_count,
-      h.transaction_analysed_path(q: { risk_level_eq: ValegaAnalyzer::DANGER_RISK_LEVEL, risk_confidence_eq: ValegaAnalyzer::DANGER_RISK_CONFIDENCE })
+      h.transaction_analyses_path(q: { risk_level_eq: ValegaAnalyzer::DANGER_RISK_LEVEL, risk_confidence_eq: ValegaAnalyzer::DANGER_RISK_CONFIDENCE })
   end
 
   def last_risked_transaction_analysis
