@@ -8,7 +8,6 @@ class SummaryQuery
   SUMMARY_MODELS = {
     TransactionAnalysis => { grouped_by: %i[direction risk_level], aggregations: ['count(id)'] },
     AddressAnalysis     => { grouped_by: %i[risk_level], aggregations: ['count(risk_level)'] },
-    AnalyzedUser        => { grouped_by: %w[danger_transactions_count>0 danger_addresses_count>0], aggregations: ['count(analyzed_users.id)'], order: '' },
     AnalysisResult      => { grouped_by: %w[type cc_code risk_confidence risk_level], aggregations: [:risk_confidence, :risk_level, 'count(id)'] },
     PendingAnalysis     => { grouped_by: %w[state cc_code source type], aggregations: ['count(id)'] },
     DangerTransaction   => { grouped_by: %w[cc_code], aggregations: ['count(id)'] },
