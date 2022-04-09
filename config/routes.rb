@@ -17,4 +17,6 @@ Rails.application.routes.draw do
   resources :analysis_results, only: [:index, :show]
   resources :transaction_sources, only: [:index, :show]
   resources :pending_analyses, only: [:index, :show]
+  resources :danger_transactions, only: [:index, :show]
+  resources :danger_addresses, only: [:index, :show]
 end
