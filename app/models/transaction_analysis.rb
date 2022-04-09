@@ -33,7 +33,7 @@ class TransactionAnalysis < ApplicationRecord
     self.risk_confidence = analysis_result.try(:risk_confidence)
   end
 
-  after_save :upate_danger_transaction, if: :analyzed_user
+  after_save :update_danger_transaction, if: :analyzed_user
   after_commit :update_blockchain_tx_status, on: %i[create update]
 
   def self.actual?(txid)
@@ -47,7 +47,7 @@ class TransactionAnalysis < ApplicationRecord
     [cc_code, txid, 'risk_level:' + risk_level, risk_msg, entity_name].join('; ')
   end
 
-  def upate_danger_transaction
+  def update_danger_transaction
     return if analyzed_user.nil?
     return if analysis_result.nil?
     analyzed_user.with_lock do
