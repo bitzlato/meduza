@@ -118,7 +118,7 @@ CREATE TABLE meduza.analyzed_users (
     risk_level_3_count integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    danger_transctions_count integer DEFAULT 0 NOT NULL,
+    danger_transactions_count integer DEFAULT 0 NOT NULL,
     danger_addresses_count integer DEFAULT 0 NOT NULL
 );
 
@@ -694,6 +694,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220409154914'),
 ('20220409154959'),
 ('20220409155203'),
-('20220409155548');
+('20220409155548'),
+('20220409185430');
 
 
