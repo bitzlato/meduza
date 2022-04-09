@@ -6,7 +6,7 @@ module Daemons
     @sleep_time = 1.seconds
     LIMIT = 10
     MAX_PENDING_QUEUE_SIZE = 5
-    CHECK_START_DATE = Date.parse('01-02-2022')
+    CHECK_START_DATE = Date.parse('01-01-2022')
 
     def process
       logger.tagged('LegacyPender') do
