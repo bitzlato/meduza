@@ -5,12 +5,10 @@ class AnalyzedUserDecorator < ApplicationDecorator
     %i[user_id updated_at] + (1..3).map { |risk_level| "risk_level_#{risk_level}_count" } + %i[danger_transactions_count danger_addresses_count]
   end
 
-  #(1..3).each do |risk_level|
-    #method = "risk_level_#{risk_level}_count"
-    #define_method method do
-      #h.link_to object.send(method), h.transaction_analyses_path(q: { analyzed_user_id_eq: object.id, risk_level_eq: risk_level })
-    #end
-  #end
+  def danger_transactions_count
+    h.link_to object.danger_transactions_count,
+      h.transaction_analysed_path(q: { risk_level_eq: ValegaAnalyzer::DANGER_RISK_LEVEL, risk_confidence_eq: ValegaAnalyzer::DANGER_RISK_CONFIDENCE })
+  end
 
   def last_risked_transaction_analysis
     h.render 'transaction_analysis_brief', transaction_analysis: object.last_risked_transaction_analysis if object.last_risked_transaction_analysis
