@@ -6,7 +6,7 @@ class AnalysisResultDecorator < ApplicationDecorator
   end
 
   def self.attributes
-    object_class.attribute_names.map(&:to_sym) - %[raw_response]
+    object_class.attribute_names.map(&:to_sym) - %i[raw_response]
   end
 
   def report_url
