@@ -33,6 +33,7 @@ class TransactionAnalysis < ApplicationRecord
     self.risk_confidence = analysis_result.try(:risk_confidence)
   end
 
+  after_save :upate_danger_transaction, if: :analyzed_user
   after_commit :update_blockchain_tx_status, on: %i[create update]
 
   def self.actual?(txid)
@@ -44,6 +45,18 @@ class TransactionAnalysis < ApplicationRecord
 
   def to_s
     [cc_code, txid, 'risk_level:' + risk_level, risk_msg, entity_name].join('; ')
+  end
+
+  def upate_danger_transaction
+    return if analyzed_user.nil?
+    return if analysis_result.nil?
+    analyzed_user.with_lock do
+      if analysis_result.pass?
+        analyzed_user.danger_transactions.find_or_create_by(txid: txid, cc_code: cc_code)
+      else
+        analyzed_user.danger_transactions.where(txid: txid, cc_code: cc_code).delete_all
+      end
+    end
   end
 
   def detect_direction
@@ -71,7 +84,7 @@ class TransactionAnalysis < ApplicationRecord
       Rails.logger.info("No user with #{txid} for TransactionAnalysis")
       return
     end
-    self.analyzed_user = AnalyzedUser.find_or_create_by!(user_id: user.id)
+    self.analyzed_user ||= AnalyzedUser.find_or_create_by!(user_id: user.id)
     self.analyzed_user.increment! "risk_level_#{risk_level}_count"
   end
 

@@ -2,6 +2,9 @@ class AnalyzedUser < ApplicationRecord
   belongs_to :user
   upsert_keys [:user_id]
 
+  has_many :danger_addresses
+  has_many :danger_transactions
+
   # has_many :transaction_analyses
 
   def last_risked_transaction_analysis

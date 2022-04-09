@@ -2,7 +2,7 @@ class AnalyzedUserDecorator < ApplicationDecorator
   delegate_all
 
   def self.table_columns
-    %i[user_id updated_at] + (1..3).map { |risk_level| "risk_level_#{risk_level}_count" } + %i[last_risked_transaction_analysis]
+    %i[user_id updated_at] + (1..3).map { |risk_level| "risk_level_#{risk_level}_count" } + %i[danger_transactions_count danger_addresses_count]
   end
 
   #(1..3).each do |risk_level|

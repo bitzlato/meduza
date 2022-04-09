@@ -46,7 +46,8 @@ CREATE TABLE meduza.address_analyses (
     analysis_result_id bigint NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    cc_code character varying NOT NULL
+    cc_code character varying NOT NULL,
+    analyzed_user_ids jsonb DEFAULT '[]'::jsonb NOT NULL
 );
 
 
@@ -116,7 +117,9 @@ CREATE TABLE meduza.analyzed_users (
     risk_level_2_count integer DEFAULT 0 NOT NULL,
     risk_level_3_count integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    danger_transctions_count integer DEFAULT 0 NOT NULL,
+    danger_addresses_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -137,6 +140,72 @@ CREATE SEQUENCE meduza.analyzed_users_id_seq
 --
 
 ALTER SEQUENCE meduza.analyzed_users_id_seq OWNED BY meduza.analyzed_users.id;
+
+
+--
+-- Name: danger_addresses; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.danger_addresses (
+    id bigint NOT NULL,
+    analyzed_user_id bigint NOT NULL,
+    address character varying NOT NULL,
+    cc_code character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: danger_addresses_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.danger_addresses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: danger_addresses_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.danger_addresses_id_seq OWNED BY meduza.danger_addresses.id;
+
+
+--
+-- Name: danger_transactions; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.danger_transactions (
+    id bigint NOT NULL,
+    analyzed_user_id bigint NOT NULL,
+    txid character varying NOT NULL,
+    cc_code character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: danger_transactions_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.danger_transactions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: danger_transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.danger_transactions_id_seq OWNED BY meduza.danger_transactions.id;
 
 
 --
@@ -293,6 +362,20 @@ ALTER TABLE ONLY meduza.analyzed_users ALTER COLUMN id SET DEFAULT nextval('medu
 
 
 --
+-- Name: danger_addresses id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.danger_addresses ALTER COLUMN id SET DEFAULT nextval('meduza.danger_addresses_id_seq'::regclass);
+
+
+--
+-- Name: danger_transactions id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.danger_transactions ALTER COLUMN id SET DEFAULT nextval('meduza.danger_transactions_id_seq'::regclass);
+
+
+--
 -- Name: pending_analyses id; Type: DEFAULT; Schema: meduza; Owner: -
 --
 
@@ -338,6 +421,22 @@ ALTER TABLE ONLY meduza.analyzed_users
 
 
 --
+-- Name: danger_addresses danger_addresses_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.danger_addresses
+    ADD CONSTRAINT danger_addresses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: danger_transactions danger_transactions_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.danger_transactions
+    ADD CONSTRAINT danger_transactions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: pending_analyses pending_analyses_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
 --
 
@@ -375,6 +474,20 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: danger_addresses_uniq_index; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX danger_addresses_uniq_index ON meduza.danger_addresses USING btree (analyzed_user_id, cc_code, address);
+
+
+--
+-- Name: danger_transactions_uniq_index; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX danger_transactions_uniq_index ON meduza.danger_transactions USING btree (analyzed_user_id, cc_code, txid);
 
 
 --
@@ -427,6 +540,34 @@ CREATE UNIQUE INDEX index_analyzed_users_on_user_id_uniq ON meduza.analyzed_user
 
 
 --
+-- Name: index_danger_addresses_on_address; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_danger_addresses_on_address ON meduza.danger_addresses USING btree (address);
+
+
+--
+-- Name: index_danger_addresses_on_analyzed_user_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_danger_addresses_on_analyzed_user_id ON meduza.danger_addresses USING btree (analyzed_user_id);
+
+
+--
+-- Name: index_danger_transactions_on_analyzed_user_id; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_danger_transactions_on_analyzed_user_id ON meduza.danger_transactions USING btree (analyzed_user_id);
+
+
+--
+-- Name: index_danger_transactions_on_txid; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE INDEX index_danger_transactions_on_txid ON meduza.danger_transactions USING btree (txid);
+
+
+--
 -- Name: index_pending_analyses_on_analysis_result_id; Type: INDEX; Schema: meduza; Owner: -
 --
 
@@ -469,6 +610,14 @@ CREATE INDEX pending_analysis_adress_transaction_idx ON meduza.pending_analyses 
 
 
 --
+-- Name: danger_transactions fk_rails_0e1e5035fa; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.danger_transactions
+    ADD CONSTRAINT fk_rails_0e1e5035fa FOREIGN KEY (analyzed_user_id) REFERENCES meduza.analyzed_users(id);
+
+
+--
 -- Name: pending_analyses fk_rails_27fc4b529c; Type: FK CONSTRAINT; Schema: meduza; Owner: -
 --
 
@@ -490,6 +639,14 @@ ALTER TABLE ONLY meduza.address_analyses
 
 ALTER TABLE ONLY meduza.transaction_analyses
     ADD CONSTRAINT fk_rails_760f842201 FOREIGN KEY (analyzed_user_id) REFERENCES meduza.analyzed_users(id);
+
+
+--
+-- Name: danger_addresses fk_rails_819dc63553; Type: FK CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.danger_addresses
+    ADD CONSTRAINT fk_rails_819dc63553 FOREIGN KEY (analyzed_user_id) REFERENCES meduza.analyzed_users(id);
 
 
 --
@@ -533,6 +690,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220407121620'),
 ('20220408133353'),
 ('20220408151446'),
-('20220408181513');
+('20220408181513'),
+('20220409154914'),
+('20220409154959'),
+('20220409155203'),
+('20220409155548');
 
 
