@@ -3,7 +3,7 @@ h2 Топ-#{DashboardController::LIMIT} плохих парней
   .col-md-6
     = render 'analyzed_users/analyzed_users', analyzed_users: analyzed_users
   .col-md-6
-    .alert class=(pending_queue_size < 10 ? 'alert-success' : (pending_queue_size < 50 ? 'alert-warning' : 'alert-danger'))
+    .alert class=(pending_queue_size < 20 ? 'alert-success' : (pending_queue_size < 50 ? 'alert-warning' : 'alert-danger'))
       div
         span.mr-2 Очередь на проверку
         b
