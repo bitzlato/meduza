@@ -37,7 +37,7 @@ module AMQP
 
     def freeze_user!(btc, user)
       params = {
-        expire: FREEZE_EXPIRE.from_now.to_i,
+        expire: WithdrawalRpcCallback::FREEZE_EXPIRE.from_now.to_i,
         reason: "Грязная входная транзакция ##{btc.txid}",
         type: 'all',
         unfreeze: false
