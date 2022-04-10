@@ -48,6 +48,10 @@ class PendingAnalysis < ApplicationRecord
     PendingAnalysis.group(:source).count.keys
   end
 
+  def to_s
+    address_transaction
+  end
+
   private
 
   def log_record!(record)
