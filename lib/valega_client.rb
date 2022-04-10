@@ -29,7 +29,9 @@ class ValegaClient
     end
   end
 
-  MAX_ELEMENTS = 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
+  # Вообще 10, но что-то она тормозит, спрашиваем по 2
+  # MAX_ELEMENTS = 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
+  MAX_ELEMENTS = 2 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
   URL = 'https://valegachainapis.com/'.freeze
   HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }.freeze
 

@@ -76,6 +76,7 @@ module Daemons
           .new
           .analyze(sliced.map(&:address_transaction), cc_code)
           .each do |analysis_result|
+          logger.info "process result #{analysis_result.address_transaction}"
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
           logger.info "Done result #{analysis_result.address_transaction}"
           if analysis_result.transaction?
