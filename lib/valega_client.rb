@@ -109,6 +109,7 @@ class ValegaClient
   end
 
   def raise_error!(data)
+    raise UnknownError, data.to_json unless data.key? 'error'
     error_key = data.fetch('error')
     if ERRORS.key? error_key
       Rails.logger.error data.fetch('message')
