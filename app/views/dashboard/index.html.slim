@@ -9,11 +9,30 @@ h2 Топ-#{DashboardController::LIMIT} плохих парней
         b
           = link_to pending_queue_size, pending_analyses_path
       div
-        span.mr-2 Последняя проверка
+        span.mr-2 Последняя совершённая проверка
         - last = PendingAnalysis.done.last
         - if last.nil?
           em ЕЩЕ НЕБЫЛО
         - else
           b.ml-2
-            = link_to time_ago_in_words(PendingAnalysis.done.last.updated_at), pending_analyses_path
+            = link_to time_ago_in_words(PendingAnalysis.done.last.updated_at), pending_analysis_path(last)
+      div
+        span.mr-2 Последняя пропущенная проверка
+        - last = PendingAnalysis.skipped.last
+        - if last.nil?
+          em ЕЩЕ НЕБЫЛО
+        - else
+          b.ml-2
+            = link_to time_ago_in_words(PendingAnalysis.skipped.last.updated_at), pending_analysis_path(last)
+
+      div
+        span.mr-2 Последняя проверка с ошибкой
+        - last = PendingAnalysis.errored.last
+        - if last.nil?
+          em ЕЩЕ НЕБЫЛО
+        - else
+          b.ml-2
+            = link_to time_ago_in_words(PendingAnalysis.errored.last.updated_at), pending_analysis_path(last)
+
+
     = render 'available_currencies'
