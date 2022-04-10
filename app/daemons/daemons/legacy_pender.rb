@@ -8,6 +8,8 @@ module Daemons
     MAX_PENDING_QUEUE_SIZE = ValegaClient::MAX_ELEMENTS
     CHECK_START_DATE = Date.parse('01-01-2022')
 
+    PROCESS_ALL_WITHDRAWALS = true
+
     def process
       logger.tagged('LegacyPender') do
         process_transactions
@@ -29,6 +31,10 @@ module Daemons
           .order(:id)
           .limit(LIMIT)
           .each do |withdrawal|
+          if PROCESS_ALL_WITHDRAWALS
+            withdrawal.pending! aml_skipped_at: Time.zone.now
+            next
+          end
           next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
           if PendingAnalysis.pending.exists?(address_transaction: withdrawal.address, cc_code: withdrawal.cc_code)
             logger.info("PendingAnalysis already exists #{withdrawal.address}")
