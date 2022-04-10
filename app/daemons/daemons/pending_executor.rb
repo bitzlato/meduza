@@ -10,7 +10,7 @@ module Daemons
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
-      logger.tagger 'PendingExecutor' do
+      logger.tagged 'PendingExecutor' do
         logger.info("Start process")
         PendingAnalysis.group(:cc_code).count.keys.each do |cc_code|
           logger.debug("Process #{cc_code}")
