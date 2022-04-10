@@ -7,7 +7,7 @@ class ValegaClient
   # 5 секунд ограничение от valega, добавляем еще 1 секунду на всякий случай
   PAUSE_BETWEEN_REQUESTS = 6.seconds
 
-  READ_TIMEOUT = 60 # seconds
+  READ_TIMEOUT = 2 # seconds
 
   Error = Class.new StandardError
   UnknownError = Class.new Error
@@ -31,9 +31,7 @@ class ValegaClient
     end
   end
 
-  # Вообще 10, но что-то она тормозит, спрашиваем по 2
-  # MAX_ELEMENTS = 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
-  MAX_ELEMENTS = 2 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
+  MAX_ELEMENTS = 10 # https://www.valegachain.com/shield_platform/api/realtime_risk_monitor#risk_analysis
   URL = 'https://valegachainapis.com/'.freeze
   HEADERS = { "Content-Type" => "application/json", "Cache-control" => "no-cache" }.freeze
 
