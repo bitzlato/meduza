@@ -8,7 +8,7 @@ module Daemons
     MAX_PENDING_QUEUE_SIZE = ValegaClient::MAX_ELEMENTS
     CHECK_START_DATE = Date.parse('01-01-2022')
 
-    PROCESS_ALL_WITHDRAWALS = true
+    SKIP_AML = false
 
     def process
       logger.tagged('LegacyPender') do
@@ -31,7 +31,7 @@ module Daemons
           .order(:id)
           .limit(LIMIT)
           .each do |withdrawal|
-          if PROCESS_ALL_WITHDRAWALS
+          if SKIP_AML
             withdrawal.pending! aml_skipped_at: Time.zone.now
             next
           end

@@ -8,6 +8,8 @@ module Daemons
 
     @sleep_time = 2.seconds
 
+    SKIP_ALL = true
+
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
       logger.tagged 'PendingExecutor' do
@@ -27,7 +29,10 @@ module Daemons
           end
           logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
           pending_analises_for_valega = check_existen pending_analises
-          if AML_ANALYZABLE_CODES.include? cc_code
+          if SKIP_ALL
+            logger.info("Skip ALL")
+            skip_all pending_analises_for_valega
+          elsif AML_ANALYZABLE_CODES.include? cc_code
             logger.info("Check pending analises in valega #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
             check_in_valega pending_analises_for_valega, pending_analises, cc_code
           else
