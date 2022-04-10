@@ -77,6 +77,7 @@ module Daemons
           .analyze(sliced.map(&:address_transaction), cc_code)
           .each do |analysis_result|
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
+          logger.info "Done result #{analysis_result.address_transaction}"
           if analysis_result.transaction?
             done_transaction_analisis pending_analisis, analysis_result
           elsif analysis_result.address?
@@ -108,6 +109,8 @@ module Daemons
       pending_analisis.done!
       rpc_callback pending_analisis, address_analysis_id: address_analysis.id, from: :done_address_analisis if pending_analisis.callback?
     rescue ActiveRecord::RecordNotUnique => e
+      logger.error "done_address_analisis #{pending_analisis.id} -> #{e}"
+      report_exception e, true, { pending_analisis: pending_analisis, analysis_result: analysis_result }
       retry if e.record.is_a? AddressAnalysis
     end
 
@@ -125,6 +128,8 @@ module Daemons
 
       # TODO analysis_result.address? создавать AddressAnalysis
     rescue ActiveRecord::RecordNotUnique => e
+      logger.error "done_transaction_analisis #{pending_analisis.id} -> #{e}"
+      report_exception e, true, { pending_analisis: pending_analisis, analysis_result: analysis_result }
       retry if e.record.is_a? TransactionAnalysis
     end
 
