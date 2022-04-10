@@ -1,5 +1,21 @@
-p Валюты поддерживаемые Valega: #{VALEGA_ASSETS_CODES.to_a.join(', ')}
-p Валюты на эфире: #{ETHEREUM_CODES.to_a.join(', ')}
-p Валюты в bitcoin-подобных блокчейнах: #{BITCOIN_FORKS.to_a.join(', ')}
-p Валюты поддерживаемые нами: #{OUR_CODES.to_a.join(', ')}
-p Валюты проверяемые на AML в Velaga: #{AML_ANALYZABLE_CODES.to_a.join(', ')}
+dl.row
+  dt.col-sm-3 Валюты поддерживаемые Valega:
+  dl.col-sm-9
+    code= VALEGA_ASSETS_CODES.to_a.sort.join(', ')
+
+  dt.col-sm-3 Валюты проверяемые на AML в Velaga
+  dl.col-sm-9 
+    code= AML_ANALYZABLE_CODES.to_a.sort.join(', ')
+
+  dt.col-sm-3 Валюты на эфире
+  dl.col-sm-9
+    code= ETHEREUM_CODES.to_a.sort.join(', ')
+
+  dt.col-sm-3 Валюты в bitcoin-подобных блокчейнах
+  dl.col-sm-9
+    code= BITCOIN_FORKS.to_a.sort.join(', ')
+
+  dt.col-sm-3 Валюты поддерживаемые нами
+  dl.col-sm-9
+    code= OUR_CODES.to_a.sort.join(', ')
+

@@ -3,6 +3,17 @@ module ApplicationHelper
     flag ? "#{css_classes} active" : css_classes
   end
 
+  def title_with_counter(title, count, hide_zero: true, css_class: nil)
+    buffer = ''
+    buffer += title
+
+    buffer += ' '
+    text = hide_zero && count.to_i.zero? ? '' : count.to_s
+    buffer += content_tag(:span, "(#{text})", class: css_class, data: { title_counter: true, count: count.to_i }) if count > 0
+
+    buffer.html_safe
+  end
+
   def back_link(url = nil)
     link_to ('&larr; ' + t('.back')).html_safe, url || root_url
   end
