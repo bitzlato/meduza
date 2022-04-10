@@ -63,7 +63,7 @@ module Daemons
                 routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
                 reply_to: AMQP::Config.binding(:legacy_withdrawal_rpc_callback).fetch(:routing_key)
 
-              withdrawal.update_column :meduza_status, { status: :pended, pended_at: Time.zone.iso8601 }
+              withdrawal.update_column :meduza_status, { status: :pended, pended_at: Time.zone.now.iso8601 }
             end
           end
         end.count
