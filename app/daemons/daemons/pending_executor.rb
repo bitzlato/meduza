@@ -72,6 +72,7 @@ module Daemons
 
     def check_in_valega(pending_analises_for_valega, pending_analises, cc_code)
       pending_analises_for_valega.each_slice(ValegaClient::MAX_ELEMENTS) do |sliced|
+        logger.info "Check in valega #{sliced.join(', ')}"
         ValegaAnalyzer
           .new
           .analyze(sliced.map(&:address_transaction), cc_code)

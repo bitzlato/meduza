@@ -7,6 +7,8 @@ class ValegaClient
   # 5 секунд ограничение от valega, добавляем еще 1 секунду на всякий случай
   PAUSE_BETWEEN_REQUESTS = 6.seconds
 
+  READ_TIMEOUT = 10 # seconds
+
   Error = Class.new StandardError
   UnknownError = Class.new Error
   TooManyRequests = Class.new Error
@@ -58,7 +60,7 @@ class ValegaClient
   def risk_analysis(address_transactions:, asset_type_id: nil, show_details: nil)
     start_request
     address_transactions = Array(address_transactions)
-    conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
+    conn = Faraday.new(url: URL, headers: HEADERS, request: { timeout: READ_TIMEOUT }) do |conn|
       conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
       conn.request :authorization, 'Bearer', authorization.access_token
     end
