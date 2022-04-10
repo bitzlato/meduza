@@ -23,7 +23,8 @@ module AMQP
         unless action == 'pass'
           logger.info("Block btx #{btx.id}")
           if btx.deposit_user.present?
-            freeze_user! btx, btx.deposit_user
+            # TODO Пока не блочим
+            # freeze_user! btx, btx.deposit_user
           elsif btx.withdraw_user.present?
             report_exception StandardError.new('Невалидная транзакция с списывающим пользователем'), true, { blockchain_tx_id: btx.id }
           else
@@ -35,14 +36,14 @@ module AMQP
 
     private
 
-    def freeze_user!(btc, user)
+    def freeze_user!(btx, user)
       params = {
         expire: WithdrawalRpcCallback::FREEZE_EXPIRE.from_now.to_i,
-        reason: "Грязная входная транзакция ##{btc.txid}",
+        reason: "Грязная входная транзакция ##{btx.txid}",
         type: 'all',
         unfreeze: false
       }
-      response = BitzlatoAPI.new.freeze_user(btc.user_id, params)
+      response = BitzlatoAPI.new.freeze_user(user.id, params)
 
       if response.success?
         logger.info { "User ##{user.id} has been freezed" }
