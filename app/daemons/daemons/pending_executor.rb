@@ -10,38 +10,40 @@ module Daemons
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
-      Rails.logger.info("[PendingExecutor] Start process")
-       PendingAnalysis.group(:cc_code).count.keys.each do |cc_code|
-        Rails.logger.debug("[PendingExecutor] Process #{cc_code}")
-        pending_analises = PendingAnalysis
-          .pending
-          .where(cc_code: cc_code)
-          .order(:id)
-          .limit(LIMIT)
+      logger.tagger 'PendingExecutor' do
+        logger.info("Start process")
+        PendingAnalysis.group(:cc_code).count.keys.each do |cc_code|
+          logger.debug("Process #{cc_code}")
+          pending_analises = PendingAnalysis
+            .pending
+            .where(cc_code: cc_code)
+            .order(:id)
+            .limit(LIMIT)
 
-        # Докидываем на проверку старые транзакции
-        unless pending_analises.any?
-          Rails.logger.debug("[PendingExecutor] No new pending transactions for cc_code=#{cc_code}")
-          next
+          # Докидываем на проверку старые транзакции
+          unless pending_analises.any?
+            logger.debug("No new pending transactions for cc_code=#{cc_code}")
+            next
+          end
+          logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
+          pending_analises_for_valega = check_existen pending_analises
+          if AML_ANALYZABLE_CODES.include? cc_code
+            logger.info("Check pending analises in valega #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
+            check_in_valega pending_analises_for_valega, pending_analises, cc_code
+          else
+            logger.info("Skip pending analises #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
+            skip_all pending_analises_for_valega
+          end
+          break unless @running
+        rescue ValegaClient::TooManyRequests => err
+          report_exception err, true
+          logger.error "Retry: #{err.message}"
+          sleep 10
+          retry
+        rescue StandardError => e
+          report_exception e, true, cc_code: cc_code
+          sleep 10
         end
-        Rails.logger.info("[PendingExecutor] Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
-        pending_analises_for_valega = check_existen pending_analises
-        if AML_ANALYZABLE_CODES.include? cc_code
-          Rails.logger.info("[PendingExecutor] Check pending analises in valega #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
-          check_in_valega pending_analises_for_valega, pending_analises, cc_code
-        else
-          Rails.logger.info("[PendingExecutor] Skip pending analises #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
-          skip_all pending_analises_for_valega
-        end
-        break unless @running
-      rescue ValegaClient::TooManyRequests => err
-        report_exception err, true
-        Rails.logger.error "[PendingExecutor] Retry: #{err.message}"
-        sleep 10
-        retry
-      rescue StandardError => e
-        report_exception e, true, cc_code: cc_code
-        sleep 10
       end
     end
 
@@ -58,7 +60,7 @@ module Daemons
       pending_analises.reject do |pending_analisis|
         transaction_analysis = TransactionAnalysis.find_by(cc_code: pending_analisis.cc_code, txid: pending_analisis.address_transaction)
         if transaction_analysis.present? && transaction_analysis.analysis_result.present?
-          Rails.logger.info("[PendingExecutor] Push saved transaction_analysis #{transaction_analysis.as_json}")
+          logger.info("Push saved transaction_analysis #{transaction_analysis.as_json}")
           pending_analisis.update! analysis_result: transaction_analysis.analysis_result
           pending_analisis.done!
           rpc_callback pending_analisis, transaction_analysis_id: transaction_analysis.id, from: :check_existen if pending_analisis.callback?
@@ -145,7 +147,7 @@ module Daemons
         pending_analisis_state: pending_analisis.state
       }.merge extra
       properties = { correlation_id: pending_analisis.correlation_id, routing_key: pending_analisis.reply_to }
-      Rails.logger.info "[PendingExecutor] rpc_callback with payload #{payload} and properties #{properties}"
+      logger.info "rpc_callback with payload #{payload} and properties #{properties}"
       AMQP::Queue.publish :meduza, payload, properties
       pending_analisis.touch :replied_at
     end
