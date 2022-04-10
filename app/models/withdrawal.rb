@@ -11,7 +11,7 @@ class Withdrawal < ApplicationRecord
 
   def pending!(meduza_status)
     with_lock do
-      raise WrongStatus, "with_lock #{id} wrong status #{status}, skip" unless status == 'aml'
+      raise WrongStatus, "with_lock wrong status #{status}, skip" unless status == 'aml'
       update_columns status: :pending, meduza_status: meduza_status
     end
   end
