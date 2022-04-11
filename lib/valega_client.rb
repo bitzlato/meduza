@@ -7,7 +7,7 @@ class ValegaClient
   # 5 секунд ограничение от valega, добавляем еще 1 секунду на всякий случай
   PAUSE_BETWEEN_REQUESTS = 6.seconds
 
-  READ_TIMEOUT = 5 # seconds
+  READ_TIMEOUT = 300 # seconds
 
   Error = Class.new StandardError
   UnknownError = Class.new Error
