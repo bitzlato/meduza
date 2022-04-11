@@ -3,6 +3,15 @@ h2 Топ-#{DashboardController::LIMIT} плохих парней
   .col-md-6
     = render 'analyzed_users/analyzed_users', analyzed_users: analyzed_users
   .col-md-6
+    - if Flipper.enabled? :skip_aml
+      .alert.alert-warning 
+        div AML-проверка отключена
+        = link_to 'Включить', '/flipper/features/skip_aml'
+    - else
+      .alert.alert-success
+        div AML-проверка включена
+        = link_to 'Отключить', '/flipper/features/skip_aml'
+
     .alert class=(pending_queue_size < 20 ? 'alert-success' : (pending_queue_size < 50 ? 'alert-warning' : 'alert-danger'))
       div
         span.mr-2 Очередь на проверку
