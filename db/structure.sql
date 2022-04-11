@@ -206,6 +206,70 @@ ALTER SEQUENCE meduza.danger_transactions_id_seq OWNED BY meduza.danger_transact
 
 
 --
+-- Name: flipper_features; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.flipper_features (
+    id bigint NOT NULL,
+    key character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: flipper_features_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.flipper_features_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: flipper_features_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.flipper_features_id_seq OWNED BY meduza.flipper_features.id;
+
+
+--
+-- Name: flipper_gates; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.flipper_gates (
+    id bigint NOT NULL,
+    feature_key character varying NOT NULL,
+    key character varying NOT NULL,
+    value character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: flipper_gates_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.flipper_gates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: flipper_gates_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.flipper_gates_id_seq OWNED BY meduza.flipper_gates.id;
+
+
+--
 -- Name: pending_analyses; Type: TABLE; Schema: meduza; Owner: -
 --
 
@@ -373,6 +437,20 @@ ALTER TABLE ONLY meduza.danger_transactions ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: flipper_features id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.flipper_features ALTER COLUMN id SET DEFAULT nextval('meduza.flipper_features_id_seq'::regclass);
+
+
+--
+-- Name: flipper_gates id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.flipper_gates ALTER COLUMN id SET DEFAULT nextval('meduza.flipper_gates_id_seq'::regclass);
+
+
+--
 -- Name: pending_analyses id; Type: DEFAULT; Schema: meduza; Owner: -
 --
 
@@ -431,6 +509,22 @@ ALTER TABLE ONLY meduza.danger_addresses
 
 ALTER TABLE ONLY meduza.danger_transactions
     ADD CONSTRAINT danger_transactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: flipper_features flipper_features_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.flipper_features
+    ADD CONSTRAINT flipper_features_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: flipper_gates flipper_gates_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.flipper_gates
+    ADD CONSTRAINT flipper_gates_pkey PRIMARY KEY (id);
 
 
 --
@@ -541,6 +635,20 @@ CREATE INDEX index_danger_transactions_on_analyzed_user_id ON meduza.danger_tran
 --
 
 CREATE INDEX index_danger_transactions_on_txid ON meduza.danger_transactions USING btree (txid);
+
+
+--
+-- Name: index_flipper_features_on_key; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX index_flipper_features_on_key ON meduza.flipper_features USING btree (key);
+
+
+--
+-- Name: index_flipper_gates_on_feature_key_and_key_and_value; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX index_flipper_gates_on_feature_key_and_key_and_value ON meduza.flipper_gates USING btree (feature_key, key, value);
 
 
 --
@@ -672,6 +780,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220409155203'),
 ('20220409155548'),
 ('20220409185430'),
-('20220409191607');
+('20220409191607'),
+('20220411064518');
 
 

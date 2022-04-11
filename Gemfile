@@ -126,3 +126,9 @@ gem "after_commit_everywhere", "~> 1.1"
 gem "hashie", "~> 5.0"
 
 gem 'jwt', '~> 2.3.0'
+
+gem "flipper", "~> 0.24.0"
+
+gem "flipper-active_record", "~> 0.24.0"
+
+gem "flipper-ui", "~> 0.24.0"

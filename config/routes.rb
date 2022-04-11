@@ -19,4 +19,8 @@ Rails.application.routes.draw do
   resources :pending_analyses, only: [:index, :show]
   resources :danger_transactions, only: [:index, :show]
   resources :danger_addresses, only: [:index, :show]
+
+  Meduza::Application.routes.draw do
+    mount Flipper::UI.app(Flipper) => '/flipper'
+  end
 end

@@ -225,6 +225,16 @@ GEM
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
     ffi (1.15.4)
+    flipper (0.24.0)
+    flipper-active_record (0.24.0)
+      activerecord (>= 4.2, < 8)
+      flipper (~> 0.24.0)
+    flipper-ui (0.24.0)
+      erubi (>= 1.0.0, < 2.0.0)
+      flipper (~> 0.24.0)
+      rack (>= 1.4, < 3)
+      rack-protection (>= 1.5.3, < 2.2.0)
+      sanitize (< 7)
     formatador (0.3.0)
     fugit (1.5.2)
       et-orbi (~> 1.1, >= 1.1.8)
@@ -320,6 +330,8 @@ GEM
     rack (2.2.3)
     rack-mini-profiler (2.3.3)
       rack (>= 1.2.0)
+    rack-protection (2.1.0)
+      rack
     rack-proxy (0.7.0)
       rack
     rack-test (1.1.0)
@@ -384,6 +396,9 @@ GEM
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
+    sanitize (6.0.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.12.0)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
     sassc (2.4.0)
@@ -512,6 +527,9 @@ DEPENDENCIES
   faraday
   faraday-detailed_logger (~> 2.3)
   faraday_curl (~> 0.0.2)
+  flipper (~> 0.24.0)
+  flipper-active_record (~> 0.24.0)
+  flipper-ui (~> 0.24.0)
   guard
   guard-minitest
   guard-rubocop
