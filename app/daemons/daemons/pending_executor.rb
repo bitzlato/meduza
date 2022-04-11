@@ -8,7 +8,7 @@ module Daemons
 
     @sleep_time = 2.seconds
 
-    SKIP_ALL = true
+    SKIP_ALL = false
 
     # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
     def process
