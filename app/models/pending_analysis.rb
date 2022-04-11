@@ -35,6 +35,10 @@ class PendingAnalysis < ApplicationRecord
       transitions from: :pending, to: :skipped
     end
 
+    event :pend do
+      transitions from: :skipped, to: :pend
+    end
+
     event :error do
       transitions from: :pending, to: :errored
     end
