@@ -27,7 +27,7 @@ module Daemons
           end
           logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
           pending_analises_for_valega = check_existen pending_analises
-          if Flipper.enabled?(:skip_aml)
+          if Flipper.disabled? FEATURE_AML_CHECK
             logger.info("Skip ALL")
             skip_all pending_analises_for_valega
           elsif AML_ANALYZABLE_CODES.include? cc_code

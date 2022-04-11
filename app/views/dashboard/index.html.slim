@@ -3,45 +3,6 @@ h2 Топ-#{DashboardController::LIMIT} плохих парней
   .col-md-6
     = render 'analyzed_users/analyzed_users', analyzed_users: analyzed_users
   .col-md-6
-    - if Flipper.enabled? :skip_aml
-      .alert.alert-warning 
-        div AML-проверка отключена
-        = link_to 'Включить', '/flipper/features/skip_aml'
-    - else
-      .alert.alert-success
-        div AML-проверка включена
-        = link_to 'Отключить', '/flipper/features/skip_aml'
-
-    .alert class=(pending_queue_size < 20 ? 'alert-success' : (pending_queue_size < 50 ? 'alert-warning' : 'alert-danger'))
-      div
-        span.mr-2 Очередь на проверку
-        b
-          = link_to pending_queue_size, pending_analyses_path
-      div
-        span.mr-2 Последняя совершённая проверка
-        - last = PendingAnalysis.done.last
-        - if last.nil?
-          em ЕЩЕ НЕБЫЛО
-        - else
-          b.ml-2
-            = link_to time_ago_in_words(PendingAnalysis.done.last.updated_at), pending_analysis_path(last)
-      div
-        span.mr-2 Последняя пропущенная проверка
-        - last = PendingAnalysis.skipped.last
-        - if last.nil?
-          em ЕЩЕ НЕБЫЛО
-        - else
-          b.ml-2
-            = link_to time_ago_in_words(PendingAnalysis.skipped.last.updated_at), pending_analysis_path(last)
-
-      div
-        span.mr-2 Последняя проверка с ошибкой
-        - last = PendingAnalysis.errored.last
-        - if last.nil?
-          em ЕЩЕ НЕБЫЛО
-        - else
-          b.ml-2
-            = link_to time_ago_in_words(PendingAnalysis.errored.last.updated_at), pending_analysis_path(last)
-
-
+    = render 'features'
+    = render 'brief'
     = render 'available_currencies'

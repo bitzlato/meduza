@@ -1,0 +1,8 @@
+- if Flipper.enabled? FEATURE_AML_CHECK
+  .alert.alert-success
+    div AML-проверка включена
+    = link_to 'Отключить', '/flipper/features/' + FEATURE_AML_CHECK.to_s
+- else
+  .alert.alert-warning 
+    div AML-проверка отключена
+      = link_to 'Включить', '/flipper/features/' + FEATURE_AML_CHECK.to_s
