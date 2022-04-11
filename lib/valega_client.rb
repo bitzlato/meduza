@@ -68,6 +68,7 @@ class ValegaClient
     data = { data: address_transactions }
     data[:show_details] = show_details unless show_details.nil?
     data[:asset_type_id] = asset_type_id unless asset_type_id.nil?
+    data[:force_directories_to_safe] = ['exchange']
     logger.info("Make request realtime_risk_monitor/risk/analysis address_transactions=#{address_transactions}")
     response = conn.post '/realtime_risk_monitor/risk/analysis' do |req|
       req.body = data.to_json
