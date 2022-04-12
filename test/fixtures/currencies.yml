@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  cc_code: MyString
+  status: MyString
+
+two:
+  cc_code: MyString
+  status: MyString

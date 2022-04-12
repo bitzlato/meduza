@@ -140,6 +140,38 @@ ALTER SEQUENCE meduza.analyzed_users_id_seq OWNED BY meduza.analyzed_users.id;
 
 
 --
+-- Name: currencies; Type: TABLE; Schema: meduza; Owner: -
+--
+
+CREATE TABLE meduza.currencies (
+    id bigint NOT NULL,
+    cc_code character varying NOT NULL,
+    status character varying DEFAULT 'none'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: currencies_id_seq; Type: SEQUENCE; Schema: meduza; Owner: -
+--
+
+CREATE SEQUENCE meduza.currencies_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: currencies_id_seq; Type: SEQUENCE OWNED BY; Schema: meduza; Owner: -
+--
+
+ALTER SEQUENCE meduza.currencies_id_seq OWNED BY meduza.currencies.id;
+
+
+--
 -- Name: danger_addresses; Type: TABLE; Schema: meduza; Owner: -
 --
 
@@ -423,6 +455,13 @@ ALTER TABLE ONLY meduza.analyzed_users ALTER COLUMN id SET DEFAULT nextval('medu
 
 
 --
+-- Name: currencies id; Type: DEFAULT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.currencies ALTER COLUMN id SET DEFAULT nextval('meduza.currencies_id_seq'::regclass);
+
+
+--
 -- Name: danger_addresses id; Type: DEFAULT; Schema: meduza; Owner: -
 --
 
@@ -493,6 +532,14 @@ ALTER TABLE ONLY meduza.analysis_results
 
 ALTER TABLE ONLY meduza.analyzed_users
     ADD CONSTRAINT analyzed_users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: currencies currencies_pkey; Type: CONSTRAINT; Schema: meduza; Owner: -
+--
+
+ALTER TABLE ONLY meduza.currencies
+    ADD CONSTRAINT currencies_pkey PRIMARY KEY (id);
 
 
 --
@@ -607,6 +654,13 @@ CREATE INDEX index_analysis_results_on_address_transaction ON meduza.analysis_re
 --
 
 CREATE UNIQUE INDEX index_analyzed_users_on_user_id_uniq ON meduza.analyzed_users USING btree (user_id);
+
+
+--
+-- Name: index_currencies_on_cc_code; Type: INDEX; Schema: meduza; Owner: -
+--
+
+CREATE UNIQUE INDEX index_currencies_on_cc_code ON meduza.currencies USING btree (cc_code);
 
 
 --
@@ -781,6 +835,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220409155548'),
 ('20220409185430'),
 ('20220409191607'),
-('20220411064518');
+('20220411064518'),
+('20220412161359');
 
 
