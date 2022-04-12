@@ -359,6 +359,8 @@ GEM
     rails-i18n (6.0.0)
       i18n (>= 0.7, < 2)
       railties (>= 6.0.0, < 7)
+    rails-ujs (0.1.0)
+      railties (>= 3.1)
     railties (6.1.4.1)
       actionpack (= 6.1.4.1)
       activesupport (= 6.1.4.1)
@@ -548,6 +550,7 @@ DEPENDENCIES
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.4, >= 6.1.4.1)
   rails-i18n (~> 6.0)
+  rails-ujs (~> 0.1.0)
   ransack!
   redis (~> 4.0)
   redis-namespace (~> 1.8)

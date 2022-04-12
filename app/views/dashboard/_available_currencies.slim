@@ -1,21 +1,34 @@
-dl.row
-  dt.col-sm-3 Валюты поддерживаемые Valega:
-  dl.col-sm-9
-    code= VALEGA_ASSETS_CODES.to_a.sort.join(', ')
-
-  dt.col-sm-3 Валюты проверяемые на AML в Velaga
-  dl.col-sm-9 
-    code= AML_ANALYZABLE_CODES.to_a.sort.join(', ')
-
-  dt.col-sm-3 Валюты на эфире
-  dl.col-sm-9
-    code= ETHEREUM_CODES.to_a.sort.join(', ')
-
-  dt.col-sm-3 Валюты в bitcoin-подобных блокчейнах
-  dl.col-sm-9
-    code= BITCOIN_FORKS.to_a.sort.join(', ')
-
-  dt.col-sm-3 Валюты поддерживаемые нами
-  dl.col-sm-9
-    code= OUR_CODES.to_a.sort.join(', ')
-
+- queue = PendingAnalysis.pending.group(:cc_code).count
+table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
+  thead.thead-light
+    tr
+      th Валюта
+      th Статус
+      th Очередь
+      th Valega поддерживает
+  tr
+    td По всем
+    td
+      - all_currencies_status = Currency.group(:status).count.keys.uniq
+      - all_currencies_status = all_currencies_status.many? ? nil : all_currencies_status.first
+      = render 'status_switcher', current_status: all_currencies_status do |status|
+        = update_all_currencies_path(currency: { status: status })
+    td
+      = link_to PendingAnalysis.pending.count, pending_analyses_path(q: { status_eq: 'pending'})
+    td
+  tbody
+    - Currency.order(:cc_code).each do |currency|
+      tr
+        th.text-monospace title=currency.based
+          = currency
+        td
+          = render 'status_switcher', current_status: currency.status do |status|
+            = currency_path(currency, currency: { status: status })
+        td
+          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, status_eq: 'pending' })
+            = queue[currency.cc_code] || 0
+        td
+          - if currency.valega_support?
+            span.badge.badge-info Поддерживается
+          - else
+            span.badge.badge-secondary Нет

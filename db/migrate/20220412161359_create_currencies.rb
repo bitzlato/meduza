@@ -2,7 +2,7 @@ class CreateCurrencies < ActiveRecord::Migration[6.1]
   def up
     create_table :currencies do |t|
       t.string :cc_code, null: false
-      t.string :status, null: false, default: 'none'
+      t.string :status, null: false, default: 'skip'
 
       t.timestamps
     end

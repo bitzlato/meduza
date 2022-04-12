@@ -20,6 +20,12 @@ Rails.application.routes.draw do
   resources :danger_transactions, only: [:index, :show]
   resources :danger_addresses, only: [:index, :show]
 
+  resources :currencies, only: [:update] do
+    collection do
+      put :update_all
+    end
+  end
+
   Meduza::Application.routes.draw do
     mount Flipper::UI.app(Flipper) => '/flipper'
   end
