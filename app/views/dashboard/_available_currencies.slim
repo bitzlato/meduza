@@ -6,31 +6,31 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
       th Статус
       th Очередь
       th Valega поддерживает
-  tr
-    td По всем
-    td
-      - all_currencies_status = Currency.group(:status).count.keys.uniq
-      - all_currencies_status = all_currencies_status.many? ? nil : all_currencies_status.first
-      = render 'status_switcher', current_status: all_currencies_status do |status|
-        = update_all_currencies_path(currency: { status: status })
-    td
-      = link_to PendingAnalysis.pending.count, pending_analyses_path(q: { status_eq: 'pending'})
-    td
+    tr
+      td По всем
+      td
+        - all_currencies_status = Currency.group(:status).count.keys.uniq
+        - all_currencies_status = all_currencies_status.many? ? nil : all_currencies_status.first
+        = render 'status_switcher', current_status: all_currencies_status do |status|
+          = update_all_currencies_path(currency: { status: status })
+      td.text-right
+        = link_to PendingAnalysis.pending.count, pending_analyses_path(q: { status_eq: 'pending'})
+      td.text-muted.text-small.text-center По-разному
   tbody
     - Currency.order(:cc_code).each do |currency|
       tr
-        th.text-monospace title=currency.based
+        th.text-monospace.text-right title=currency.based
           = currency
         td
           = render 'currency_status_switcher', currency: currency
-        td
+        td.text-right
           = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, status_eq: 'pending' })
             = queue[currency.cc_code] || 0
-        td
+        td.text-center
           - if currency.valega_support?
-            span.badge.badge-info Поддерживается
+            | ✓
           - else
-            span.badge.badge-secondary Нет
+            | ×
 hr
 p 
   .btn.btn-sm.btn-success check
@@ -40,4 +40,4 @@ p
   span.ml-2 пропускать без проверки
 p 
   .btn.btn-sm.btn-primary pause 
-  span.ml-2 на проверку не берем, просто висят, копятся в очереди, но другим не мешают
+  span.ml-2 копятся в очереди, но другим не мешают
