@@ -9,14 +9,14 @@ module ApplicationHelper
     'pause' => 'btn-primary'
   }
 
-  def currency_status_switch_class(status, active)
-    buffer = "btn btn-sm"
+  def currency_status_switch_class(status, active, available = false)
+    buffer = 'btn btn-sm '
     if active
-      buffer << ' disabled '
       buffer << STATUS_CLASS[status]
     else
       buffer << ' btn-secondary'
     end
+    buffer << ' disabled ' unless available
 
     buffer
   end

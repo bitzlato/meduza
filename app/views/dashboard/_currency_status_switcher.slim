@@ -1,0 +1,5 @@
+.btn-group role='group'
+  - Currency::STATUSES.each do |status|
+    = link_to status, currency_path(currency, currency: { status: status }),
+      data: { method: :put },
+      class: currency_status_switch_class(currency.status, currency.status == status, currency.available_status?(status))

@@ -33,6 +33,10 @@ class Currency < ApplicationRecord
     VALEGA_ASSETS_CODES.include? cc_code
   end
 
+  def available_status?(new_status)
+    new_status != 'check' || available_to_check?
+  end
+
   def based
     return :ethereum if ETHEREUM_CODES.include? cc_code
     return :bitcoin if BITCOIN_FORKS.include? cc_code
