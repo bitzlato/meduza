@@ -130,7 +130,7 @@ class ValegaClient
   end
 
   def logger
-    Rails.logger.tagged 'ValegaClient'
+    @logger ||= Logger.new Rails.application.root.join('log/valega.log')
   end
 
   def authorize(company_username: ENV.fetch('VALEGA_COMPANY_USERNAME'),
