@@ -85,6 +85,10 @@ module Daemons
             .order(:id)
             .limit(LIMIT)
             .each do |btx|
+            unless btx.receive?
+              btx.update! meduza_status: { status: :skipped, skipped_at: Time.zone.now.iso8601 }
+              next
+            end
             next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
             if PendingAnalysis.pending.exists?(address_transaction: btx.txid, cc_code: btx.cc_code)
               logger.info("PendingAnalysis already exists #{btx.txid}")

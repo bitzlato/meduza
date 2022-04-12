@@ -14,6 +14,10 @@ class BlockchainTx < BitzlatoRecord
     deposit_user || withdraw_user
   end
 
+  def receive?
+    source.fetch('category')
+  end
+
   def amount
     (source || {}).dig('amount')
   end
