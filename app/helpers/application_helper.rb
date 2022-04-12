@@ -9,7 +9,7 @@ module ApplicationHelper
     'pause' => 'btn-primary'
   }
 
-  def currency_status_switch_class(status, active, available = false)
+  def currency_status_switch_class(status, active, available = true)
     buffer = 'btn btn-sm '
     if active
       buffer << STATUS_CLASS[status]
