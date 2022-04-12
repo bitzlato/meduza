@@ -15,6 +15,7 @@ class BlockchainTx < BitzlatoRecord
   end
 
   def receive?
+    return false if source.nil?
     source.fetch('category')
   end
 
