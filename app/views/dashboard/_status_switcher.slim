@@ -1,0 +1,6 @@
+.btn-group role='group'
+  - Currency::STATUSES.each do |status|
+    = link_to status, yield(status),
+      data: { method: :put },
+      class: "btn btn-sm #{current_status == status ? 'btn-primary disabled' : 'btn-secondary'}"
+
