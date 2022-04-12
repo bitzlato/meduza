@@ -4,5 +4,7 @@ Flipper.configure do |config|
 end
 
 FEATURE_AML_CHECK=:aml_check
-
 Flipper.add FEATURE_AML_CHECK
+
+VALEGA_CURL_LOGGER = :valega_curl_logger
+Flipper.add VALEGA_CURL_LOGGER

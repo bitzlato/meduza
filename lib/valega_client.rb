@@ -59,7 +59,7 @@ class ValegaClient
     start_request
     address_transactions = Array(address_transactions)
     conn = Faraday.new(url: URL, headers: HEADERS, request: { timeout: READ_TIMEOUT }) do |conn|
-      conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
+      conn.request :curl, logger, :warn if Flipper.enabled? VALEGA_CURL_LOGGER
       conn.request :authorization, 'Bearer', authorization.access_token
     end
     raise 'maximum 10 address/transactions available' if address_transactions.count > MAX_ELEMENTS
@@ -82,7 +82,7 @@ class ValegaClient
   def risk_assets_types
     start_request
     conn = Faraday.new(url: URL, headers: HEADERS) do |conn|
-      conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
+      conn.request :curl, logger, :warn if Flipper.enabled? VALEGA_CURL_LOGGER
       conn.request :authorization, 'Bearer', authorization.access_token
     end
 
@@ -143,7 +143,7 @@ class ValegaClient
     url.password = CGI.escape(company_password)
 
     conn = Faraday.new(url: url.to_s, headers: HEADERS) do |conn|
-      conn.request :curl, logger, :warn if ENV.true? 'FARADAY_LOGGER'
+      conn.request :curl, logger, :warn if Flipper.enabled? VALEGA_CURL_LOGGER
     end
 
     logger.info('Make request /oauth/token/get')
