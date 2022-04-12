@@ -17,6 +17,7 @@ module Daemons
           pending_analises = PendingAnalysis
             .pending
             .where(cc_code: cc_code)
+            .where.not(cc_code: Currency.paused.pluck(:cc_code))
             .order('type, id') # Нам повезло что address отдается первым, его и надо первым проверять
             .limit(LIMIT)
 
@@ -27,7 +28,8 @@ module Daemons
           end
           logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
           pending_analises_for_valega = check_existen pending_analises
-          if Flipper.enabled? FEATURE_AML_CHECK
+          currenty = Currency.find_or_create_by!(cc_code: cc_code)
+          if currenty.check?
             if AML_ANALYZABLE_CODES.include? cc_code
               logger.info("Check pending analises in valega #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
               check_in_valega pending_analises_for_valega, pending_analises, cc_code
@@ -35,7 +37,7 @@ module Daemons
               logger.info("Skip pending analises #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
               skip_all pending_analises_for_valega
             end
-          else
+          elsif currenty.skip?
             logger.info("Skip ALL")
             skip_all pending_analises_for_valega
           end
