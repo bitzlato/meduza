@@ -12,7 +12,7 @@ module Daemons
 
     def process
       logger.tagged('LegacyPender') do
-        process_transactions
+        # process_transactions
         return unless @running
         process_withdrawals
       end
