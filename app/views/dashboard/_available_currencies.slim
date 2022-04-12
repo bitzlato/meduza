@@ -2,8 +2,8 @@
 table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
   thead.thead-light
     tr
-      th Валюта
-      th Статус
+      th.text-right Валюта
+      th.text-right Управление
       th Очередь
       th Valega поддерживает
     tr
@@ -30,7 +30,7 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
           - if currency.valega_support?
             | ✓
           - else
-            | ×
+            span.text-muted ×
 hr
 p 
   .btn.btn-sm.btn-success check
