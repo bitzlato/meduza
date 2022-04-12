@@ -17,7 +17,7 @@ module Daemons
           pending_analises = PendingAnalysis
             .pending
             .where(cc_code: cc_code)
-            .order(:id)
+            .order('type, id') # Нам повезло что address отдается первым, его и надо первым проверять
             .limit(LIMIT)
 
           # Докидываем на проверку старые транзакции
