@@ -2,5 +2,4 @@
   - Currency::STATUSES.each do |status|
     = link_to status, yield(status),
       data: { method: :put },
-      class: "btn btn-sm #{current_status == status ? 'btn-primary disabled' : 'btn-secondary'}"
-
+      class: currency_status_switch_class(current_status, current_status == status)

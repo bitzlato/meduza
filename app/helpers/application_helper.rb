@@ -3,6 +3,24 @@ module ApplicationHelper
     flag ? "#{css_classes} active" : css_classes
   end
 
+  STATUS_CLASS = {
+    'check' => 'btn-success',
+    'skip' => 'btn-warning',
+    'pause' => 'btn-primary'
+  }
+
+  def currency_status_switch_class(status, active)
+    buffer = "btn btn-sm"
+    if active
+      buffer << ' disabled '
+      buffer << STATUS_CLASS[status]
+    else
+      buffer << ' btn-secondary'
+    end
+
+    buffer
+  end
+
   def title_with_counter(title, count, hide_zero: true, css_class: nil)
     buffer = ''
     buffer += title
