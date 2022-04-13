@@ -4,11 +4,11 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
     tr
       th.text-right Валюта
       th.text-right Управление
-      th Очередь транзакций
-      th Очередь адресов
+      th.text-right Очередь транзакций
+      th.text-right Очередь адресов
       th Valega поддерживает
     tr
-      td По всем
+      td Все
       td
         - all_currencies_status = Currency.group(:status).count.keys.uniq
         - all_currencies_status = all_currencies_status.many? ? nil : all_currencies_status.first
