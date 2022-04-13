@@ -70,13 +70,12 @@ class ValegaClient
     data[:asset_type_id] = asset_type_id unless asset_type_id.nil?
     data[:force_directories_to_safe] = ['exchange']
     logger.info("Make request realtime_risk_monitor/risk/analysis address_transactions=#{address_transactions}")
+    redis.set 'last_request_at', Time.zone.now.to_i, ex: PAUSE_BETWEEN_REQUESTS
     response = conn.post '/realtime_risk_monitor/risk/analysis' do |req|
       req.body = data.to_json
     end
 
     parse_response response
-  ensure
-    redis.set 'last_request_at', Time.zone.now.to_i, ex: PAUSE_BETWEEN_REQUESTS
   end
 
   def risk_assets_types
