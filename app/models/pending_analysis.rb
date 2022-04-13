@@ -1,6 +1,9 @@
 class PendingAnalysis < ApplicationRecord
   self.inheritance_column = nil
 
+  scope :addresses, -> { where type: :address }
+  scope :transactions, -> { where type: :transaction }
+
   include AASM
   belongs_to :analysis_result, optional: true
 

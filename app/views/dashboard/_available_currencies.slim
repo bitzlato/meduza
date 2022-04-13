@@ -1,10 +1,11 @@
-- queue = PendingAnalysis.pending.group(:cc_code).count
+- queue = PendingAnalysis.pending.group(:cc_code, :type).count
 table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
   thead.thead-light
     tr
       th.text-right Валюта
       th.text-right Управление
-      th Очередь
+      th Очередь транзакций
+      th Очередь адресов
       th Valega поддерживает
     tr
       td По всем
@@ -14,7 +15,9 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
         = render 'status_switcher', current_status: all_currencies_status do |status|
           = update_all_currencies_path(currency: { status: status })
       td.text-right
-        = link_to PendingAnalysis.pending.count, pending_analyses_path(q: { status_eq: 'pending'})
+        = link_to PendingAnalysis.pending.transactions.count, pending_analyses_path(q: { type_eq: 'transaction', status_eq: 'pending'})
+      td.text-right
+        = link_to PendingAnalysis.pending.addresses.count, pending_analyses_path(q: { type_eq: 'address', status_eq: 'pending'})
       td.text-muted.text-small.text-center По-разному
   tbody
     - Currency.order(:cc_code).each do |currency|
@@ -24,8 +27,11 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
         td
           = render 'currency_status_switcher', currency: currency
         td.text-right
-          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, status_eq: 'pending' })
-            = queue[currency.cc_code] || 0
+          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, type_eq: 'transaction', status_eq: 'pending' })
+            = queue[[currency.cc_code, 'transaction']] || 0
+        td.text-right
+          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, type_eq: 'address', status_eq: 'pending' })
+            = queue[[currency.cc_code, 'address']] || 0
         td.text-center
           - if currency.valega_support?
             | ✓
