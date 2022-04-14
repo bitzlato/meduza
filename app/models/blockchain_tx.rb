@@ -8,7 +8,7 @@ class BlockchainTx < BitzlatoRecord
   has_one :deposit_user, through: :deposit, source: :user
   has_one :withdraw_user, through: :withdrawal, source: :user
 
-  scope :receive, -> { where("source ->> 'category' = 'receive'") }
+  scope :receive, -> { where("source ->> 'category' = 'receive' or source ->> 'category' = 'both'") }
 
   def user
     deposit_user || withdraw_user
@@ -16,7 +16,7 @@ class BlockchainTx < BitzlatoRecord
 
   def receive?
     return false if source.nil?
-    source.fetch('category')
+    %w[receive both].include? source.fetch('category')
   end
 
   def amount
