@@ -262,6 +262,7 @@ GEM
     htmlentities (4.3.4)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
+    influxdb (0.8.1)
     jbuilder (2.11.3)
       activesupport (>= 5.0.0)
     jwt (2.3.0)
@@ -536,6 +537,7 @@ DEPENDENCIES
   guard-minitest
   guard-rubocop
   hashie (~> 5.0)
+  influxdb
   jbuilder (~> 2.7)
   jwt (~> 2.3.0)
   kaminari

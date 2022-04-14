@@ -1,0 +1,19 @@
+default: &default
+  async: true
+  time_precision: ms
+  host: <%= ENV.fetch("INFLUXDB_HOST", "127.0.0.1") %>
+  port: <%= ENV.fetch("INFLUXDB_UDP_PORT", 8086) %>
+development:
+  <<: *default
+  database: meduza_development
+
+test:
+  <<: *default
+  database: meduza_test
+
+staging:
+  <<: *default
+  database: <%= ENV.fetch('INFLUXDB_DATABASE_NAME', "meduza_staging") %>
+production:
+  <<: *default
+  database: <%= ENV.fetch('INFLUXDB_DATABASE_NAME', "meduza_production") %>

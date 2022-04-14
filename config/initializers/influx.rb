@@ -1,0 +1,1 @@
+require 'influx_adapter'
