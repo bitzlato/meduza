@@ -40,7 +40,6 @@ gem 'slim-rails'
 gem 'yabeda'
 gem 'yabeda-prometheus'
 gem 'yabeda-rails'
-gem 'yabeda-sidekiq'
 gem 'yabeda-http_requests'
 
 gem 'counter_culture', '~> 2.0'
