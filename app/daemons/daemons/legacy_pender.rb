@@ -20,62 +20,64 @@ module Daemons
 
     def process_withdrawals
       logger.tagged 'process_withdrawals' do
-      AML_ANALYZABLE_CODES.each do |cc_code|
-        scope = Withdrawal
-          .where('created_at>=?', CHECK_START_DATE)
-          .where(meduza_status: nil)
-          .where.not(status: :aml)
-          .where(cc_code: cc_code)
-        logger.info("Select #{cc_code} count is #{scope.count}")
-        withdraws_count = scope
-          .order(:id)
-          .limit(LIMIT)
-          .each do |withdrawal|
-          if SKIP_AML
-            withdrawal.pending! aml_skipped_at: Time.zone.now
-            next
-          end
-          next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
-          if PendingAnalysis.pending.exists?(address_transaction: withdrawal.address, cc_code: withdrawal.cc_code)
-            logger.info("PendingAnalysis already exists #{withdrawal.address}")
-            return
-          end
-
-          aa = AddressAnalysis.find_by(address: withdrawal.address, cc_code: withdrawal.cc_code)
-          if aa.present?
-            action = aa.analysis_result.pass? ? :pass : :block
-            logger.info("AddressAnalysis already exists #{withdrawal.address} update blockhain_tx")
-            withdrawal.with_lock do
-              withdrawal.update_columns meduza_status: (withdrawal.meduza_status || {}).merge( status: :checked, action: action )
+        Currency.processable.each do |currency|
+          cc_code = currency.cc_code
+          scope = Withdrawal
+            .where('created_at>=?', CHECK_START_DATE)
+            .where(meduza_status: nil)
+            .where.not(status: :aml)
+            .where(cc_code: cc_code)
+          logger.info("Select #{cc_code} count is #{scope.count}")
+          withdraws_count = scope
+            .order(:id)
+            .limit(LIMIT)
+            .each do |withdrawal|
+            if currency.skip?
+              withdrawal.pending! aml_skipped_at: Time.zone.now
+              next
             end
-          else
-            logger.info("Put pending analysis #{withdrawal.id}: #{withdrawal.address} #{cc_code}")
-
-            withdrawal.with_lock do
-              payload = {
-                address: withdrawal.address,
-                cc_code: withdrawal.cc_code,
-                source:  'legacy_pender',
-                meta: { withdrawal_id: withdrawal.id, sent_at: Time.zone.now }
-              }
-              AMQP::Queue.publish :meduza, payload,
-                correlation_id: withdrawal.id,
-                routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
-                reply_to: AMQP::Config.binding(:legacy_withdrawal_rpc_callback).fetch(:routing_key)
-
-              withdrawal.update_column :meduza_status, { status: :pended, pended_at: Time.zone.now.iso8601 }
+            next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
+            if PendingAnalysis.pending.exists?(address_transaction: withdrawal.address, cc_code: withdrawal.cc_code)
+              logger.info("PendingAnalysis already exists #{withdrawal.address}")
+              return
             end
-          end
-        end.count
-        logger.debug("#{withdraws_count} processed for #{cc_code}")
-        break unless @running
-      end
+
+            aa = AddressAnalysis.find_by(address: withdrawal.address, cc_code: withdrawal.cc_code)
+            if aa.present?
+              action = aa.analysis_result.pass? ? :pass : :block
+              logger.info("AddressAnalysis already exists #{withdrawal.address} update blockhain_tx")
+              withdrawal.with_lock do
+                withdrawal.update_columns meduza_status: (withdrawal.meduza_status || {}).merge( status: :checked, action: action )
+              end
+            else
+              logger.info("Put pending analysis #{withdrawal.id}: #{withdrawal.address} #{cc_code}")
+
+              withdrawal.with_lock do
+                payload = {
+                  address: withdrawal.address,
+                  cc_code: withdrawal.cc_code,
+                  source:  'legacy_pender',
+                  meta: { withdrawal_id: withdrawal.id, sent_at: Time.zone.now }
+                }
+                AMQP::Queue.publish :meduza, payload,
+                  correlation_id: withdrawal.id,
+                  routing_key: AMQP::Config.binding(:address_pender).fetch(:routing_key),
+                  reply_to: AMQP::Config.binding(:legacy_withdrawal_rpc_callback).fetch(:routing_key)
+
+                withdrawal.update_column :meduza_status, { status: :pended, pended_at: Time.zone.now.iso8601 }
+              end
+            end
+          end.count
+          logger.debug("#{withdraws_count} processed for #{cc_code}")
+          break unless @running
+        end
       end
     end
 
     def process_transactions
       logger.tagged 'process_transactions' do
-        AML_ANALYZABLE_CODES.each do |cc_code|
+        Currency.processable.each do |currency|
+          cc_code = currency.cc_code
           scope = BlockchainTx
             .where('created_at>=?', CHECK_START_DATE)
             .where(meduza_status: nil)

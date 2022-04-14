@@ -1,6 +1,7 @@
 class Currency < ApplicationRecord
 
   scope :paused, -> { where status: :pause }
+  scope :processable, -> { where status: %i[check skip] }
 
   before_validation if: :cc_code do
     self.cc_code = cc_code.upcase
