@@ -13,6 +13,10 @@ class Currency < ApplicationRecord
 
   validate :available_status
 
+  def self.cc_codes
+    pluck(:cc_code)
+  end
+
   def to_s
     cc_code
   end

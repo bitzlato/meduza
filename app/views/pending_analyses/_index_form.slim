@@ -2,5 +2,6 @@
   = f.input :address_transaction_eq, as: :string, input_html: { style: 'max-width: 500px' }
   = f.input :source_eq, collection: PendingAnalysis.sources, include_blank: 'any', input_html: { style: 'max-width: 200px' }
   = f.input :type_eq, collection: PendingAnalysis::TYPES, include_blank: 'any', input_html: { style: 'max-width: 200px' }
+  = f.input :cc_code_eq, collection: Currency.cc_codes, input_html: { style: 'max-width: 100px' }, include_blank: 'any'
 = render 'state_select', states: model_class.group(:state).count.keys, key: :state_eq
 = render 'ransack_conditions', conditions: @q.conditions

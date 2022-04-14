@@ -15,9 +15,9 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
         = render 'status_switcher', current_status: all_currencies_status do |status|
           = update_all_currencies_path(currency: { status: status })
       td.text-right
-        = link_to PendingAnalysis.pending.transactions.count, pending_analyses_path(q: { type_eq: 'transaction', status_eq: 'pending'})
+        = link_to PendingAnalysis.pending.transactions.count, pending_analyses_path(q: { type_eq: 'transaction', state_eq: 'pending'})
       td.text-right
-        = link_to PendingAnalysis.pending.addresses.count, pending_analyses_path(q: { type_eq: 'address', status_eq: 'pending'})
+        = link_to PendingAnalysis.pending.addresses.count, pending_analyses_path(q: { type_eq: 'address', state_eq: 'pending'})
       td.text-muted.text-small.text-center По-разному
   tbody
     - Currency.order(:cc_code).each do |currency|
@@ -27,10 +27,10 @@ table.table.table-condensed.table-narrow.table-sm.table-striped.table-bordered
         td
           = render 'currency_status_switcher', currency: currency
         td.text-right
-          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, type_eq: 'transaction', status_eq: 'pending' })
+          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, type_eq: 'transaction', state_eq: 'pending' })
             = queue[[currency.cc_code, 'transaction']] || 0
         td.text-right
-          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, type_eq: 'address', status_eq: 'pending' })
+          = link_to pending_analyses_path(q: { cc_code_eq: currency.cc_code, type_eq: 'address', state_eq: 'pending' })
             = queue[[currency.cc_code, 'address']] || 0
         td.text-center
           - if currency.valega_support?
