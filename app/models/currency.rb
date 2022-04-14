@@ -1,5 +1,7 @@
 class Currency < ApplicationRecord
 
+  has_many :pending_analises, foreign_key: :cc_code, primary_key: :cc_code
+
   scope :paused, -> { where status: :pause }
   scope :processable, -> { where status: %i[check skip] }
 

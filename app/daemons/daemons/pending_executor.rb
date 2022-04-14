@@ -80,10 +80,15 @@ module Daemons
     def check_in_valega(pending_analises_for_valega, pending_analises, cc_code)
       pending_analises_for_valega.each_slice(ValegaClient::MAX_ELEMENTS) do |sliced|
         logger.info "Check in valega #{sliced.join(', ')}"
-        ValegaAnalyzer
-          .new
-          .analyze(sliced.map(&:address_transaction), cc_code)
-          .each do |analysis_result|
+
+        analysis_results = Yabeda.meduza.valega_analyzation_runtime.measure(cc_code: cc_code) do
+          ValegaAnalyzer
+            .new
+            .analyze(sliced.map(&:address_transaction), cc_code)
+        end
+
+        analysis_results.each do |analysis_result|
+          Yabeda.meduza.checked_pending_analyses.increment({type: analysis_result.type, cc_code: cc_code, risk_level: analysis_result.risk_level}, by: 1)
           logger.info "process result #{analysis_result.address_transaction}"
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
           logger.info "Done result #{analysis_result.address_transaction}"
