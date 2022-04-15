@@ -32,8 +32,7 @@ Yabeda.configure do
       each_with_object({}) { |keys, ag| keys.each { |key| ag[key]= 0 } }.
       merge(PendingAnalysis.pending.group(:cc_code, :type).count).
       each do |( cc_code, type ), size|
-      puts [cc_code, type, size].join(';')
-      # meduza.pending_analyses_queue_size.set({cc_code: cc_code, type: type}, size)
+      meduza.pending_analyses_queue_size.set({cc_code: cc_code, type: type}, size)
     end
   end
 end
