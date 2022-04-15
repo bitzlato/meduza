@@ -1,3 +1,5 @@
+require "benchmark"
+
 module Daemons
   # Берёт все не обработанные транзакции из pending_transactions и обрабатывает
   # Собирает по ним входящие адреса
@@ -82,11 +84,13 @@ module Daemons
         logger.info "Check in valega #{sliced.join(', ')}"
 
         analysis_results = nil
-        Yabeda.meduza.valega_analyzation_runtime.measure(cc_code: cc_code) do
+        Yabeda.meduza.valega_request_total.increment(cc_code: cc_code)
+        time = Benchmark.measure do
           analysis_results = ValegaAnalyzer
             .new
             .analyze(sliced.map(&:address_transaction), cc_code)
         end
+        Yabeda.meduza.valega_request_runtime.measure({cc_code: cc_code}, time.total * 1000)
 
         analysis_results.each do |analysis_result|
           Yabeda.meduza.checked_pending_analyses.increment({type: analysis_result.type, cc_code: cc_code, risk_level: analysis_result.risk_level}, by: 1)

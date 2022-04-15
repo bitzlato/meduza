@@ -1,3 +1,8 @@
+LONG_RUNNING_REQUEST_BUCKETS = [
+  0.5, 1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, # standard
+  30_000, 60_000, 120_000, 300_000, 600_000 # slow queries
+].freeze
+
 Yabeda.configure do
   default_tag :rails_environment, Rails.env
   group :meduza
@@ -9,11 +14,16 @@ Yabeda.configure do
     comment: 'A size on PendingAnalyses queue',
     tags: %i[cc_code type]
 
-  histogram :valega_analyzation_runtime,
+  counter :valega_request_total,
+    comment: 'A counter of the total number of external Valega HTTP \
+               requests.',
+    tags: %i[cc_code]
+
+  histogram :valega_request_runtime,
     comment: 'How long Valega analyze data',
-    buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30],
+    buckets: LONG_RUNNING_REQUEST_BUCKETS,
     tags: %i[cc_code],
-    unit: :ms
+    unit: :milliseconds
 
   collect do
     Currency.
