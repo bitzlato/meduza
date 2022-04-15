@@ -37,6 +37,11 @@ gem 'sidekiq-cron'
 gem 'simple_form'
 gem 'slim-rails'
 
+gem 'yabeda'
+gem 'yabeda-prometheus'
+gem 'yabeda-rails'
+gem 'yabeda-http_requests'
+
 gem 'counter_culture', '~> 2.0'
 
 gem 'faraday'
