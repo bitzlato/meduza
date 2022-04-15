@@ -3,7 +3,7 @@ Yabeda.configure do
   group :meduza
   counter :checked_pending_analyses,
     comment: 'A counter of checked PendingAnalyses',
-    tags: %i[cc_code type]
+    tags: %i[cc_code type risk_level]
   gauge :pending_analyses_queue_size,
     comment: 'A size on PendingAnalyses queue',
     tags: %i[cc_code type]
