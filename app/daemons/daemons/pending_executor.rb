@@ -81,8 +81,9 @@ module Daemons
       pending_analises_for_valega.each_slice(ValegaClient::MAX_ELEMENTS) do |sliced|
         logger.info "Check in valega #{sliced.join(', ')}"
 
-        analysis_results = Yabeda.meduza.valega_analyzation_runtime.measure(cc_code: cc_code) do
-          ValegaAnalyzer
+        analysis_results = nil
+        Yabeda.meduza.valega_analyzation_runtime.measure(cc_code: cc_code) do
+          analysis_results = ValegaAnalyzer
             .new
             .analyze(sliced.map(&:address_transaction), cc_code)
         end
