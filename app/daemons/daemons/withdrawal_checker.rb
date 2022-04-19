@@ -11,6 +11,10 @@ module Daemons
           logger.tagged("Check withdrawal(#{withdrawal.id}) to address #{withdrawal.address}") do
 
             withdrawal.with_lock do
+              if withdrawal.currency.skip?
+                withdrawal.pending! aml_skipped_at: Time.zone.now
+                next
+              end
               payload = {
                 address: withdrawal.address,
                 cc_code: withdrawal.cc_code,

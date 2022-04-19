@@ -7,6 +7,8 @@ class Withdrawal < ApplicationRecord
   belongs_to :wallet
   belongs_to :blockchain_tx
 
+  belongs_to :currency, foreign_key: :cc_code, primary_key: :cc_code
+
   scope :aml, -> { where status: :aml }
 
   def pending!(meduza_status)

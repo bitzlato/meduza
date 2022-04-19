@@ -32,10 +32,6 @@ module Daemons
             .order(:id)
             .limit(LIMIT)
             .each do |withdrawal|
-            if currency.skip?
-              withdrawal.pending! aml_skipped_at: Time.zone.now
-              next
-            end
             next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
             if PendingAnalysis.pending.exists?(address_transaction: withdrawal.address, cc_code: withdrawal.cc_code)
               logger.info("PendingAnalysis already exists #{withdrawal.address}")
