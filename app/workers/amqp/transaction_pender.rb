@@ -3,7 +3,7 @@
 module AMQP
   class TransactionPender < Base
     def process(payload, metadata)
-      Rails.logger.info "[TransactionPender] process payload=#{payload}, metadata=#{metadata}"
+      logger.info "process payload=#{payload}, metadata=#{metadata}"
       ta = TransactionAnalysis.find_by(txid: payload.fetch('txid'), cc_code: payload.fetch('cc_code'))
       if ta.present?
         payload = {
@@ -15,7 +15,7 @@ module AMQP
         }
         payload.merge! transaction_analysis_id: ta.id if ta.present?
         properties = { correlation_id: metadata.correlation_id, routing_key: metadata.reply_to }
-        Rails.logger.info "[TransactionPender] rpc_callback with payload #{payload} and properties #{properties}"
+        logger.info "rpc_callback with payload #{payload} and properties #{properties}"
         AMQP::Queue.publish :meduza, payload, properties
       else
         attrs = {
@@ -23,7 +23,7 @@ module AMQP
           type:                payload.fetch('type', :transaction),
         }
         begin
-          Rails.logger.info "[TransactionPender] find_or_create PendingAnalysis with payload #{payload} and attrs #{attrs}"
+          logger.info "find_or_create PendingAnalysis with payload #{payload} and attrs #{attrs}"
           pa = PendingAnalysis.
             create_with(attrs).
             find_or_create_by!(
@@ -39,7 +39,7 @@ module AMQP
             report_exception 'Отличия в PendingAnalysis', true, { pending_analisis_id: pa.id, attr: attrs, finded_attrs: finded_attrs }
           end
         rescue ActiveRecord::RecordInvalid => err
-          Rails.logger.info "[TransactionPender] PendingAnalysis already exists #{payload} with error #{err}"
+          logger.warn "PendingAnalysis already exists #{payload} with error #{err}"
         end
       end
     end

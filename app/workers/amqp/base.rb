@@ -5,7 +5,7 @@ module AMQP
     attr_reader :logger
 
     def initialize
-      @logger = Rails.logger
+      @logger = Rails.logger.tagged self.class.name
     end
   end
 end

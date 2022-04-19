@@ -3,24 +3,22 @@ module AMQP
     FREEZE_EXPIRE = 100.years
 
     def process(payload, metadata)
-      logger.tagged 'WithdrawalRpcCallback' do
-        logger.info "payload=#{payload}, metadata=#{metadata}"
+      logger.info "payload=#{payload}, metadata=#{metadata}"
 
-        withdrawal = Withdrawal.find metadata.correlation_id
+      withdrawal = Withdrawal.find metadata.correlation_id
 
-        action = payload['action']
-        if action == 'pass'
-          begin
-            logger.info("Pass withdrawal #{withdrawal.id}")
-            withdrawal.pending!({ status: :checked, action: action })
-          rescue Withdrawal::WrongStatus => err
-            report_exception err, true, { payload: payload, metadata: metadata }
-          end
-        else
-          logger.info("Block withdrawal #{withdrawal.id}")
-          withdrawal.update_columns meduza_status: { status: :checked, action: action }
-          freeze_user!(withdrawal)
+      action = payload['action']
+      if action == 'pass'
+        begin
+          logger.info("Pass withdrawal #{withdrawal.id}")
+          withdrawal.pending!({ status: :checked, action: action })
+        rescue Withdrawal::WrongStatus => err
+          report_exception err, true, { payload: payload, metadata: metadata }
         end
+      else
+        logger.info("Block withdrawal #{withdrawal.id}")
+        withdrawal.update_columns meduza_status: { status: :checked, action: action }
+        freeze_user!(withdrawal)
       end
     rescue ActiveRecord::RecordNotFound => err
       report_exception err, true, { payload: payload, metadata: metadata }
