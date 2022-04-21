@@ -146,7 +146,7 @@ ALTER SEQUENCE meduza.analyzed_users_id_seq OWNED BY meduza.analyzed_users.id;
 CREATE TABLE meduza.currencies (
     id bigint NOT NULL,
     cc_code character varying NOT NULL,
-    status character varying DEFAULT 'none'::character varying NOT NULL,
+    status character varying DEFAULT 'skip'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL
 );

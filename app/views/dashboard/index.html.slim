@@ -3,3 +3,12 @@
     = render 'available_currencies'
   .col-md-6
     = render 'brief'
+    hr
+    - if Flipper.enabled? FREEZE_ON_BAD_TRANSACTON
+      .alert.alert-success Пользователи фризятся по плохим транзакциям
+    - else
+      .alert.alert-warning Фриз по плохим транзакциям отключён
+
+    .mt-2
+      = link_to 'Изменить', 
+        '/flipper/features/' + FREEZE_ON_BAD_TRANSACTON.to_s
