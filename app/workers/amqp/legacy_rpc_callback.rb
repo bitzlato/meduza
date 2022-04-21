@@ -22,8 +22,7 @@ module AMQP
       unless action == 'pass'
         logger.info("Block btx #{btx.id}")
         if btx.deposit_user.present?
-          # TODO Пока не блочим
-          # freeze_user! btx, btx.deposit_user
+          freeze_user! btx, btx.deposit_user if Flipper.enabled? FREEZE_ON_BAD_TRANSACTON
         elsif btx.withdraw_user.present?
           report_exception StandardError.new('Невалидная транзакция с списывающим пользователем'), true, { blockchain_tx_id: btx.id }
         else
@@ -49,7 +48,9 @@ module AMQP
         logger.info { "User ##{user.id} has not been freezed" }
         raise "Wrong response status (#{response.status}) with body #{response.body}"
       end
-      btx.update_columns btx.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
+      btx.with_lock do
+        btx.update_columns btx.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
+      end
     end
   end
 end
