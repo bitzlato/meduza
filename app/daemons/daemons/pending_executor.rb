@@ -92,7 +92,10 @@ module Daemons
         end
         Yabeda.meduza.valega_request_runtime.measure({cc_code: cc_code}, time.total * 1000)
 
+        logger.info "Result count #{analysis_results.count}"
         analysis_results.each do |analysis_result|
+          # TODO Выбирать все пендинги с подобной транзакцией и адресом и отмечать их тоже
+          #
           Yabeda.meduza.checked_pending_analyses.increment({type: analysis_result.type, cc_code: cc_code, risk_level: analysis_result.risk_level}, by: 1)
           logger.info "process result #{analysis_result.address_transaction}"
           pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
