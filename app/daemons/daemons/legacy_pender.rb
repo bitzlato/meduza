@@ -87,7 +87,10 @@ module Daemons
               btx.update! meduza_status: { status: :skipped, skipped_at: Time.zone.now.iso8601 }
               next
             end
-            next if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
+            if PendingAnalysis.pending.where(cc_code: cc_code).count > MAX_PENDING_QUEUE_SIZE
+              logger.info('Skip pending because of big queue size')
+              next
+            end
             if PendingAnalysis.pending.exists?(address_transaction: btx.txid, cc_code: btx.cc_code)
               logger.info("PendingAnalysis already exists #{btx.txid}")
               return
@@ -112,7 +115,7 @@ module Daemons
               btx.update! meduza_status: { status: :pended, pended_at: Time.zone.now.iso8601 }
             end
           end.count
-          Rails.logger.debug("[LegacyPender] #{btx_count} processed for #{cc_code}")
+          Rails.logger.debug("#{btx_count} processed for #{cc_code}")
           break unless @running
         end
       end
