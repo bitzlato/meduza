@@ -57,7 +57,7 @@ module AMQP
         raise "Wrong response status (#{response.status}) with body #{response.body}"
       end
       btx.with_lock do
-        btx.update_column meduza_status: btx.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
+        btx.update_column :meduza_status, btx.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
       end
     end
   end
