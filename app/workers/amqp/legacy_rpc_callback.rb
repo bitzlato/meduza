@@ -35,29 +35,31 @@ module AMQP
     private
 
     def freeze_user!(btx, user, analysis_result_id)
-      logger.info("Freeze_user #{user.id} txid=#{btx.txid} analysis_result_id=#{analysis_result_id}")
+      logger.tagged "freeze_user [#{user.id}]" do
+        logger.info("txid=#{btx.txid} analysis_result_id=#{analysis_result_id}")
 
-      if btx.meduza_status.dig('freezed_at')
-        logger.info('Skip freezing, btx already freezed')
-        return
-      end
+        if btx.meduza_status.dig('freezed_at')
+          logger.info('Skip freezing, btx already freezed')
+          return
+        end
 
-      params = {
-        expire: WithdrawalRpcCallback::FREEZE_EXPIRE.from_now.to_i,
-        reason: "Грязная входная транзакция ##{btx.txid}, результат анализа #{analysis_result_id}",
-        type: 'all',
-        unfreeze: false
-      }
-      response = BitzlatoAPI.new.freeze_user(user.id, params)
+        params = {
+          expire: WithdrawalRpcCallback::FREEZE_EXPIRE.from_now.to_i,
+          reason: "Грязная входная транзакция ##{btx.txid}, результат анализа #{analysis_result_id}",
+          type: 'all',
+          unfreeze: false
+        }
+        response = BitzlatoAPI.new.freeze_user(user.id, params)
 
-      if response.success?
-        logger.info { "User ##{user.id} has been freezed" }
-      else
-        logger.info { "User ##{user.id} has not been freezed" }
-        raise "Wrong response status (#{response.status}) with body #{response.body}"
-      end
-      btx.with_lock do
-        btx.update_column :meduza_status, btx.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
+        if response.success?
+          logger.info { "User ##{user.id} has been freezed" }
+        else
+          logger.info { "User ##{user.id} has not been freezed" }
+          raise "Wrong response status (#{response.status}) with body #{response.body}"
+        end
+        btx.with_lock do
+          btx.update_column :meduza_status, btx.meduza_status.merge(freezed_at: Time.zone.now.iso8601)
+        end
       end
     end
   end
