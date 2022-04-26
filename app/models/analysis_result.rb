@@ -13,7 +13,7 @@ class AnalysisResult < ApplicationRecord
   delegate :risk_msg, :report_url, :observations, to: :response, allow_nil: true
 
   def pass?
-    ValegaAnalyzer.pass? risk_level, risk_confidence
+    ValegaAnalyzer.pass? type, risk_level, risk_confidence
   end
 
   def error?
