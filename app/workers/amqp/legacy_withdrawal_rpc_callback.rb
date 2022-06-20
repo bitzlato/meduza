@@ -1,4 +1,5 @@
 module AMQP
+  # RPC callback для LegacyPender
   class LegacyWithdrawalRpcCallback < Base
     def process(payload, metadata)
       logger.info "payload=#{payload}, metadata=#{metadata}"

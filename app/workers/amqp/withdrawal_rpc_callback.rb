@@ -2,6 +2,7 @@ module AMQP
   class WithdrawalRpcCallback < Base
     FREEZE_EXPIRE = 100.years
 
+    # Принимает результаты проверки от WithdrawalChecker
     def process(payload, metadata)
       logger.info "payload=#{payload}, metadata=#{metadata}"
 

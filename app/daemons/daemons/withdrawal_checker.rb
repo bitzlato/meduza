@@ -1,6 +1,10 @@
 require 'bitzlato_api'
 
 module Daemons
+  # Legacy
+  # Проверяем все списания со статусом AML без статуса медузы и запускает по ним проверку
+  #
+  # Ответ приходит в RPC callback withdrawal_rpc_callback
   class WithdrawalChecker < Base
     @sleep_time = 2.seconds
 

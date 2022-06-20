@@ -2,6 +2,7 @@
 module Daemons
   # Legacy
   # Берёт все не обработанные транзакции из P2P blockchain_tx и засовывает в pending_transactions
+  #
   class LegacyPender < Base
     @sleep_time = 1.seconds
     LIMIT = 10
@@ -12,12 +13,13 @@ module Daemons
 
     def process
       logger.tagged('LegacyPender') do
-        process_transactions
+        # process_transactions
         return unless @running
         process_withdrawals
       end
     end
 
+    # rpc callback приходит на legacy_withdrawal_rpc_callback
     def process_withdrawals
       logger.tagged 'process_withdrawals' do
         Currency.processable.each do |currency|
@@ -70,6 +72,7 @@ module Daemons
       end
     end
 
+    # rpc callback приходит на legacy_rpc_callback
     def process_transactions
       logger.tagged 'process_transactions' do
         Currency.processable.each do |currency|

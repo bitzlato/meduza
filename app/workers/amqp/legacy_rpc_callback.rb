@@ -1,13 +1,8 @@
 module AMQP
+
+  # Принимает ответ от LegacyPender по проверке транзакции
+  # Правильное название было бы legacy_transaction_rpc_callback
   class LegacyRpcCallback < Base
-    #payload = {
-    #address_transaction: pending_analisis.address_transaction,
-    #cc_code: pending_analisis.cc_code,
-    #action: action,
-    #analysis_result_id: analysis_result.try(:id),
-    #pending_analisis_state: pending_analisis.state
-    #}
-    #payload.merge! transaction_analysis_id: transaction_analysis.id if transaction_analysis.present?
     def process(payload, metadata)
       logger.info "payload=#{payload}, metadata=#{metadata}"
       payload = payload.symbolize_keys
