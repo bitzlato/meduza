@@ -13,6 +13,7 @@ class AnalysisResult < ApplicationRecord
   delegate :risk_msg, :report_url, :observations, to: :response, allow_nil: true
 
   def pass?
+    return false if type == 'error'
     ValegaAnalyzer.pass? type, risk_level, risk_confidence
   end
 
