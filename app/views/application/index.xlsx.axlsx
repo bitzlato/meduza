@@ -9,6 +9,10 @@ columns = decorator.table_columns unless defined?(columns) && columns.present?
 wb.add_worksheet(name: model_class.model_name.human_plural) do |sheet|
   sheet.add_row(columns.map { |column| decorator.object_class.human_attribute_name(column) })
   records.each do |item|
-    sheet.add_row(columns.map { |column| item.object.send(column) })
+    row = columns.map do |column|
+      result = item.send(column)
+      result.is_a?(String) ? strip_tags(result) : result
+    end
+    sheet.add_row(row)
   end
 end
