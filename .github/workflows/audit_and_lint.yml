@@ -3,13 +3,13 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 # This workflow will download a prebuilt Ruby version, install dependencies, and  run linters
-name: Rubocop
+name: Audit and lint
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 jobs:
   run-lint:
     runs-on: ubuntu-latest
@@ -28,4 +28,4 @@ jobs:
       # Add or Replace any other Linters here
       - name: Run linters
         run: |
-          bin/rubocop --parallel --require rubocop-rails --require rubocop-rspec
+          bin/rubocop --parallel

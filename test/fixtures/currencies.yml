@@ -1,9 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  cc_code: MyString
-  status: MyString
+btc:
+  cc_code: BTC
+  status: skip
 
-two:
-  cc_code: MyString
-  status: MyString
+btc_check:
+  cc_code: BTCC
+  status: ckeck

@@ -28,7 +28,7 @@ gem 'rails-i18n', '~> 6.0'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
-gem 'sidekiq'
+gem 'sidekiq', '~> 6.4.0'
 gem 'active_link_to'
 gem 'enumerize'
 gem 'kaminari'
@@ -54,6 +54,8 @@ gem 'caxlsx', '~> 3.0'
 gem 'caxlsx_rails'
 
 group :development, :test do
+  gem 'brakeman'
+  gem 'bundler-audit'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'pry'
@@ -63,6 +65,7 @@ end
 
 group :development do
   gem 'rubocop'
+  gem 'rubocop-performance'
   gem 'rubocop-rails'
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 4.1.0'
