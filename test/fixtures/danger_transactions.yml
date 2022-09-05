@@ -3,7 +3,9 @@
 one:
   analyzed_user: one
   txid: MyString
+  cc_code: ONE
 
 two:
   analyzed_user: two
   txid: MyString
+  cc_code: TWO

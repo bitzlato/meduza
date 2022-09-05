@@ -5,9 +5,11 @@ one:
   risk_level: 1
   risk_confidence: 1
   analysis_result: one
+  cc_code: ONE
 
 two:
   address: two
   risk_level: 1
   risk_confidence: 1
   analysis_result: two
+  cc_code: TWO

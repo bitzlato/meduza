@@ -5,9 +5,11 @@ one:
   risk_level: 1
   cc_code: BTC
   analysis_result: one
+  risk_confidence: 1
 
 two:
   txid: 123
   risk_level: 1
   cc_code: BTC
   analysis_result: two
+  risk_confidence: 1

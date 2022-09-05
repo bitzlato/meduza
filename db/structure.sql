@@ -17,17 +17,17 @@ CREATE SCHEMA meduza;
 
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
+-- Name: citext; Type: EXTENSION; Schema: -; Owner: -
 --
 
-CREATE SCHEMA public;
+CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA meduza;
 
 
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+-- Name: EXTENSION citext; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON SCHEMA public IS 'standard public schema';
+COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings';
 
 
 SET default_tablespace = '';

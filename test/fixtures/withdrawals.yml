@@ -6,3 +6,11 @@ aml:
   cc_code: BTC
   amount: 0.1
   real_pay_fee: 0
+aml_check:
+  user: user
+  wallet: btc
+  status: 'aml'
+  address: '1'
+  cc_code: BTCC
+  amount: 0.1
+  real_pay_fee: 0

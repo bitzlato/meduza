@@ -22,6 +22,7 @@ jobs:
       PGUSER: postgres
       PGHOST: 127.0.0.1
       REDIS_URL: redis://localhost:6379
+      BITZLATO_FREEZE_API_KEY: test_key
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -63,6 +64,6 @@ jobs:
       run: bundle install
     - name: Setup database
       run: bundle exec rake db:create db:schema:load db:migrate
-    - name: Seed database
-      run: bundle exec rake db:seed
+    - name: Setup public database
+      run: cat ./db/public.structure.sql | bundle exec rails dbconsole
     - run: bundle exec rake

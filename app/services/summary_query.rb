@@ -14,7 +14,6 @@ class SummaryQuery
     DangerAddress       => { grouped_by: %w[cc_code], aggregations: ['count(id)'] },
   }.freeze
 
-  # rubocop:disable Metrics/MethodLength
   def summary(scope)
     model_class = scope.model
     return unless SUMMARY_MODELS[model_class].present?
@@ -52,7 +51,6 @@ class SummaryQuery
       rows: rows
     }
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 
