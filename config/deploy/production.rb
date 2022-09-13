@@ -3,6 +3,7 @@
 # frozen_string_literal: true
 
 set :stage, :production
+set :puma_bind, %w[tcp://172.31.0.6:9701]
 
 server ENV['PRODUCTION_HOST'],
        user: fetch(:user),
