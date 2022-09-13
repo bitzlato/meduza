@@ -11,7 +11,7 @@ if ENV['VIA_BASTION']
   bastion_host = ENV['BASTION_HOST'] || 'bastion.example.com'
 
   # Use the local username by default
-  bastion_user = ENV['BASTION_USER'] || ENV['USER']
+  bastion_user = ENV['BASTION_USER'] || ENV.fetch('USER')
 
   # Configure Capistrano to use the bastion host as a proxy
   ssh_command = "ssh #{bastion_user}@#{bastion_host} -W %h:%p"
