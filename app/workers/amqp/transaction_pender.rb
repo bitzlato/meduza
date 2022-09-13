@@ -42,6 +42,8 @@ module AMQP
           logger.warn "PendingAnalysis already exists #{payload} with error #{err}"
         end
       end
+    rescue KeyError => e
+      report_exception(e, true, { service: self.class.name })
     end
   end
 end
