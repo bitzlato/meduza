@@ -93,10 +93,10 @@ set :systemd_sidekiq_role, :sidekiq
 set :systemd_sidekiq_instances, []
 
 set :systemd_daemon_role, :daemons
-set :systemd_daemon_instances, %i[legacy_pender pending_executor withdrawal_checker]
+set :systemd_daemon_instances, %i[pending_executor]
 
 set :systemd_amqp_daemon_role, :amqp_daemons
-set :systemd_amqp_daemon_instances, %i[address_pender transaction_pender legacy_rpc_callback legacy_withdrawal_rpc_callback withdrawal_rpc_callback]
+set :systemd_amqp_daemon_instances, %i[address_pender transaction_pender]
 
 set :app_version, SemVer.find.to_s
 
