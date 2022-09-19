@@ -34,7 +34,6 @@ class TransactionAnalysis < ApplicationRecord
   end
 
   after_save :update_danger_transaction, if: :analyzed_user
-  after_commit :update_blockchain_tx_status, on: %i[create update]
 
   def self.actual?(txid)
     ta = find_by(txid: txid)
@@ -85,18 +84,5 @@ class TransactionAnalysis < ApplicationRecord
       return
     end
     self.analyzed_user = AnalyzedUser.find_or_create_by!(user_id: user.id)
-  end
-
-  def update_blockchain_tx_status
-    BlockchainTx.where(cc_code:  cc_code, txid: txid).update_all(
-      meduza_status:             {
-        transaction_analysis_id: id,
-        analysis_result_id:      analysis_result_id,
-        risk_level:              risk_level,
-        risk_confidence:         risk_confidence,
-        created_at:              created_at,
-        updated_at:              Time.zone.now
-      }
-    )
   end
 end

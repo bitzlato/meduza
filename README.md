@@ -49,9 +49,9 @@ RPC Сообщения отправлять в exchange `meduza` с `route_key=c
 В ответ прилетает следующая структура в exchange `meduza`
 
 ```
-{ 
+{
   address_transaction: 'address or transaction id', # Проверенный адрес или транзакция
-  cc_code: 'BTC', 
+  cc_code: 'BTC',
   action: 'block'|'pass',
   analysis_result_id: 123, # ID Результатов анализа в базе meduza
 }
@@ -61,8 +61,6 @@ RPC Сообщения отправлять в exchange `meduza` с `route_key=c
 
 * `AMQP::TransactionChecker` - подписывается на очередь в rabbimq, принимает от
   нее заказы на проверку адресов и кидает их в `PendingAnalysis`
-* `Daemons::LegacyPender` каждую секунду пробегается по `blockchain_tx` и создает
-  для каждой транзакции новую запись `PendingAnalysis`
 * `Daemons::PendingExecutor` каждые 2 секунды пробегается по `PendingAnalysis`,
   проверяет их через `ValegaAnalyzer`, создаёт `TransactionAnalysis` с
   результатами, устанаилвает статус `PendingAnalysis` в `done`.
