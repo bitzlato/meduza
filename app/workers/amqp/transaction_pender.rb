@@ -5,7 +5,7 @@ module AMQP
     def process(payload, metadata)
       logger.info "process payload=#{payload}, metadata=#{metadata}"
       ta = TransactionAnalysis.find_by(txid: payload.fetch('txid'), cc_code: payload.fetch('cc_code'))
-      if ta.present?
+      if ta.present? && ta.actual? && !payload.dig('force')
         payload = {
           address_transaction: ta.txid,
           cc_code: ta.cc_code,
