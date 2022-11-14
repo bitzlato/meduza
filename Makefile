@@ -1,3 +1,7 @@
+SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+include $(SELF_DIR)/docker.mk
+
 .PHONY: all
 
 pull_structure:
@@ -11,6 +15,6 @@ db_pull: pull_structure pull_data reset_and_load_db
 all: db_pull
 
 reset_and_load_db:
-		rake db:drop db:create RAILS_ENV=development 
+		rake db:drop db:create RAILS_ENV=development
 		cat ./db/public.structure.sql | psql meduza_development
 		cat ./tmp/production.meduza.data.sql | psql meduza_development
