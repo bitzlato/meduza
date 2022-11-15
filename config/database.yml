@@ -72,3 +72,11 @@ production:
     <<: *default
     url: <%= ENV['MEDUZA_REPLICA_DATABASE_URL'] %>
 
+staging:
+  primary:
+    <<: *default
+
+  replica:
+    <<: *default
+    url: <%= ENV['MEDUZA_REPLICA_DATABASE_URL'] %>
+
