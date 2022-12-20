@@ -83,7 +83,8 @@ CREATE TABLE meduza.analysis_results (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     cc_code character varying,
-    type character varying NOT NULL
+    type character varying NOT NULL,
+    analyzer character varying
 );
 
 
@@ -836,6 +837,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220409185430'),
 ('20220409191607'),
 ('20220411064518'),
-('20220412161359');
+('20220412161359'),
+('20221220085241');
 
 
