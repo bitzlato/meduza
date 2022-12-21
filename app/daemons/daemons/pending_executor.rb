@@ -10,9 +10,67 @@ module Daemons
 
     @sleep_time = 2.seconds
 
-    # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
+
     def process
       logger.tagged 'PendingExecutor' do
+        if ENV['AML_SERVICE'] == 'Scorechain'
+          scorechain_process
+        else
+          valega_process
+        end
+      end
+    end
+
+    def scorechain_process
+      logger.tagged 'scorechain_process' do
+        logger.info("Start process")
+        PendingAnalysis.group(:cc_code).count.keys.each do |cc_code|
+          logger.debug("Process #{cc_code}")
+          pending_analises = PendingAnalysis
+            .pending
+            .where(cc_code: cc_code)
+            .where.not(cc_code: Currency.paused.pluck(:cc_code))
+            .order('type, id') # Нам повезло что address отдается первым, его и надо первым проверять
+            .limit(LIMIT)
+
+          # Докидываем на проверку старые транзакции
+          unless pending_analises.any?
+            logger.debug("No new pending transactions for cc_code=#{cc_code}")
+            next
+          end
+          logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
+          pending_analises_for_scorechain = check_existen(pending_analises)
+          currenty = Currency.find_or_create_by!(cc_code: cc_code)
+          if currenty.check?
+            if AML_ANALYZABLE_CODES.include? cc_code
+              logger.info("Check pending analises in scorechain #{pending_analises_for_scorechain.pluck(:address_transaction).join(',')} for #{cc_code}")
+              check_in_scorechain pending_analises_for_scorechain, pending_analises, cc_code
+            else
+              logger.info("Skip pending analises #{pending_analises_for_scorechain.pluck(:address_transaction).join(',')} for #{cc_code}")
+              skip_all pending_analises_for_scorechain
+            end
+          elsif currenty.skip?
+            logger.info("Skip ALL")
+            skip_all pending_analises_for_scorechain
+          end
+          break unless @running
+        rescue ScorechainClient::ResponseError => err
+          report_exception err, true
+          logger.error "Retry: #{err.message}"
+          sleep 10
+          retry
+        rescue StandardError => e
+          binding.pry
+          logger.error "Retry: #{err.message}"
+          report_exception e, true, cc_code: cc_code
+          sleep 10
+        end
+      end
+    end
+
+    # TODO Проверять в одной валеговской транзкции сразу все транзакции по разным валютам
+    def valega_process
+      logger.tagged 'valega_process' do
         logger.info("Start process")
         PendingAnalysis.group(:cc_code).count.keys.each do |cc_code|
           logger.debug("Process #{cc_code}")
@@ -110,6 +168,43 @@ module Daemons
             raise "not supported #{analysis_result}"
           end
         end
+      end
+    end
+
+    def check_in_scorechain(pending_analises_for_scorechain, pending_analises, cc_code)
+      logger.info "Check in scorechain #{pending_analises_for_scorechain.join(', ')}"
+
+      pending_analises_for_scorechain.each do |pending_analise|
+        analysis_result = nil
+
+        Yabeda.meduza.scorechain_request_total.increment(cc_code: cc_code)
+        time = Benchmark.measure do
+          analysis_result = if pending_analise.address?
+                              Scorechain::Analyzer.analize_wallet(wallet: pending_analise.address_transaction, coin: cc_code)
+                            else
+                              Scorechain::Analyzer.analize_transaction(txid: pending_analise.address_transaction, coin: cc_code)
+                            end
+        end
+        Yabeda.meduza.scorechain_request_runtime.measure({cc_code: cc_code}, time.total * 1000)
+
+        logger.info "Process result #{analysis_result.address_transaction}"
+        Yabeda.meduza.checked_pending_analyses.increment({type: analysis_result.type, cc_code: cc_code, risk_level: analysis_result.risk_level}, by: 1)
+        pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
+        logger.info "Done result #{analysis_result.address_transaction}"
+        if analysis_result.transaction?
+          done_transaction_analisis pending_analisis, analysis_result
+        elsif analysis_result.address?
+          done_address_analisis pending_analisis, analysis_result
+        elsif analysis_result.error?
+          done_error_analysis pending_analisis, analysis_result
+        else
+          raise "not supported #{analysis_result}"
+        end
+      rescue Scorechain::Analyzer::NoResult => e
+        # TODO: пропускаем если нет данных по транзакции или кошельку
+        logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
+        pending_analise.skip!
+        rpc_callback pending_analisis, from: :check_in_scorechain if pending_analisis.callback?
       end
     end
 
