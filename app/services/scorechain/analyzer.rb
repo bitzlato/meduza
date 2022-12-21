@@ -67,11 +67,20 @@ module Scorechain
         coin: coin
       }
 
+      Scorechain.logger.info { "Start analysis: #{params}"}
+
       response = JSON.parse(Scorechain.client.scoring_analysis(**params).body)
 
-      analysis = response.dig('analysis', analysis_type.downcase)
+      analysis = if analysis_type == FULL
+                   # Если полный анализ то ищем результат с минимальным score(т.е. c максимальным риском)
+                   ANALYSIS_TYPES.map { |at| response.dig('analysis', at.downcase) }
+                                 .select { |a| a['hasResult'] }
+                                 .min { |a, b| a['result']['score'] <=> b['result']['score'] }
+                 else
+                   response.dig('analysis', analysis_type.downcase)
+                 end
 
-      if analysis['hasResult']
+      if analysis && analysis['hasResult']
         result = analysis['result']
 
         AnalysisResult.create!(
