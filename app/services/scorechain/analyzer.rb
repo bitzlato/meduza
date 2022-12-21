@@ -4,6 +4,9 @@ module Scorechain
   module Analyzer
     module_function
 
+    Error = Class.new(StandardError)
+    NoResult = Class.new(Error)
+
     ANALYZER_NAME = 'Scorechain'
 
     ANALYSIS_TYPES = [
@@ -85,10 +88,11 @@ module Scorechain
           # score + risk_confidence == 1
           risk_confidence: (100 - result['score']) / 100.0
         )
+      else
+        raise NoResult, 'No result'
       end
     rescue ScorechainClient::NotFound => e
-      Scorechain.logger.info { "Can be analized params=#{params} message=#{e.message}" }
-      return nil
+      raise NoResult, e.message
     end
 
     def lookup_blokchain_by_coin(coin)
