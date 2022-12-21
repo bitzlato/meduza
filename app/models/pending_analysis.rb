@@ -59,6 +59,14 @@ class PendingAnalysis < ApplicationRecord
     address_transaction
   end
 
+  def address?
+    type == 'address'
+  end
+
+  def transaction?
+    type == 'transaction'
+  end
+
   private
 
   def log_record!(record)
