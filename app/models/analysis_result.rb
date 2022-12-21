@@ -10,7 +10,7 @@ class AnalysisResult < ApplicationRecord
   TYPES = %w[address transaction error]
   validates :type, presence: true, inclusion: { in: TYPES }
 
-  delegate :risk_msg, :report_url, :observations, to: :response, allow_nil: true
+  delegate :entity_name, :entity_dir_name, :risk_msg, :report_url, :observations, to: :response, allow_nil: true
 
   def pass?
     return false if type == 'error'
@@ -25,16 +25,12 @@ class AnalysisResult < ApplicationRecord
     type == 'error'
   end
 
-  def entity_name
-    response.address_entity_name || response.transaction_entity_name
-  end
-
-  def entity_dir_name
-    response.address_entity_dir_name || response.transaction_entity_dir_name
-  end
-
   def response
-    OpenStruct.new(raw_response)
+    @response ||= if analyzer == Scorechain::Analyzer::ANALYZER_NAME
+                    AnalisisResponse::Scorechain.new(raw_response)
+                  else
+                    AnalisisResponse::Valega.new(raw_response)
+                  end
   end
 
   def transaction?
