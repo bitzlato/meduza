@@ -62,6 +62,5 @@ module AnalisisResponse
     def incoming_score
       incoming.dig('result', 'score')
     end
-
   end
 end

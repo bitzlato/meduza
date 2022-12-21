@@ -13,31 +13,31 @@ module Scorechain
       ASSIGNED = 'ASSIGNED',
       INCOMING = 'INCOMING',
       OUTGOING = 'OUTGOING',
-      FULL     = 'FULL'
+      FULL = 'FULL'
     ].freeze
 
     OBJECT_TYPES = [
       TRANSACTION = 'TRANSACTION',
-      ADDRESS     = 'ADDRESS',
-      WALLET      = 'WALLET'
+      ADDRESS = 'ADDRESS',
+      WALLET = 'WALLET'
     ].freeze
 
     COIN_TO_BLOCKCHAIN = {
-      'BTC'   => 'BITCOIN',
-      'BCH'   => 'BITCOINCASH',
-      'DASH'  => 'DASH',
-      'LTC'   => 'LITECOIN',
-      'ETH'   => 'ETHEREUM',
-      'USDT'  => 'ETHEREUM',
-      'USDC'  => 'ETHEREUM'
+      'BTC' => 'BITCOIN',
+      'BCH' => 'BITCOINCASH',
+      'DASH' => 'DASH',
+      'LTC' => 'LITECOIN',
+      'ETH' => 'ETHEREUM',
+      'USDT' => 'ETHEREUM',
+      'USDC' => 'ETHEREUM'
     }.freeze
 
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,
-      'HIGH_RISK'     => 2,
-      'MEDIUM_RISK'   => 2,
-      'LOW_RISK'      => 1,
-      'NO_RISK'       => 1
+      'HIGH_RISK' => 2,
+      'MEDIUM_RISK' => 2,
+      'LOW_RISK' => 1,
+      'NO_RISK' => 1
     }.freeze
 
     DANGER_RISK_LEVEL = RISK_LEVEL['CRITICAL_RISK']
@@ -58,7 +58,9 @@ module Scorechain
       analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction)
     end
 
-    def analize(analysis_type:, object_type:, object_id:, coin:, blockchain: nil, analysis_result_type:)
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
+    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain: nil)
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
@@ -67,7 +69,7 @@ module Scorechain
         coin: coin
       }
 
-      Scorechain.logger.info { "Start analysis: #{params}"}
+      Scorechain.logger.info { "Start analysis: #{params}" }
 
       response = JSON.parse(Scorechain.client.scoring_analysis(**params).body)
 
@@ -114,13 +116,15 @@ module Scorechain
         type: 'error'
       )
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
     def lookup_blokchain_by_coin(coin)
       COIN_TO_BLOCKCHAIN.fetch(coin)
     end
 
     def analyzable_coin?(coin)
-      COIN_TO_BLOCKCHAIN.keys.include?(coin)
+      COIN_TO_BLOCKCHAIN.key?(coin)
     end
   end
 end

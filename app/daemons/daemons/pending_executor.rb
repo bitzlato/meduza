@@ -1,5 +1,8 @@
 require "benchmark"
 
+# rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/AbcSize
+
 module Daemons
   # Берёт все не обработанные транзакции из pending_transactions и обрабатывает
   # Собирает по ним входящие адреса
@@ -9,7 +12,6 @@ module Daemons
     LIMIT = 100
 
     @sleep_time = 2.seconds
-
 
     def process
       logger.tagged 'PendingExecutor' do
@@ -60,7 +62,6 @@ module Daemons
           sleep 10
           retry
         rescue StandardError => e
-          binding.pry
           logger.error "Retry: #{err.message}"
           report_exception e, true, cc_code: cc_code
           sleep 10
@@ -275,3 +276,5 @@ module Daemons
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
+# rubocop:enable Metrics/AbcSize

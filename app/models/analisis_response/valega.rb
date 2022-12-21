@@ -5,7 +5,9 @@ module AnalisisResponse
     delegate :error, :risk_msg, :report_url, :observations, to: :response, allow_nil: true
 
     def initialize(raw_response)
+      # rubocop:disable Style/OpenStructUse
       @response = OpenStruct.new(raw_response)
+      # rubocop:enable Style/OpenStructUse
     end
 
     def entity_name
