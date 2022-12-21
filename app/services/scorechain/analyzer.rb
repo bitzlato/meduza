@@ -89,10 +89,21 @@ module Scorechain
           risk_confidence: (100 - result['score']) / 100.0
         )
       else
+        Scorechain.logger.info { "Can't analysis #{object_type}=#{object_id}: No result" }
         raise NoResult, 'No result'
       end
     rescue ScorechainClient::NotFound => e
+      Scorechain.logger.info { "Analysis not found for #{object_type}=#{object_id}: #{e.message}" }
       raise NoResult, e.message
+    rescue ScorechainClient::UnprocessableEntity => e
+      Scorechain.logger.info { "Can't process #{object_type}=#{object_id}: #{e.message}" }
+      AnalysisResult.create!(
+        analyzer: ANALYZER_NAME,
+        address_transaction: object_id,
+        raw_response: response,
+        cc_code: coin,
+        type: 'error'
+      )
     end
 
     def lookup_blokchain_by_coin(coin)
