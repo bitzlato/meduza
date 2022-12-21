@@ -14,7 +14,11 @@ class AnalysisResult < ApplicationRecord
 
   def pass?
     return false if type == 'error'
-    ValegaAnalyzer.pass? type, risk_level, risk_confidence
+    if analyzer == Scorechain::Analyzer::ANALYZER_NAME
+      Scorechain::Analyzer.pass?(self)
+    else
+      ValegaAnalyzer.pass? type, risk_level, risk_confidence
+    end
   end
 
   def error?
