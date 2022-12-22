@@ -1,6 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  analyzer: 'Valega'
   address_transaction: 456
   risk_confidence: 1
   risk_level: 1
@@ -8,6 +9,7 @@ one:
   raw_response: '{}'
 
 two:
+  analyzer: 'Valega'
   address_transaction: 123
   risk_confidence: 1
   risk_level: 1
