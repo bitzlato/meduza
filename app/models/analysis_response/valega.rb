@@ -1,4 +1,4 @@
-module AnalisisResponse
+module AnalysisResponse
   class Valega
     attr_reader :response
 

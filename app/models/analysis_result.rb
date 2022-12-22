@@ -29,9 +29,9 @@ class AnalysisResult < ApplicationRecord
 
   def response
     @response ||= if analyzer == Scorechain::Analyzer::ANALYZER_NAME
-                    AnalisisResponse::Scorechain.new(raw_response)
+                    AnalysisResponse::Scorechain.new(raw_response)
                   else
-                    AnalisisResponse::Valega.new(raw_response)
+                    AnalysisResponse::Valega.new(raw_response)
                   end
   end
 

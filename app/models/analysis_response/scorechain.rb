@@ -1,4 +1,4 @@
-module AnalisisResponse
+module AnalysisResponse
   class Scorechain
     attr_reader :response
 
