@@ -7,6 +7,8 @@ class ValegaAnalyzer
     end
   end
 
+  ANALYZER_NAME = 'Valega'.freeze
+
   ADDRESS_DANGER_RISK_LEVEL = 3
   ADDRESS_DANGER_RISK_CONFIDENCE = 1.0
 
