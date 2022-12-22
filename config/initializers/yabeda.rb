@@ -26,7 +26,7 @@ Yabeda.configure do
     unit: :milliseconds
 
   counter :scorechain_request_total,
-    comment: 'A counter of the total number of external Valega HTTP \
+    comment: 'A counter of the total number of external Scorechain HTTP \
                requests.',
     tags: %i[cc_code]
 
