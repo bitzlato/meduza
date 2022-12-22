@@ -1,5 +1,9 @@
 class UpdateAnalysisResultAnalizer < ActiveRecord::Migration[6.1]
+  disable_ddl_transaction!
+
   def up
-    AnalysisResult.in_batches.update_all(analyzer: ValegaAnalyzer::ANALYZER_NAME)
+    # rubocop:disable Rails/SkipsModelValidations
+    AnalysisResult.in_batches(of: 10000).update_all(analyzer: ValegaAnalyzer::ANALYZER_NAME)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 end
