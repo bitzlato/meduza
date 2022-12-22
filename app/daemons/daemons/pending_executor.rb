@@ -15,7 +15,7 @@ module Daemons
 
     def process
       logger.tagged 'PendingExecutor' do
-        if ENV['AML_SERVICE'] == 'Scorechain'
+        if Flipper.enabled?(:scorechain_aml)
           scorechain_process
         else
           valega_process
