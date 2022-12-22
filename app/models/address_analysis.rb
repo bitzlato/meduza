@@ -19,6 +19,10 @@ class AddressAnalysis < ApplicationRecord
 
   after_save :update_danger_addresses
 
+  def self.csv_attributes
+    attribute_names + %w[entity_name entity_dir_name]
+  end
+
   def self.actual?(address)
     find_by(address: address).try &:actual?
   end

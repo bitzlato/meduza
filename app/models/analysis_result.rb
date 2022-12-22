@@ -3,14 +3,16 @@ class AnalysisResult < ApplicationRecord
 
   alias_attribute :txid, :address_transaction
 
-  has_many :address_analysis
-
   validates :cc_code, presence: true, unless: :error?
 
   TYPES = %w[address transaction error]
   validates :type, presence: true, inclusion: { in: TYPES }
 
   delegate :entity_name, :entity_dir_name, :risk_msg, :report_url, :observations, to: :response, allow_nil: true
+
+  def self.csv_attributes
+    attribute_names + %w[entity_name entity_dir_name risk_msg report_url observations]
+  end
 
   def pass?
     return false if type == 'error'

@@ -35,6 +35,10 @@ class TransactionAnalysis < ApplicationRecord
 
   after_save :update_danger_transaction, if: :analyzed_user
 
+  def self.csv_attributes
+    attribute_names + %w[entity_name entity_dir_name risk_msg]
+  end
+
   def self.actual?(txid)
     ta = find_by(txid: txid)
     return false if ta.nil?
