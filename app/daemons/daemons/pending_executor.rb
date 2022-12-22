@@ -42,8 +42,8 @@ module Daemons
           end
           logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
           pending_analises_for_scorechain = check_existen(pending_analises)
-          currenty = Currency.find_or_create_by!(cc_code: cc_code)
-          if currenty.check?
+          currency = Currency.find_or_create_by!(cc_code: cc_code)
+          if currency.check?
             if AML_ANALYZABLE_CODES.include? cc_code
               logger.info("Check pending analises in scorechain #{pending_analises_for_scorechain.pluck(:address_transaction).join(',')} for #{cc_code}")
               check_in_scorechain pending_analises_for_scorechain, pending_analises, cc_code
@@ -51,7 +51,7 @@ module Daemons
               logger.info("Skip pending analises #{pending_analises_for_scorechain.pluck(:address_transaction).join(',')} for #{cc_code}")
               skip_all pending_analises_for_scorechain
             end
-          elsif currenty.skip?
+          elsif currency.skip?
             logger.info("Skip ALL")
             skip_all pending_analises_for_scorechain
           end
@@ -89,8 +89,8 @@ module Daemons
           end
           logger.info("Process pending transactions #{pending_analises.pluck(:address_transaction).join(',')} for #{cc_code}")
           pending_analises_for_valega = check_existen pending_analises
-          currenty = Currency.find_or_create_by!(cc_code: cc_code)
-          if currenty.check?
+          currency = Currency.find_or_create_by!(cc_code: cc_code)
+          if currency.check?
             if AML_ANALYZABLE_CODES.include? cc_code
               logger.info("Check pending analises in valega #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
               check_in_valega pending_analises_for_valega, pending_analises, cc_code
@@ -98,7 +98,7 @@ module Daemons
               logger.info("Skip pending analises #{pending_analises_for_valega.pluck(:address_transaction).join(',')} for #{cc_code}")
               skip_all pending_analises_for_valega
             end
-          elsif currenty.skip?
+          elsif currency.skip?
             logger.info("Skip ALL")
             skip_all pending_analises_for_valega
           end
