@@ -4,6 +4,7 @@ class ScorechainClient
   BadRequest          = Class.new(ResponseError)
   Unauthorized        = Class.new(ResponseError)
   NotFound            = Class.new(ResponseError)
+  TooManyRequests      = Class.new(ResponseError)
   UnprocessableEntity = Class.new(ResponseError)
   InternalServerError = Class.new(ResponseError)
 
@@ -20,6 +21,8 @@ class ScorechainClient
         raise NotFound, env[:response_body]
       when 422
         raise UnprocessableEntity, env[:response_body]
+      when 429
+        raise TooManyRequests, env[:response_body]
       when 500
         raise InternalServerError, env[:response_body]
       else

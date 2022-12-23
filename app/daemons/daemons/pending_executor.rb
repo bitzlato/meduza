@@ -56,7 +56,7 @@ module Daemons
             skip_all pending_analises_for_scorechain
           end
           break unless @running
-        rescue ScorechainClient::ResponseError => err
+        rescue ScorechainClient::TooManyRequests => err
           report_exception err, true
           logger.error "Retry: #{err.message}"
           sleep 10
