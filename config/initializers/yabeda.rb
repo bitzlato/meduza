@@ -25,6 +25,17 @@ Yabeda.configure do
     tags: %i[cc_code],
     unit: :milliseconds
 
+  counter :scorechain_request_total,
+    comment: 'A counter of the total number of external Scorechain HTTP \
+               requests.',
+    tags: %i[cc_code]
+
+  histogram :scorechain_request_runtime,
+    comment: 'How long Scorechain analyze data',
+    buckets: LONG_RUNNING_REQUEST_BUCKETS,
+    tags: %i[cc_code],
+    unit: :milliseconds
+
   collect do
     Currency.
       cc_codes.

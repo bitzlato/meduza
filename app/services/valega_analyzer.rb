@@ -7,6 +7,8 @@ class ValegaAnalyzer
     end
   end
 
+  ANALYZER_NAME = 'Valega'.freeze
+
   ADDRESS_DANGER_RISK_LEVEL = 3
   ADDRESS_DANGER_RISK_CONFIDENCE = 1.0
 
@@ -36,6 +38,7 @@ class ValegaAnalyzer
       .map do |response|
       if response.key? 'error'
         AnalysisResult.create!(
+          analyzer: ANALYZER_NAME,
           address_transaction: response.fetch('value'),
           raw_response: response,
           cc_code: cc_code,
@@ -45,6 +48,7 @@ class ValegaAnalyzer
         risks = response.slice('risk_level', 'risk_confidence')
 
         AnalysisResult.create! risks.merge(
+          analyzer: ANALYZER_NAME,
           address_transaction: response.fetch('value'),
           raw_response: response,
           cc_code: cc_code,

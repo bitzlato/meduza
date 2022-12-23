@@ -1,0 +1,1 @@
+require 'scorechain_client'

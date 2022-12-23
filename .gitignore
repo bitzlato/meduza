@@ -38,3 +38,4 @@ yarn-debug.log*
 .yarn-integrity
 *.sql
 *.sql.gz
+.env*
