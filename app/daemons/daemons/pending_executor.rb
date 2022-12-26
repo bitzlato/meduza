@@ -200,9 +200,9 @@ module Daemons
         else
           raise "not supported #{analysis_result}"
         end
-      rescue Scorechain::Analyzer::NoResult, Scorechain::Analyzer::NotSupportableBlockchain => e
+      rescue Scorechain::Analyzer::NoResult, Scorechain::Analyzer::NotSupportedBlockchain => e
         # TODO: пропускаем если нет данных по транзакции или кошельку
-        # или если блокчей не поддерживается
+        # или если блокчейн не поддерживается
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
