@@ -84,7 +84,8 @@ CREATE TABLE meduza.analysis_results (
     updated_at timestamp(6) without time zone NOT NULL,
     cc_code character varying,
     type character varying NOT NULL,
-    analyzer character varying NOT NULL
+    analyzer character varying NOT NULL,
+    blockchain character varying
 );
 
 
@@ -319,7 +320,8 @@ CREATE TABLE meduza.pending_analyses (
     type character varying,
     analysis_result_id bigint,
     meta jsonb,
-    replied_at timestamp without time zone
+    replied_at timestamp without time zone,
+    blockchain character varying
 );
 
 
@@ -840,6 +842,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220412161359'),
 ('20221220085241'),
 ('20221222123352'),
-('20221222123527');
+('20221222123527'),
+('20221226133822');
 
 
