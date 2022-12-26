@@ -50,22 +50,22 @@ module Scorechain
       analysis_result.risk_level >= DANGER_RISK_LEVEL
     end
 
-    def analize_wallet(wallet:, coin:, blockchain: nil, analysis_type: ASSIGNED)
+    def analize_wallet(wallet:, coin:, blockchain:, analysis_type: ASSIGNED)
       analize(analysis_type: analysis_type, object_type: WALLET, object_id: wallet, coin: coin, blockchain: blockchain, analysis_result_type: :address)
     end
 
-    def analize_transaction(txid:, coin:, blockchain: nil, analysis_type: INCOMING)
+    def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
       analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction)
     end
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
-    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain: nil)
+    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:)
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
         object_id: object_id,
-        blockchain: (blockchain || lookup_blokchain_by_coin(coin)),
+        blockchain: blockchain,
         coin: coin
       }
 
@@ -118,13 +118,5 @@ module Scorechain
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
-
-    def lookup_blokchain_by_coin(coin)
-      COIN_TO_BLOCKCHAIN.fetch(coin)
-    end
-
-    def analyzable_coin?(coin)
-      COIN_TO_BLOCKCHAIN.key?(coin)
-    end
   end
 end
