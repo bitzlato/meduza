@@ -6,6 +6,7 @@ module Scorechain
 
     Error = Class.new(StandardError)
     NoResult = Class.new(Error)
+    NotSupportableBlockchain = Class.new(Error)
 
     ANALYZER_NAME = 'Scorechain'
 
@@ -55,6 +56,8 @@ module Scorechain
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
     def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:)
+      raise NotSupportableBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
+
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
