@@ -22,16 +22,6 @@ module Scorechain
       WALLET = 'WALLET'
     ].freeze
 
-    COIN_TO_BLOCKCHAIN = {
-      'BTC' => 'BITCOIN',
-      'BCH' => 'BITCOINCASH',
-      'DASH' => 'DASH',
-      'LTC' => 'LITECOIN',
-      'ETH' => 'ETHEREUM',
-      'USDT' => 'ETHEREUM',
-      'USDC' => 'ETHEREUM'
-    }.freeze
-
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,
       'HIGH_RISK' => 2,
