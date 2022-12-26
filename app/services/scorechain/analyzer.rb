@@ -22,6 +22,10 @@ module Scorechain
       WALLET = 'WALLET'
     ].freeze
 
+    BLOCKCHAINS = %w[
+      BITCOIN BITCOINCASH LITECOIN DASH ETHEREUM RIPPLE TEZOS TRON BSC
+    ]
+
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,
       'HIGH_RISK' => 2,
