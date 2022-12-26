@@ -190,14 +190,13 @@ module Daemons
 
         logger.info "Process result #{analysis_result.address_transaction}"
         Yabeda.meduza.checked_pending_analyses.increment({type: analysis_result.type, cc_code: cc_code, risk_level: analysis_result.risk_level}, by: 1)
-        pending_analisis = pending_analises.find_by cc_code: cc_code, address_transaction: analysis_result.address_transaction
         logger.info "Done result #{analysis_result.address_transaction}"
         if analysis_result.transaction?
-          done_transaction_analisis pending_analisis, analysis_result
+          done_transaction_analisis pending_analise, analysis_result
         elsif analysis_result.address?
-          done_address_analisis pending_analisis, analysis_result
+          done_address_analisis pending_analise, analysis_result
         elsif analysis_result.error?
-          done_error_analysis pending_analisis, analysis_result
+          done_error_analysis pending_analise, analysis_result
         else
           raise "not supported #{analysis_result}"
         end
@@ -205,7 +204,7 @@ module Daemons
         # TODO: пропускаем если нет данных по транзакции или кошельку
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
         pending_analise.skip!
-        rpc_callback pending_analisis, from: :check_in_scorechain if pending_analisis.callback?
+        rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
       end
     end
 
