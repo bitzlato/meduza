@@ -24,8 +24,7 @@ module AMQP
         }
         begin
           logger.info "find_or_create PendingAnalysis with payload #{payload} and attrs #{attrs}"
-          pa = PendingAnalysis.
-            create_with(attrs).
+          pa = PendingAnalysis.create_with(attrs).
             find_or_create_by!(
               address_transaction: payload.fetch('txid'),
               cc_code:             payload.fetch('cc_code'),

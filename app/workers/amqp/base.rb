@@ -20,7 +20,7 @@ module AMQP
       'p2p-btc-mainnet' => 'BITCOIN',
       'p2p-tron-mainnet' => 'TRON',
       'p2p-bsc-mainnet' => 'BSC'
-    }
+    }.freeze
 
     def initialize
       @logger = Rails.logger.tagged self.class.name

@@ -25,7 +25,7 @@ module Scorechain
 
     BLOCKCHAINS = %w[
       BITCOIN BITCOINCASH LITECOIN DASH ETHEREUM RIPPLE TEZOS TRON BSC
-    ]
+    ].freeze
 
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,

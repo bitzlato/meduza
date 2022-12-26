@@ -183,7 +183,7 @@ module Daemons
           analysis_result = if pending_analise.address?
                               Scorechain::Analyzer.analize_wallet(wallet: pending_analise.address_transaction, blockchain: pending_analise.blockchain, coin: cc_code)
                             else
-                              Scorechain::Analyzer.analize_transaction(txid: pending_analise.address_transaction,  blockchain: pending_analise.blockchain, coin: cc_code)
+                              Scorechain::Analyzer.analize_transaction(txid: pending_analise.address_transaction, blockchain: pending_analise.blockchain, coin: cc_code)
                             end
         end
         Yabeda.meduza.scorechain_request_runtime.measure({cc_code: cc_code}, time.total * 1000)
