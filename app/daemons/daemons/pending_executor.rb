@@ -61,9 +61,9 @@ module Daemons
           logger.error "Retry: #{err.message}"
           sleep 10
           retry
-        rescue StandardError => e
+        rescue StandardError => err
           logger.error "Retry: #{err.message}"
-          report_exception e, true, cc_code: cc_code
+          report_exception err, true, cc_code: cc_code
           sleep 10
         end
       end
