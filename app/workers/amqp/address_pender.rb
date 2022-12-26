@@ -30,6 +30,7 @@ module AMQP
             find_or_create_by!(
               address_transaction: payload.fetch('address'),
               cc_code:             payload.fetch('cc_code'),
+              blockchain:          lookup_blockchain(payload.fetch('blockchain')),
               source:              payload.fetch('source'),
               state:               :pending,
               reply_to:            metadata.reply_to,
