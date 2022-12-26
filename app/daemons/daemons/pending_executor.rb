@@ -172,7 +172,7 @@ module Daemons
       end
     end
 
-    def check_in_scorechain(pending_analises_for_scorechain, pending_analises, cc_code)
+    def check_in_scorechain(pending_analises_for_scorechain, _pending_analises, cc_code)
       logger.info "Check in scorechain #{pending_analises_for_scorechain.join(', ')}"
 
       pending_analises_for_scorechain.each do |pending_analise|
