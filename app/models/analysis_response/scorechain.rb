@@ -8,7 +8,10 @@ module AnalysisResponse
 
     def report_url; end
     def observations; end
-    def error; end
+
+    def error
+      "[#{response['error']}]: #{response['message']}" if response.key?('error')
+    end
 
     def risk_msg
       msg = []
@@ -28,15 +31,15 @@ module AnalysisResponse
     private
 
     def entity
-      assigned.dig('result', 'details', 'entity')
+      assigned&.dig('result', 'details', 'entity')
     end
 
     def assigned
-      response.dig('analysis', 'assigned')
+      response&.dig('analysis', 'assigned')
     end
 
     def incommin_risk
-      response.dig('analysis', 'incoming', 'result', 'risks', 0, 'causes', 0)
+      response&.dig('analysis', 'incoming', 'result', 'risks', 0, 'causes', 0)
     end
 
     def incoming_detail
