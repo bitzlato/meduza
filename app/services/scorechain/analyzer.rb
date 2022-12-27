@@ -5,7 +5,6 @@ module Scorechain
     module_function
 
     Error = Class.new(StandardError)
-    NoResult = Class.new(Error)
     NotSupportedBlockchain = Class.new(Error)
 
     ANALYZER_NAME = 'Scorechain'
@@ -26,6 +25,14 @@ module Scorechain
     BLOCKCHAINS = %w[
       BITCOIN BITCOINCASH LITECOIN DASH ETHEREUM RIPPLE TEZOS TRON BSC
     ].freeze
+
+    USDT_COIN_CHAIN_IDS = {
+      'ETHEREUM' => '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      'TRON' => 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+    }.freeze
+
+    USDT_COIN = 'USDT'
+    MAIN_COIN = 'MAIN'
 
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,
@@ -55,21 +62,44 @@ module Scorechain
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity:
     def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:)
       raise NotSupportedBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
+
+      scorechain_coin = coin
+      # TODO: Для USDT ищем id контракта по названию blockchain,
+      # Если не находим, то анализируем по главной монете(MAIN)
+      scorechain_coin = USDT_COIN_CHAIN_IDS[blockchain] || MAIN_COIN if scorechain_coin == USDT_COIN
 
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
         object_id: object_id,
         blockchain: blockchain,
-        coin: coin
+        coin: scorechain_coin
       }
 
-      Scorechain.logger.info { "Start analysis: #{params}" }
+      Scorechain.logger.info { "Start analysis: #{params} coin=#{coin}" }
+
+      analysis_result = AnalysisResult.new(
+        analyzer: ANALYZER_NAME,
+        address_transaction: object_id,
+        cc_code: coin,
+        blockchain: blockchain,
+        type: analysis_result_type
+      )
 
       response = JSON.parse(Scorechain.client.scoring_analysis(**params).body)
-
+    rescue ScorechainClient::NotFound => e
+      Scorechain.logger.info { "Analysis not found for #{object_type}=#{object_id}: #{e.message}" }
+      analysis_result.update!(type: 'no_result', raw_response: JSON.parse(e.message))
+      analysis_result
+    rescue ScorechainClient::UnprocessableEntity => e
+      Scorechain.logger.info { "Can't process #{object_type}=#{object_id}: #{e.message}" }
+      analysis_result.update!(type: 'error', raw_response: JSON.parse(e.message))
+      analysis_result
+    else
       analysis = if analysis_type == FULL
                    # Если полный анализ то ищем результат с минимальным score(т.е. c максимальным риском)
                    ANALYSIS_TYPES.map { |at| response.dig('analysis', at.downcase) }
@@ -82,13 +112,8 @@ module Scorechain
       if analysis && analysis['hasResult']
         result = analysis['result']
 
-        AnalysisResult.create!(
-          analyzer: ANALYZER_NAME,
-          address_transaction: object_id,
+        analysis_result.update!(
           raw_response: response,
-          cc_code: coin,
-          blockchain: blockchain,
-          type: analysis_result_type,
           risk_level: RISK_LEVEL[result['severity']],
           # score - это risk_level в процентах,
           # тогда risk_confidence обратная величина
@@ -98,24 +123,13 @@ module Scorechain
           risk_confidence: (100 - result['score']) / 100.0
         )
       else
-        Scorechain.logger.info { "Can't analysis #{object_type}=#{object_id}: No result" }
-        raise NoResult, 'No result'
+        analysis_result.update!(type: 'no_result', raw_response: response)
       end
-    rescue ScorechainClient::NotFound => e
-      Scorechain.logger.info { "Analysis not found for #{object_type}=#{object_id}: #{e.message}" }
-      raise NoResult, e.message
-    rescue ScorechainClient::UnprocessableEntity => e
-      Scorechain.logger.info { "Can't process #{object_type}=#{object_id}: #{e.message}" }
-      AnalysisResult.create!(
-        analyzer: ANALYZER_NAME,
-        address_transaction: object_id,
-        raw_response: response,
-        cc_code: coin,
-        blockchain: blockchain,
-        type: 'error'
-      )
+      analysis_result
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity:
   end
 end

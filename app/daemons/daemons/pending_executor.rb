@@ -197,16 +197,23 @@ module Daemons
           done_address_analisis pending_analise, analysis_result
         elsif analysis_result.error?
           done_error_analysis pending_analise, analysis_result
+        elsif analysis_result.no_result?
+          done_no_result_analysis pending_analise, analysis_result
         else
           raise "not supported #{analysis_result}"
         end
-      rescue Scorechain::Analyzer::NoResult, Scorechain::Analyzer::NotSupportedBlockchain => e
-        # TODO: пропускаем если нет данных по транзакции или кошельку
-        # или если блокчейн не поддерживается
+      rescue Scorechain::Analyzer::NotSupportedBlockchain => e
+        # TODO: пропускаем если блокчейн не поддерживается
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
       end
+    end
+
+    def done_no_result_analysis(pending_analisis, analysis_result)
+      pending_analisis.update! analysis_result: analysis_result
+      pending_analisis.skip!
+      rpc_callback pending_analisis, from: :done_no_result_analysis if pending_analisis.callback?
     end
 
     def done_error_analysis(pending_analisis, analysis_result)

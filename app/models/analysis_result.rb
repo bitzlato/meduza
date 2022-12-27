@@ -5,7 +5,7 @@ class AnalysisResult < ApplicationRecord
 
   validates :cc_code, presence: true, unless: :error?
 
-  TYPES = %w[address transaction error]
+  TYPES = %w[address transaction error no_result]
   validates :type, presence: true, inclusion: { in: TYPES }
 
   delegate :entity_name, :entity_dir_name, :risk_msg, :report_url, :observations, to: :response, allow_nil: true
@@ -15,7 +15,9 @@ class AnalysisResult < ApplicationRecord
   end
 
   def pass?
-    return false if type == 'error'
+    return false if error?
+    return true if no_result?
+
     if analyzer == Scorechain::Analyzer::ANALYZER_NAME
       Scorechain::Analyzer.pass?(self)
     else
@@ -25,6 +27,10 @@ class AnalysisResult < ApplicationRecord
 
   def error?
     type == 'error'
+  end
+
+  def no_result?
+    type == 'no_result'
   end
 
   def response
@@ -44,7 +50,7 @@ class AnalysisResult < ApplicationRecord
   end
 
   def message
-    if error?
+    if error? || no_result?
       response.error || 'no error message'
     else
       [risk_msg.presence, entity_name.presence].compact.join('; ') || 'no message'
