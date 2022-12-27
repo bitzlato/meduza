@@ -26,6 +26,14 @@ module Scorechain
       BITCOIN BITCOINCASH LITECOIN DASH ETHEREUM RIPPLE TEZOS TRON BSC
     ].freeze
 
+    USDT_COIN_CHAIN_IDS = {
+      'ETHEREUM' => '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      'TRON' => 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+    }.freeze
+
+    USDT_COIN = 'USDT'
+    MAIN_COIN = 'MAIN'
+
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,
       'HIGH_RISK' => 2,
@@ -54,18 +62,25 @@ module Scorechain
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity:
     def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:)
       raise NotSupportedBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
+
+      scorechain_coin = coin
+      # TODO: Для USDT ищем id контракта по названию blockchain,
+      # Если не находим, то анализируем по главной монете(MAIN)
+      scorechain_coin = USDT_COIN_CHAIN_IDS[blockchain] || MAIN_COIN if scorechain_coin == USDT_COIN
 
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
         object_id: object_id,
         blockchain: blockchain,
-        coin: coin
+        coin: scorechain_coin
       }
 
-      Scorechain.logger.info { "Start analysis: #{params}" }
+      Scorechain.logger.info { "Start analysis: #{params} coin=#{coin}" }
 
       analysis_result = AnalysisResult.new(
         analyzer: ANALYZER_NAME,
@@ -114,5 +129,7 @@ module Scorechain
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity:
   end
 end
