@@ -6,6 +6,7 @@ module Scorechain
 
     Error = Class.new(StandardError)
     NoResult = Class.new(Error)
+    NotSupportedBlockchain = Class.new(Error)
 
     ANALYZER_NAME = 'Scorechain'
 
@@ -22,15 +23,9 @@ module Scorechain
       WALLET = 'WALLET'
     ].freeze
 
-    COIN_TO_BLOCKCHAIN = {
-      'BTC' => 'BITCOIN',
-      'BCH' => 'BITCOINCASH',
-      'DASH' => 'DASH',
-      'LTC' => 'LITECOIN',
-      'ETH' => 'ETHEREUM',
-      'USDT' => 'ETHEREUM',
-      'USDC' => 'ETHEREUM'
-    }.freeze
+    BLOCKCHAINS = %w[
+      BITCOIN BITCOINCASH LITECOIN DASH ETHEREUM RIPPLE TEZOS TRON BSC
+    ].freeze
 
     RISK_LEVEL = {
       'CRITICAL_RISK' => 3,
@@ -50,22 +45,24 @@ module Scorechain
       analysis_result.risk_level >= DANGER_RISK_LEVEL
     end
 
-    def analize_wallet(wallet:, coin:, blockchain: nil, analysis_type: ASSIGNED)
+    def analize_wallet(wallet:, coin:, blockchain:, analysis_type: ASSIGNED)
       analize(analysis_type: analysis_type, object_type: WALLET, object_id: wallet, coin: coin, blockchain: blockchain, analysis_result_type: :address)
     end
 
-    def analize_transaction(txid:, coin:, blockchain: nil, analysis_type: INCOMING)
+    def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
       analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction)
     end
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
-    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain: nil)
+    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:)
+      raise NotSupportedBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
+
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
         object_id: object_id,
-        blockchain: (blockchain || lookup_blokchain_by_coin(coin)),
+        blockchain: blockchain,
         coin: coin
       }
 
@@ -90,6 +87,7 @@ module Scorechain
           address_transaction: object_id,
           raw_response: response,
           cc_code: coin,
+          blockchain: blockchain,
           type: analysis_result_type,
           risk_level: RISK_LEVEL[result['severity']],
           # score - это risk_level в процентах,
@@ -113,18 +111,11 @@ module Scorechain
         address_transaction: object_id,
         raw_response: response,
         cc_code: coin,
+        blockchain: blockchain,
         type: 'error'
       )
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
-
-    def lookup_blokchain_by_coin(coin)
-      COIN_TO_BLOCKCHAIN.fetch(coin)
-    end
-
-    def analyzable_coin?(coin)
-      COIN_TO_BLOCKCHAIN.key?(coin)
-    end
   end
 end

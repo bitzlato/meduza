@@ -181,9 +181,9 @@ module Daemons
         Yabeda.meduza.scorechain_request_total.increment(cc_code: cc_code)
         time = Benchmark.measure do
           analysis_result = if pending_analise.address?
-                              Scorechain::Analyzer.analize_wallet(wallet: pending_analise.address_transaction, coin: cc_code)
+                              Scorechain::Analyzer.analize_wallet(wallet: pending_analise.address_transaction, blockchain: pending_analise.blockchain, coin: cc_code)
                             else
-                              Scorechain::Analyzer.analize_transaction(txid: pending_analise.address_transaction, coin: cc_code)
+                              Scorechain::Analyzer.analize_transaction(txid: pending_analise.address_transaction, blockchain: pending_analise.blockchain, coin: cc_code)
                             end
         end
         Yabeda.meduza.scorechain_request_runtime.measure({cc_code: cc_code}, time.total * 1000)
@@ -200,8 +200,9 @@ module Daemons
         else
           raise "not supported #{analysis_result}"
         end
-      rescue Scorechain::Analyzer::NoResult => e
+      rescue Scorechain::Analyzer::NoResult, Scorechain::Analyzer::NotSupportedBlockchain => e
         # TODO: пропускаем если нет данных по транзакции или кошельку
+        # или если блокчейн не поддерживается
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
