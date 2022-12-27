@@ -69,11 +69,11 @@ class ApplicationDecorator < Draper::Decorator
     end
   end
 
-  def blockchain
-    h.link_to h.blockchain_url(object.blockchain) do
-      h.content_tag :span, object.blockchain.key, class: 'text-nowrap text-monospace'
-    end
-  end
+  #def blockchain
+  #  h.link_to h.blockchain_url(object.blockchain) do
+  #    h.content_tag :span, object.blockchain.key, class: 'text-nowrap text-monospace'
+  #  end
+  #end
 
   def txid
     present_txid object.txid
