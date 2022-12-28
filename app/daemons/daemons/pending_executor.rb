@@ -205,8 +205,14 @@ module Daemons
       rescue Scorechain::Analyzer::NotSupportedBlockchain => e
         # TODO: пропускаем если блокчейн не поддерживается
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
+        report_exception e, true, { pending_analisis: pending_analisis }
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
+      rescue ScorechainClient::InternalServerError => e
+        # TODO: Возможно транзакция еще не подтвердилась в сети
+        # оставляем pending_analise в pending в надеже что пройдет проверку в следующий раз
+        logger.info "Leave in pending state #{pending_analise.address_transaction}. #{e.message}"
+        report_exception e, true, { pending_analisis: pending_analisis }
       end
     end
 

@@ -97,6 +97,7 @@ module Scorechain
       analysis_result
     rescue ScorechainClient::UnprocessableEntity => e
       Scorechain.logger.info { "Can't process #{object_type}=#{object_id}: #{e.message}" }
+      report_exception e, true, params: params.merge(cc_code: coin)
       analysis_result.update!(type: 'error', raw_response: JSON.parse(e.message))
       analysis_result
     else
