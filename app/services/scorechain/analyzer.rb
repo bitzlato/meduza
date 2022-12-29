@@ -53,7 +53,7 @@ module Scorechain
     end
 
     def analize_wallet(wallet:, coin:, blockchain:, analysis_type: ASSIGNED)
-      analize(analysis_type: analysis_type, object_type: WALLET, object_id: wallet, coin: coin, blockchain: blockchain, analysis_result_type: :address)
+      analize(analysis_type: analysis_type, object_type: ADDRESS, object_id: wallet, coin: coin, blockchain: blockchain, analysis_result_type: :address)
     end
 
     def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
