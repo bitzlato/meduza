@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module Scorechain
   module Analyzer
     module_function
@@ -22,13 +23,21 @@ module Scorechain
       WALLET = 'WALLET'
     ].freeze
 
-    BLOCKCHAINS = %w[
-      BITCOIN BITCOINCASH LITECOIN DASH ETHEREUM RIPPLE TEZOS TRON BSC
+    BLOCKCHAINS = [
+      BITCOIN = 'BITCOIN',
+      BITCOINCASH = 'BITCOINCASH',
+      LITECOIN = 'LITECOIN',
+      DASH = 'DASH',
+      ETHEREUM = 'ETHEREUM',
+      RIPPLE = 'RIPPLE',
+      TEZOS = 'TEZOS',
+      TRON = 'TRON',
+      BSC = 'BSC'
     ].freeze
 
     USDT_COIN_CHAIN_IDS = {
-      'ETHEREUM' => '0xdac17f958d2ee523a2206206994597c13d831ec7',
-      'TRON' => 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+      ETHEREUM => '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      TRON => 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
     }.freeze
 
     USDT_COIN = 'USDT'
@@ -53,13 +62,14 @@ module Scorechain
     end
 
     def analize_wallet(wallet:, coin:, blockchain:, analysis_type: ASSIGNED)
-      analize(analysis_type: analysis_type, object_type: ADDRESS, object_id: wallet, coin: coin, blockchain: blockchain, analysis_result_type: :address)
+      analize(analysis_type: analysis_type, object_type: WALLET, object_id: wallet, coin: coin, blockchain: blockchain, analysis_result_type: :address)
     end
 
     def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
       analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction)
     end
 
+    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
     # rubocop:disable Metrics/PerceivedComplexity
@@ -72,10 +82,18 @@ module Scorechain
       # Если не находим, то анализируем по главной монете(MAIN)
       scorechain_coin = USDT_COIN_CHAIN_IDS[blockchain] || MAIN_COIN if scorechain_coin == USDT_COIN
 
+      scorechain_object_id = if object_type == TRANSACTION
+                               # TODO: Из беломора может приходить транзакция вида txid:internals:1
+                               object_id.split(":").first
+                             else
+                               # TODO: Удаляем префикс из адреса для сети bitcoincash
+                               object_id.delete_prefix("#{BITCOINCASH.downcase}:")
+                             end
+
       params = {
         analysis_type: analysis_type,
         object_type: object_type,
-        object_id: object_id,
+        object_id: scorechain_object_id,
         blockchain: blockchain,
         coin: scorechain_coin
       }
@@ -128,9 +146,12 @@ module Scorechain
       end
       analysis_result
     end
+    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/CyclomaticComplexity:
   end
 end
+
+# rubocop:enable Metrics/ModuleLength
