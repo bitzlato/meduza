@@ -50,6 +50,10 @@ class ScorechainClient
               coin: coin}.to_json)
   end
 
+  def blockchain_transaction(blockchain:, txid:)
+    conn.get("blockchains/#{blockchain}/transactions/#{txid}")
+  end
+
   private
 
   def conn
