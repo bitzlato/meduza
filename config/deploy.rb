@@ -103,6 +103,7 @@ set :app_version, SemVer.find.to_s
 after 'deploy:publishing', 'systemd:puma:reload-or-restart'
 after 'deploy:publishing', 'systemd:daemon:reload-or-restart'
 after 'deploy:publishing', 'systemd:amqp_daemon:reload-or-restart'
+after 'deploy:publishing', 'systemd:sidekiq:reload-or-restart'
 
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
 
