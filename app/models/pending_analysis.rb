@@ -4,6 +4,8 @@ class PendingAnalysis < ApplicationRecord
   scope :addresses, -> { where type: :address }
   scope :transactions, -> { where type: :transaction }
 
+  scope :outdated, -> { where('created_at <= ?', 15.minutes.ago) }
+
   include AASM
   belongs_to :analysis_result, optional: true
 

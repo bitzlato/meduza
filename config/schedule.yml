@@ -1,0 +1,3 @@
+outdated_pending_analysis_checker:
+  cron: "*/15 * * * *"
+  class: "OutdatedPendingAnalysisChecker"
