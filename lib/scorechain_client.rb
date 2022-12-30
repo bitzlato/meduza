@@ -41,13 +41,17 @@ class ScorechainClient
   end
 
   # https://tech-doc.api.scorechain.com/#/Scoring/post_scoringAnalysis
-  def scoring_analysis(analysis_type:, object_type:, object_id:, blockchain:, coin:)
-    conn.post('scoringAnalysis',
-              {analysisType: analysis_type,
-              objectType: object_type,
-              objectId: object_id,
-              blockchain: blockchain,
-              coin: coin}.to_json)
+  def scoring_analysis(analysis_type:, object_type:, object_id:, blockchain:, coin:, depth: nil)
+    params = {
+      analysisType: analysis_type,
+      objectType: object_type,
+      objectId: object_id,
+      blockchain: blockchain,
+      coin: coin
+    }
+    params[:depth] = depth if depth.present?
+
+    conn.post('scoringAnalysis', params.to_json)
   end
 
   def blockchain_transaction(blockchain:, txid:)
