@@ -69,7 +69,7 @@ module Scorechain
     def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
       # TODO: Проверяем что транзакция может быть обработана
       begin
-        Scorechain.client.blockchain_transactionn(blockchain: blockchain, txid: txid)
+        Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: txid)
       rescue ScorechainClient::InternalServerError => e
         Scorechain.logger.info { "Transaction #{txid} in blockchain #{blockchain} is unprocessable" }
         raise UnprocessableTransaction, e.message

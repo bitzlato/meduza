@@ -23,7 +23,7 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   # Schema search path. The server defaults to $user,public
   schema_search_path: meduza,public
-  url: <%= ENV['MEDUZA_DATABASE_URL'] %>
+  url: <%= ENV.fetch('MEDUZA_DATABASE_URL', 'postgres://localhost/meduza_development') %>
 
 development:
   primary:
