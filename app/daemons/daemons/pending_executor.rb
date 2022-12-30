@@ -208,7 +208,7 @@ module Daemons
         report_exception e, true, { pending_analise: pending_analise }
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
-      rescue  Scorechain::Analyzer::UnprocessableTransaction => e
+      rescue Scorechain::Analyzer::UnprocessableTransaction => e
         # TODO: Возможно транзакция еще не подтвердилась в сети
         # оставляем pending_analise в pending в надеже что пройдет проверку в следующий раз
         logger.info "Leave in pending state #{pending_analise.address_transaction}. #{e.message}"

@@ -75,7 +75,7 @@ module Scorechain
         raise UnprocessableTransaction, e.message
       end
 
-      analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction)
+      analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction, depth: 1)
     end
 
     # rubocop:disable Metrics/AbcSize
@@ -83,7 +83,7 @@ module Scorechain
     # rubocop:disable Metrics/ParameterLists
     # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/CyclomaticComplexity:
-    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:)
+    def analize(analysis_type:, object_type:, object_id:, coin:, analysis_result_type:, blockchain:, depth: nil)
       raise NotSupportedBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
 
       scorechain_coin = coin
@@ -104,7 +104,8 @@ module Scorechain
         object_type: object_type,
         object_id: scorechain_object_id,
         blockchain: blockchain,
-        coin: scorechain_coin
+        coin: scorechain_coin,
+        depth: depth
       }
 
       Scorechain.logger.info { "Start analysis: #{params} coin=#{coin}" }
