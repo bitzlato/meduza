@@ -7,6 +7,7 @@ module Scorechain
 
     Error = Class.new(StandardError)
     NotSupportedBlockchain = Class.new(Error)
+    UnprocessableTransaction = Class.new(Error)
 
     ANALYZER_NAME = 'Scorechain'
 
@@ -66,6 +67,14 @@ module Scorechain
     end
 
     def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
+      # TODO: Проверяем что транзакция может быть обработана
+      begin
+        Scorechain.client.blockchain_transactionn(blockchain: blockchain, txid: txid)
+      rescue ScorechainClient::InternalServerError => e
+        Scorechain.logger.info { "Transaction #{txid} in blockchain #{blockchain} is unprocessable" }
+        raise UnprocessableTransaction, e.message
+      end
+
       analize(analysis_type: analysis_type, object_type: TRANSACTION, object_id: txid, coin: coin, blockchain: blockchain, analysis_result_type: :transaction)
     end
 
