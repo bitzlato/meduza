@@ -70,7 +70,7 @@ module Scorechain
       # TODO: Проверяем что транзакция может быть обработана
       begin
         Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: txid)
-      rescue ScorechainClient::InternalServerError => e
+      rescue ScorechainClient::InternalServerError, ScorechainClient::NotFound => e
         Scorechain.logger.info { "Transaction #{txid} in blockchain #{blockchain} is unprocessable" }
         raise UnprocessableTransaction, e.message
       end
