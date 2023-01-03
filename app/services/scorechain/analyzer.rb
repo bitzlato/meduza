@@ -38,7 +38,8 @@ module Scorechain
 
     USDT_COIN_CHAIN_IDS = {
       ETHEREUM => '0xdac17f958d2ee523a2206206994597c13d831ec7',
-      TRON => 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+      TRON => 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+      BSC => '0x55d398326f99059ff775485246999027b3197955'
     }.freeze
 
     USDT_COIN = 'USDT'
