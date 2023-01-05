@@ -56,11 +56,6 @@ module Daemons
             skip_all pending_analises_for_scorechain
           end
           break unless @running
-        rescue ScorechainClient::TooManyRequests => err
-          report_exception err, true
-          logger.error "Retry: #{err.message}"
-          sleep 10
-          retry
         rescue StandardError => err
           logger.error "Retry: #{err.message}"
           report_exception err, true, cc_code: cc_code
@@ -172,6 +167,7 @@ module Daemons
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def check_in_scorechain(pending_analises_for_scorechain, _pending_analises, cc_code)
       logger.info "Check in scorechain #{pending_analises_for_scorechain.join(', ')}"
 
@@ -212,8 +208,19 @@ module Daemons
         # TODO: Возможно транзакция еще не подтвердилась в сети
         # оставляем pending_analise в pending в надеже что пройдет проверку в следующий раз
         logger.info "Leave in pending state #{pending_analise.address_transaction}. #{e.message}"
+      rescue ScorechainClient::TooManyRequests => err
+        report_exception err, true
+        logger.error "Retry: #{err.message}"
+        sleep 10
+        retry
+      rescue ScorechainClient::ResponseError => err
+        # TODO: Не блочит проверку остальных адресов/транзакций
+        # если проверка упала по причине не правильных данных или др.
+        report_exception err, true, { pending_analise: pending_analise }
+        logger.error "Retry: #{err.message}"
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def done_no_result_analysis(pending_analisis, analysis_result)
       pending_analisis.update! analysis_result: analysis_result

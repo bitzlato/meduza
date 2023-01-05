@@ -4,7 +4,7 @@ class ScorechainClient
   BadRequest          = Class.new(ResponseError)
   Unauthorized        = Class.new(ResponseError)
   NotFound            = Class.new(ResponseError)
-  TooManyRequests      = Class.new(ResponseError)
+  TooManyRequests     = Class.new(ResponseError)
   UnprocessableEntity = Class.new(ResponseError)
   InternalServerError = Class.new(ResponseError)
 
