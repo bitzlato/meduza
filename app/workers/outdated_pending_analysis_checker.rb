@@ -11,8 +11,7 @@ class OutdatedPendingAnalysisChecker < ApplicationJob
     new_ids = ids - old_ids
 
     if new_ids.any?
-      message = %(:warning: Есть новые зависшие проверки\n#{new_ids.map { |id| "https://meduza.lgk.one/pending_analyses/#{id}" }.join("\n")})
-      message << "\n Всего зависло #{ids.size}"
+      message = %(:warning: Есть новые зависшие проверки\n#{new_ids.map { |id| "https://meduza.lgk.one/pending_analyses/#{id}" }.join("\n")}\n\nВсего зависло #{ids.size} проверки)
       SlackNotifier.notifications.ping(message)
     end
 
