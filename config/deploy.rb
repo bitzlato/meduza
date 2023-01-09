@@ -90,7 +90,7 @@ set :puma_extra_settings, %{
 set :init_system, :systemd
 
 set :systemd_sidekiq_role, :sidekiq
-set :systemd_sidekiq_instances, []
+set :systemd_sidekiq_instances, -> { %i[default] }
 
 set :systemd_daemon_role, :daemons
 set :systemd_daemon_instances, %i[pending_executor]
@@ -103,6 +103,7 @@ set :app_version, SemVer.find.to_s
 after 'deploy:publishing', 'systemd:puma:reload-or-restart'
 after 'deploy:publishing', 'systemd:daemon:reload-or-restart'
 after 'deploy:publishing', 'systemd:amqp_daemon:reload-or-restart'
+after 'deploy:publishing', 'systemd:sidekiq:reload-or-restart'
 
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
 
