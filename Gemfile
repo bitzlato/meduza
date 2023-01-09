@@ -143,3 +143,5 @@ gem "flipper-ui", "~> 0.24.0"
 gem "rails-ujs", "~> 0.1.0"
 
 gem "slack-notifier", "~> 2.4"
+
+gem 'redis-objects', '>= 2.0.0.alpha'

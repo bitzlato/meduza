@@ -4,7 +4,7 @@ class OutdatedPendingAnalysisChecker < ApplicationJob
   CACHE_KEY = 'outdated_pending_analysis'
 
   def perform
-    pending_analysis = PendingAnalysis.pending.outdated
+    pending_analysis = PendingAnalysis.outdated
 
     ids = pending_analysis.ids
     old_ids = retive_ids
@@ -26,7 +26,7 @@ class OutdatedPendingAnalysisChecker < ApplicationJob
 
     begin
       Marshal.load(res)
-    rescue TypeError => e
+    rescue TypeError
       []
     end
   end
