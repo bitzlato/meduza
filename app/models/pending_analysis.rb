@@ -1,8 +1,10 @@
 class PendingAnalysis < ApplicationRecord
   self.inheritance_column = nil
+  OUTDATED_TIME = 15.minutes
 
   scope :addresses, -> { where type: :address }
   scope :transactions, -> { where type: :transaction }
+  scope :outdated, -> { where('created_at <= ?', OUTDATED_TIME.ago) }
 
   include AASM
   belongs_to :analysis_result, optional: true
