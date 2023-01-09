@@ -22,7 +22,13 @@ class OutdatedPendingAnalysisChecker < ApplicationJob
 
   # rubocop:disable Security/MarshalLoad
   def retive_ids
-    redis.get(CACHE_KEY).then { |res| res.present? ? Marshal.load(res) : [] }
+    res = redis.get(CACHE_KEY)
+
+    begin
+      Marshal.load(res)
+    rescue TypeError => e
+      []
+    end
   end
   # rubocop:enable Security/MarshalLoad
 
