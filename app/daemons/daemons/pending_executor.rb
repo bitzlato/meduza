@@ -175,7 +175,7 @@ module Daemons
       logger.info "Check in scorechain #{pending_analises_for_scorechain.join(', ')}"
 
       pending_analises_for_scorechain.each do |pending_analise|
-        # TODO: Пропускаем проверку если next_try_at больше текущего времени
+        # Пропускаем проверку если next_try_at больше текущего времени
         next if pending_analise.next_try_at.value && pending_analise.next_try_at.value > Time.current
 
         # ждем если достигли лимита
@@ -208,13 +208,13 @@ module Daemons
           raise "not supported #{analysis_result}"
         end
       rescue Scorechain::Analyzer::NotSupportedBlockchain => e
-        # TODO: пропускаем если блокчейн не поддерживается
+        # Скипаем проверку если блокчейн не поддерживается
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
         report_exception e, true, { pending_analise: pending_analise }
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
       rescue Scorechain::Analyzer::UnprocessableTransaction => e
-        # TODO: Возможно транзакция еще не подтвердилась в сети
+        # Возможно транзакция еще не подтвердилась в сети
         # оставляем pending_analise в pending в надеже что пройдет проверку в следующий раз
         # Переводим в errored если кол-во попыток исчерпано
         retry_count = pending_analise.retry_count.increment
@@ -224,7 +224,11 @@ module Daemons
         else
           pending_analise.error!
           logger.info "Transit to error state #{pending_analise}. #{e.message}"
-          SlackNotifier.notifications.ping(":warning: [Error] Исчерпано кол-во попыток проверок для https://meduza.lgk.one/pending_analyses/#{pending_analise.id}.")
+          begin
+            SlackNotifier.notifications.ping(":warning: [Error] Исчерпано кол-во попыток проверок для https://meduza.lgk.one/pending_analyses/#{pending_analise.id}.")
+          rescue StandardError => err
+            report_exception err, true
+          end
         end
       rescue ScorechainClient::TooManyRequests => err
         report_exception err, true
@@ -232,7 +236,7 @@ module Daemons
         sleep 10
         retry
       rescue ScorechainClient::ResponseError => err
-        # TODO: Не блочит проверку остальных адресов/транзакций
+        # Не блочить проверку остальных адресов/транзакций
         # если проверка упала по причине не правильных данных или др.
         report_exception err, true, { pending_analise: pending_analise }
         logger.error "Retry: #{err.message}"
