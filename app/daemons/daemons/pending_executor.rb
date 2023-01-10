@@ -178,6 +178,9 @@ module Daemons
         # TODO: Пропускаем проверку если next_try_at больше текущего времени
         next if pending_analise.next_try_at.value && pending_analise.next_try_at.value > Time.current
 
+        # ждем если достигли лимита
+        scorechain_rate_limiter.shift
+
         analysis_result = nil
 
         Yabeda.meduza.scorechain_request_total.increment(cc_code: cc_code)
@@ -313,6 +316,12 @@ module Daemons
     # https://gist.github.com/marcotc/39b0d5e8100f0f4cd4d38eff9f09dcd5
     def exp_delay(retry_count)
       (retry_count**4) + 15 + (rand(30) * (retry_count + 1))
+    end
+
+    def scorechain_rate_limiter
+      @scorechain_rate_limiter ||= Limiter::RateQueue.new(50, interval: 10) do
+        logger.info "Hit the limit, waiting"
+      end
     end
   end
 end

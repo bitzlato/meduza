@@ -414,6 +414,7 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
+    ruby-limiter (2.2.2)
     ruby-next-core (0.15.1)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
@@ -598,6 +599,7 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   rubocop-rails
+  ruby-limiter (~> 2.2)
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver

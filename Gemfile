@@ -145,3 +145,5 @@ gem "rails-ujs", "~> 0.1.0"
 gem "slack-notifier", "~> 2.4"
 
 gem 'redis-objects', '>= 2.0.0.alpha'
+
+gem "ruby-limiter", "~> 2.2"
