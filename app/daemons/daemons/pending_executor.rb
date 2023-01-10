@@ -220,7 +220,7 @@ module Daemons
         retry_count = pending_analise.retry_count.increment
         if retry_count < MAX_RETRY_COUNT
           pending_analise.next_try_at = Time.current + exp_delay(retry_count)
-          logger.info "Leave in pending state #{pending_analise}. retry_count=#{retry_count} next_try_at=#{pending_analise.next_try_at}: #{err.message}"
+          logger.info "Leave in pending state #{pending_analise}. retry_count=#{retry_count} next_try_at=#{pending_analise.next_try_at}: #{e.message}"
         else
           pending_analise.error!
           logger.info "Transit to error state #{pending_analise}. #{e.message}"
