@@ -3,6 +3,12 @@
     span.mr-2 Очередь на проверку
     b
       = link_to pending_queue_size, pending_analyses_path
+    - outdated_count = PendingAnalysis.outdated.count
+    - if outdated_count > 0
+      b
+        |(
+        = link_to "из них зависло #{outdated_count}", pending_analyses_path(q: {state_eq: 'pending', created_at_lt: PendingAnalysis.outdated_time})
+        |)
   div
     span.mr-2 Последняя совершённая проверка
     - last = PendingAnalysis.done.last

@@ -2,6 +2,8 @@ require "benchmark"
 
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/PerceivedComplexity
 
 module Daemons
   # Берёт все не обработанные транзакции из pending_transactions и обрабатывает
@@ -10,6 +12,7 @@ module Daemons
   #
   class PendingExecutor < Base
     LIMIT = 100
+    MAX_RETRY_COUNT = 15 # ~2 дня
 
     @sleep_time = 2.seconds
 
@@ -172,6 +175,12 @@ module Daemons
       logger.info "Check in scorechain #{pending_analises_for_scorechain.join(', ')}"
 
       pending_analises_for_scorechain.each do |pending_analise|
+        # Пропускаем проверку если next_try_at больше текущего времени
+        next if pending_analise.next_try_at.value && pending_analise.next_try_at.value > Time.current
+
+        # ждем если достигли лимита
+        scorechain_rate_limiter.shift
+
         analysis_result = nil
 
         Yabeda.meduza.scorechain_request_total.increment(cc_code: cc_code)
@@ -199,22 +208,35 @@ module Daemons
           raise "not supported #{analysis_result}"
         end
       rescue Scorechain::Analyzer::NotSupportedBlockchain => e
-        # TODO: пропускаем если блокчейн не поддерживается
+        # Скипаем проверку если блокчейн не поддерживается
         logger.info "Skipped #{pending_analise.address_transaction}. #{e.message}"
         report_exception e, true, { pending_analise: pending_analise }
         pending_analise.skip!
         rpc_callback pending_analise, from: :check_in_scorechain if pending_analise.callback?
       rescue Scorechain::Analyzer::UnprocessableTransaction => e
-        # TODO: Возможно транзакция еще не подтвердилась в сети
+        # Возможно транзакция еще не подтвердилась в сети
         # оставляем pending_analise в pending в надеже что пройдет проверку в следующий раз
-        logger.info "Leave in pending state #{pending_analise.address_transaction}. #{e.message}"
+        # Переводим в errored если кол-во попыток исчерпано
+        retry_count = pending_analise.retry_count.increment
+        if retry_count < MAX_RETRY_COUNT
+          pending_analise.next_try_at = Time.current + exp_delay(retry_count)
+          logger.info "Leave in pending state #{pending_analise}. retry_count=#{retry_count} next_try_at=#{pending_analise.next_try_at}: #{e.message}"
+        else
+          pending_analise.error!
+          logger.info "Transit to error state #{pending_analise}. #{e.message}"
+          begin
+            SlackNotifier.notifications.ping(":warning: [Error] Исчерпано кол-во попыток проверок для https://meduza.lgk.one/pending_analyses/#{pending_analise.id}.")
+          rescue StandardError => err
+            report_exception err, true
+          end
+        end
       rescue ScorechainClient::TooManyRequests => err
         report_exception err, true
         logger.error "Retry: #{err.message}"
         sleep 10
         retry
       rescue ScorechainClient::ResponseError => err
-        # TODO: Не блочит проверку остальных адресов/транзакций
+        # Не блочить проверку остальных адресов/транзакций
         # если проверка упала по причине не правильных данных или др.
         report_exception err, true, { pending_analise: pending_analise }
         logger.error "Retry: #{err.message}"
@@ -293,7 +315,21 @@ module Daemons
       AMQP::Queue.publish :meduza, payload, properties
       pending_analisis.touch :replied_at
     end
+
+    # Экспоненциальный delay
+    # https://gist.github.com/marcotc/39b0d5e8100f0f4cd4d38eff9f09dcd5
+    def exp_delay(retry_count)
+      (retry_count**4) + 15 + (rand(30) * (retry_count + 1))
+    end
+
+    def scorechain_rate_limiter
+      @scorechain_rate_limiter ||= Limiter::RateQueue.new(50, interval: 10) do
+        logger.info "Hit the limit, waiting"
+      end
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/PerceivedComplexity

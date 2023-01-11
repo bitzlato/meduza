@@ -1,10 +1,12 @@
 class PendingAnalysis < ApplicationRecord
+  include Redis::Objects
+
   self.inheritance_column = nil
   OUTDATED_TIME = 15.minutes
 
   scope :addresses, -> { where type: :address }
   scope :transactions, -> { where type: :transaction }
-  scope :outdated, -> { where('created_at <= ?', OUTDATED_TIME.ago) }
+  scope :outdated, -> { pending.where('created_at <= ?', outdated_time) }
 
   include AASM
   belongs_to :analysis_result, optional: true
@@ -41,12 +43,23 @@ class PendingAnalysis < ApplicationRecord
     end
 
     event :pend do
-      transitions from: :skipped, to: :pend
+      transitions from: %i[skipped errored], to: :pending
+      after do
+        retry_count.delete
+        next_try_at.delete
+      end
     end
 
     event :error do
       transitions from: :pending, to: :errored
     end
+  end
+
+  counter :retry_count
+  value :next_try_at, marshal: true
+
+  def self.outdated_time
+    OUTDATED_TIME.ago
   end
 
   def callback?
