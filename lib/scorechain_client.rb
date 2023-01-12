@@ -1,6 +1,7 @@
 class ScorechainClient
   Error               = Class.new(StandardError)
   ResponseError       = Class.new(Error)
+  Timeout             = Class.new(ResponseError)
   BadRequest          = Class.new(ResponseError)
   Unauthorized        = Class.new(ResponseError)
   NotFound            = Class.new(ResponseError)
@@ -25,6 +26,8 @@ class ScorechainClient
         raise TooManyRequests, env[:response_body]
       when 500
         raise InternalServerError, env[:response_body]
+      when 504
+        raise Timeout, env[:response_body]
       else
         raise ResponseError, env[:response_body]
       end

@@ -230,7 +230,7 @@ module Daemons
             report_exception err, true
           end
         end
-      rescue ScorechainClient::TooManyRequests => err
+      rescue ScorechainClient::TooManyRequests, ScorechainClient::Timeout => err
         report_exception err, true
         logger.error "Retry: #{err.message}"
         sleep 10
