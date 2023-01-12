@@ -70,7 +70,7 @@ module Scorechain
     def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
       # TODO: Проверяем что транзакция может быть обработана
       begin
-        Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: txid.split(":").first)
+        Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: normalize_txid(txid))
       rescue ScorechainClient::InternalServerError, ScorechainClient::NotFound => e
         Scorechain.logger.info { "Transaction #{txid} in blockchain #{blockchain} is unprocessable" }
         raise UnprocessableTransaction, e.message
@@ -88,17 +88,11 @@ module Scorechain
       raise NotSupportedBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
 
       scorechain_coin = coin
-      # TODO: Для USDT ищем id контракта по названию blockchain,
+      # Для USDT ищем id контракта по названию blockchain,
       # Если не находим, то анализируем по главной монете(MAIN)
       scorechain_coin = USDT_COIN_CHAIN_IDS[blockchain] || MAIN_COIN if scorechain_coin == USDT_COIN
 
-      scorechain_object_id = if object_type == TRANSACTION
-                               # TODO: Из беломора может приходить транзакция вида txid:internals:1
-                               object_id.split(":").first
-                             else
-                               # TODO: Удаляем префикс из адреса для сети bitcoincash
-                               object_id.delete_prefix("#{BITCOINCASH.downcase}:")
-                             end
+      scorechain_object_id = object_type == TRANSACTION ? normalize_txid(object_id) : normalize_address(object_id)
 
       params = {
         analysis_type: analysis_type,
@@ -132,9 +126,9 @@ module Scorechain
     else
       analysis = if analysis_type == FULL
                    # Если полный анализ то ищем результат с минимальным score(т.е. c максимальным риском)
-                   ANALYSIS_TYPES.map { |at| response.dig('analysis', at.downcase) }
-                                 .select { |a| a['hasResult'] }
-                                 .min { |a, b| a['result']['score'] <=> b['result']['score'] }
+                   (ANALYSIS_TYPES - [FULL]).map { |at| response.dig('analysis', at.downcase) }
+                                            .select { |a| a['hasResult'] }
+                                            .min { |a, b| a['result']['score'] <=> b['result']['score'] }
                  else
                    response.dig('analysis', analysis_type.downcase)
                  end
@@ -162,6 +156,16 @@ module Scorechain
     # rubocop:enable Metrics/ParameterLists
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/CyclomaticComplexity:
+
+    def normalize_txid(txid)
+      # TODO: Из беломора может приходить транзакция вида txid:internals:1
+      txid.split(':').first
+    end
+
+    def normalize_address(address)
+      # TODO: Удаляем префикс из адреса для сети bitcoincash
+      address.delete_prefix("#{BITCOINCASH.downcase}:")
+    end
   end
 end
 
