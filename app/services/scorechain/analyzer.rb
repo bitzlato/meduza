@@ -84,9 +84,9 @@ module Scorechain
       # Проверяем что транзакция может быть обработана
       begin
         resp = JSON.parse(Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: normalize_txid(txid)).body)
-        if resp['numberOfConfirmations'] < MIN_CONFIRMATION.fetch(blockchain, 0)
-          raise UnprocessableTransaction, "Transaction #{txid} in #{blockchain} has number_of_confrimation=#{resp['numberOfConfirmations']}. Must be >= #{MIN_CONFIRMATION.fetch(blockchain, 0)}"
-        end
+        #if resp['numberOfConfirmations'] < MIN_CONFIRMATION.fetch(blockchain, 0)
+        #  raise UnprocessableTransaction, "Transaction #{txid} in #{blockchain} has number_of_confrimation=#{resp['numberOfConfirmations']}. Must be >= #{MIN_CONFIRMATION.fetch(blockchain, 0)}"
+        #end
       rescue ScorechainClient::InternalServerError, ScorechainClient::NotFound => e
         Scorechain.logger.info { "Transaction #{txid} in blockchain #{blockchain} is unprocessable" }
         raise UnprocessableTransaction, e.message
