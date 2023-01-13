@@ -58,12 +58,12 @@ module Scorechain
     # Взяты из беломора
     MIN_CONFIRMATION = {
       BITCOIN => 1,
-      BITCOINCASH => 6,
-      LITECOIN => 6,
-      DASH => 6,
-      ETHEREUM => 16,
-      TRON => 6,
-      BSC => 6
+      BITCOINCASH => 1,
+      LITECOIN => 1,
+      DASH => 1,
+      ETHEREUM => 1,
+      TRON => 1,
+      BSC => 1
     }.freeze
 
     def pass?(analysis_result)
