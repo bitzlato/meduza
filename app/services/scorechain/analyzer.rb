@@ -55,6 +55,17 @@ module Scorechain
 
     DANGER_RISK_LEVEL = RISK_LEVEL['CRITICAL_RISK']
 
+    # Взяты из беломора
+    MIN_CONFIRMATION = {
+      BITCOIN => 1,
+      BITCOINCASH => 6,
+      LITECOIN => 6,
+      DASH => 6,
+      ETHEREUM => 16,
+      TRON => 6,
+      BSC => 6
+    }.freeze
+
     def pass?(analysis_result)
       !block?(analysis_result)
     end
@@ -68,9 +79,14 @@ module Scorechain
     end
 
     def analize_transaction(txid:, coin:, blockchain:, analysis_type: INCOMING)
-      # TODO: Проверяем что транзакция может быть обработана
+      raise NotSupportedBlockchain, "Blockchain #{blockchain} is not supported" unless BLOCKCHAINS.include?(blockchain)
+
+      # Проверяем что транзакция может быть обработана
       begin
-        Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: normalize_txid(txid))
+        resp = JSON.parse(Scorechain.client.blockchain_transaction(blockchain: blockchain, txid: normalize_txid(txid)).body)
+        if resp['numberOfConfirmations'] < MIN_CONFIRMATION.fetch(blockchain, 0)
+          raise UnprocessableTransaction, "Transaction #{txid} in #{blockchain} has number_of_confrimation=#{resp['numberOfConfirmations']}. Must be >= #{MIN_CONFIRMATION.fetch(blockchain, 0)}"
+        end
       rescue ScorechainClient::InternalServerError, ScorechainClient::NotFound => e
         Scorechain.logger.info { "Transaction #{txid} in blockchain #{blockchain} is unprocessable" }
         raise UnprocessableTransaction, e.message
