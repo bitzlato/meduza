@@ -1,4 +1,6 @@
 class TransactionAnalysis < ApplicationRecord
+  ACTUAL_PERIOD = 1.week
+
   upsert_keys [:txid, :cc_code]
 
   # TODO renale to last_analysis_result
@@ -43,7 +45,11 @@ class TransactionAnalysis < ApplicationRecord
     ta = find_by(txid: txid)
     return false if ta.nil?
 
-    ta.updated_at > 1.week.ago
+    ta.actual?
+  end
+
+  def actual?
+    updated_at > ACTUAL_PERIOD.ago
   end
 
   def to_s
